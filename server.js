@@ -18,7 +18,7 @@ app.use(session({
     saveUninitialized: true,
 }));
 
-const urlMongo = 'mongodb://localhost:27017/';
+const urlMongo = 'mongodb+srv://victor_sismotto:teste@loginfuture.9uxk4yr.mongodb.net/?appName=loginFuture';
 const nomeBanco = 'loginFuture';
 
 // ROTA PRINCIPAL (AGORA PÚBLICA)
@@ -82,23 +82,45 @@ app.post('/register', async (req, res) => {
     catch (erro){
         htmlPage = 
         `
-            <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>WORK IN- REGISTRO (ERRO TIMEOUT)</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+ <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro - FUTURE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style/erro.css">
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="FUTURE Logo">
+        <h4>
+            <a href="/">Home</a>
+        </h4>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%"></div>
+    </div>
 
-                    <link rel="stylesheet" href="style.css">
-                    </head>
-                <body>
-                <h1 style="color: white;">Erro ao registrar o usuário.</h1><br><br>
-                <a href="/register"><button class="btn btn-primary">Voltar</button></a>
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <main class="main">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <h1>Oops! Algo deu errado.</h1>
+            <p>Parece que houve um problema com seu registro. Verifique suas credenciais e tente novamente.</p>
+            <img src="/img/image1.png" alt="Erro" class="error-image">
+            <div class="btn-group">
+                <a href="/login" class="btn-error btn-primary-error">Tentar Login Novamente</a>
+                <a href="/register" class="btn-error btn-secondary-error">Registrar-se</a>
+            </div>
+        </div>
+    </main>
 
-                </body>
-            </html>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
         `;
         res.send(htmlPage);
     }
@@ -132,23 +154,45 @@ app.post('/login', async (req, res) => {
     catch (erro){
         htmlPage = 
         `
-            <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>WORK IN- LOGIN (ERRO TIMEOUT)</title>
-                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+ <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erro - FUTURE</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style/erro.css">
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="FUTURE Logo">
+        <h4>
+            <a href="/">Home</a>
+        </h4>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%"></div>
+    </div>
 
-                    <link rel="stylesheet" href="style.css">
-                    </head>
-                <body>
-                <h1 style="color: white;">Erro ao realizar login.</h1><br><br>
-                <a href="/login"><button class="btn btn-primary">Voltar</button></a>
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <main class="main">
+        <div class="error-card">
+            <div class="error-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <h1>Oops! Algo deu errado.</h1>
+            <p>Parece que houve um problema com seu login. Verifique suas credenciais e tente novamente.</p>
+            <img src="/img/image1.png" alt="Erro" class="error-image">
+            <div class="btn-group">
+                <a href="/login" class="btn-error btn-primary-error">Tentar Login Novamente</a>
+                <a href="/register" class="btn-error btn-secondary-error">Registrar-se</a>
+            </div>
+        </div>
+    </main>
 
-                </body>
-            </html>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
         `;
         res.send(htmlPage);
     }
