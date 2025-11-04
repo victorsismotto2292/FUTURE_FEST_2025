@@ -169,6 +169,12 @@
             box-shadow: 0 15px 35px rgba(255, 221, 0, 0.4);
         }
 
+        .login-button-container {
+            display: flex;
+            justify-content: center;
+            padding: 0;
+        }
+
         @keyframes float {
             0%, 100% {
                 transform: translateY(0px);
