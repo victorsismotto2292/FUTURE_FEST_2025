@@ -17,5 +17,13 @@
     "express-session": "^1.18.2",
     "mongodb": "^6.20.0"
   },
-  "type": "commonjs"
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victorsismotto2292/FUTURE_FEST_2025.git"
+  },
+  "bugs": {
+    "url": "https://github.com/victorsismotto2292/FUTURE_FEST_2025/issues"
+  },
+  "homepage": "https://github.com/victorsismotto2292/FUTURE_FEST_2025#readme"
 }

@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -233,6 +233,9 @@ app.get('/perfil', protegerRota, (req, res) => {
     <title>Perfil - FUTURE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -259,8 +262,8 @@ app.get('/perfil', protegerRota, (req, res) => {
         }
 
         .img2_logo {
-            width: 190px;
-            height: 90px;
+            width: 160px;
+            height: 70px;
         }
 
         .bar h4 {
@@ -268,15 +271,17 @@ app.get('/perfil', protegerRota, (req, res) => {
             left: 50%;
             transform: translateX(-50%);
             margin: 0;
+            margin-top: 20px;
         }
 
         .bar h4 a {
             color: white;
             text-decoration: none;
             margin: 0 20px;
-            font-size: 20px;
+            font-size: 19px;
             transition: all 0.3s ease;
             position: relative;
+            font-family: 'Jockey One';
         }
 
         .bar h4 a::after {
