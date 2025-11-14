@@ -320,10 +320,10 @@ app.get('/', (req, res) => {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Set login status from server
+        // Definir status de login a partir do servidor
         const isLoggedIn = ${JSON.stringify(isLoggedIn)};
 
-        // Check login status on page load
+        // Verificar status de login ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
             if (!isLoggedIn) {
                 applyLockOverlay();
@@ -332,7 +332,7 @@ app.get('/', (req, res) => {
             }
         });
 
-        // Apply lock overlay to cards if not logged in
+        // Aplicar sobreposição de bloqueio aos cartões se não estiver logado
         function applyLockOverlay() {
             const cards = document.querySelectorAll('.income-card');
             cards.forEach(card => {
@@ -345,7 +345,7 @@ app.get('/', (req, res) => {
             });
         }
 
-        // Remove lock overlay from cards if logged in
+        // Remover cards de bloqueio ao fazer login
         function removeLockOverlay() {
             const cards = document.querySelectorAll('.income-card');
             cards.forEach(card => {
