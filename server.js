@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = 3001;
+const port = 3010;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -21,9 +21,415 @@ app.use(session({
 const urlMongo = 'mongodb+srv://victor_sismotto:teste@loginfuture.9uxk4yr.mongodb.net/?appName=loginFuture';
 const nomeBanco = 'loginFuture';
 
-// ROTA PRINCIPAL (AGORA PÚBLICA)
+// ROTA PRINCIPAL
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/inicial.html');
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    const isLoggedIn = !!req.session.usuario;
+    const html = `
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUTURE - Work.In</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style/inicial.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="">
+        <h4>
+            <a href="/">Home</a>
+            ${isLoggedIn ? '<a href="/planos">Planos e Preços</a><a href="/aprender">Aprender</a><a href="/parceria">Parceria</a><a href="/comunidade">Comunidade</a><a href="/suporte">Suporte</a><a href="/perfil">Perfil</a><a href="/logout">Logout</a>' : '<a href="/planos">Planos e Preços</a><a href="/aprender">Aprender</a><a href="/parceria">Parceria</a><a href="/comunidade">Comunidade</a><a href="/suporte">Suporte</a>'}
+        </h4>
+        <a href="/register"><button class="start">Começar</button></a>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%"></div>
+    </div>
+
+    <main class="main">
+        <img class="img1_logo" src="/img/image1.png" alt="Work.In Logo">
+        <div class="hero-text">
+            <p class="p1">Aumente suas chances no mercado de trabalho com</p>
+            <p class="p2">Work.In</p>
+        </div>
+    </main>
+
+    <a href="/login" class="login-button-container"><button class="footer_button">Login</button></a>
+
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <h3>Economize</h3>
+                <p>Aprenda a cortar despesas e alcançar suas metas financeiras</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-clock"></i>
+                </div>
+                <h3>Controle suas finanças</h3>
+                <p>Acompanhe seus gastos e veja para onde seu dinheiro está indo.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-pie-chart"></i>
+                </div>
+                <h3>Veja todas as movimentações</h3>
+                <p>Histórico completo das suas transações, sem complicações.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="income-section">
+        <h2 class="income-title">Controle sua <span class="bold">renda</span></h2>
+
+        <div class="income-grid">
+            <!-- Coluna Esquerda -->
+            <div class="income-column">
+                <div class="income-card" onclick="makeEditable(this)">
+                    <div class="income-card-header">
+                        <div>
+                            <div class="income-card-title">Conta</div>
+                            <input type="text" class="edit-input" value="Conta" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                            <div class="income-card-number">2101889945</div>
+                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                        </div>
+                    </div>
+                    <div class="income-value positive">2 311  BRL</div>
+                    <input type="text" class="edit-input" value="2 311  BRL" onblur="saveCard(this.parentElement)">
+                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
+                    <div class="income-chart">
+                        <svg width="100%" height="60" viewBox="0 0 200 60">
+                            <!-- Grid lines -->
+                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                            <!-- Axes -->
+                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                            <!-- Fill area -->
+                            <polygon points="0,60 0,40 50,30 100,20 150,10 200,5 200,60" class="fill-area"/>
+                            <!-- Line -->
+                            <polyline points="0,40 50,30 100,20 150,10 200,5" fill="none" stroke="#00d4aa" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="income-card" onclick="makeEditable(this)">
+                    <div class="income-card-header">
+                        <div>
+                            <div class="income-card-title">Poupança</div>
+                            <input type="text" class="edit-input" value="Poupança" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                            <div class="income-card-number">2101889945</div>
+                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                        </div>
+                    </div>
+                    <div class="income-value negative">5 620  BRL</div>
+                    <input type="text" class="edit-input" value="5 620  BRL" onblur="saveCard(this.parentElement)">
+                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
+                    <div class="income-chart">
+                        <svg width="100%" height="60" viewBox="0 0 200 60">
+                            <!-- Grid lines -->
+                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                            <!-- Axes -->
+                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                            <!-- Fill area -->
+                            <polygon points="0,60 0,10 50,15 100,25 150,40 200,50 200,60" class="fill-area"/>
+                            <!-- Line -->
+                            <polyline points="0,10 50,15 100,25 150,40 200,50" fill="none" stroke="#ff4444" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="income-card" onclick="makeEditable(this)">
+                    <div class="income-card-header">
+                        <div>
+                            <div class="income-card-title">Carteira Familiar</div>
+                            <input type="text" class="edit-input" value="Carteira Familiar" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                            <div class="income-card-number">2101889945</div>
+                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                        </div>
+                    </div>
+                    <div class="income-value positive">795  BRL</div>
+                    <input type="text" class="edit-input" value="795  BRL" onblur="saveCard(this.parentElement)">
+                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
+                    <div class="income-chart">
+                        <svg width="100%" height="60" viewBox="0 0 200 60">
+                            <!-- Grid lines -->
+                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                            <!-- Axes -->
+                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                            <!-- Fill area -->
+                            <polygon points="0,60 0,45 50,35 100,40 150,25 200,15 200,60" class="fill-area"/>
+                            <!-- Line -->
+                            <polyline points="0,45 50,35 100,40 150,25 200,15" fill="none" stroke="#00d4aa" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <button class="add-card-btn" onclick="addNewCard(this.parentElement)">
+                    Adicionar uma nova carteira ou conta bancária
+                </button>
+            </div>
+
+            <!-- Divisor -->
+            <div class="divider-line"></div>
+
+            <!-- Coluna Direita -->
+            <div class="income-column">
+                <div class="income-card" onclick="makeEditable(this)">
+                    <div class="income-card-header">
+                        <div>
+                            <div class="income-card-title">Conta</div>
+                            <input type="text" class="edit-input" value="Conta" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                            <div class="income-card-number">2101889945</div>
+                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                        </div>
+                    </div>
+                    <div class="income-value positive">2 311  BRL</div>
+                    <input type="text" class="edit-input" value="2 311  BRL" onblur="saveCard(this.parentElement)">
+                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
+                    <div class="income-chart">
+                        <svg width="100%" height="60" viewBox="0 0 200 60">
+                            <!-- Grid lines -->
+                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                            <!-- Axes -->
+                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                            <!-- Fill area -->
+                            <polygon points="0,60 0,40 50,30 100,20 150,10 200,5 200,60" class="fill-area"/>
+                            <!-- Line -->
+                            <polyline points="0,40 50,30 100,20 150,10 200,5" fill="none" stroke="#00d4aa" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="income-card" onclick="makeEditable(this)">
+                    <div class="income-card-header">
+                        <div>
+                            <div class="income-card-title">Poupança</div>
+                            <input type="text" class="edit-input" value="Poupança" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                            <div class="income-card-number">2101889945</div>
+                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                        </div>
+                    </div>
+                    <div class="income-value negative">5 620  BRL</div>
+                    <input type="text" class="edit-input" value="5 620  BRL" onblur="saveCard(this.parentElement)">
+                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
+                    <div class="income-chart">
+                        <svg width="100%" height="60" viewBox="0 0 200 60">
+                            <!-- Grid lines -->
+                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                            <!-- Axes -->
+                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                            <!-- Fill area -->
+                            <polygon points="0,60 0,10 50,15 100,25 150,40 200,50 200,60" class="fill-area"/>
+                            <!-- Line -->
+                            <polyline points="0,10 50,15 100,25 150,40 200,50" fill="none" stroke="#ff4444" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="income-card" onclick="makeEditable(this)">
+                    <div class="income-card-header">
+                        <div>
+                            <div class="income-card-title">Carteira Familiar</div>
+                            <input type="text" class="edit-input" value="Carteira Familiar" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                            <div class="income-card-number">2101889945</div>
+                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                        </div>
+                    </div>
+                    <div class="income-value positive">795  BRL</div>
+                    <input type="text" class="edit-input" value="795  BRL" onblur="saveCard(this.parentElement)">
+                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
+                    <div class="income-chart">
+                        <svg width="100%" height="60" viewBox="0 0 200 60">
+                            <!-- Grid lines -->
+                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                            <!-- Axes -->
+                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                            <!-- Fill area -->
+                            <polygon points="0,60 0,45 50,35 100,40 150,25 200,15 200,60" class="fill-area"/>
+                            <!-- Line -->
+                            <polyline points="0,45 50,35 100,40 150,25 200,15" fill="none" stroke="#00d4aa" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <button class="add-card-btn" onclick="addNewCard(this.parentElement)">
+                    Adicionar uma nova carteira ou conta bancária
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set login status from server
+        const isLoggedIn = ${JSON.stringify(isLoggedIn)};
+
+        // Check login status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!isLoggedIn) {
+                applyLockOverlay();
+            } else {
+                removeLockOverlay();
+            }
+        });
+
+        // Apply lock overlay to cards if not logged in
+        function applyLockOverlay() {
+            const cards = document.querySelectorAll('.income-card');
+            cards.forEach(card => {
+                const overlay = document.createElement('div');
+                overlay.className = 'lock-overlay';
+                overlay.innerHTML = '<i class="bi bi-lock-fill"></i><p>Faça login para acessar suas carteiras e contas.</p>';
+                card.style.position = 'relative';
+                card.style.pointerEvents = 'none';
+                card.appendChild(overlay);
+            });
+        }
+
+        // Remove lock overlay from cards if logged in
+        function removeLockOverlay() {
+            const cards = document.querySelectorAll('.income-card');
+            cards.forEach(card => {
+                const overlay = card.querySelector('.lock-overlay');
+                if (overlay) {
+                    overlay.remove();
+                }
+                card.style.pointerEvents = 'auto';
+            });
+        }
+
+        // Function to add a new card
+        function addNewCard(column) {
+            if (!isLoggedIn) {
+                alert('Você precisa estar logado para adicionar uma nova carteira.');
+                return;
+            }
+            const newCard = document.createElement('div');
+            newCard.className = 'income-card';
+            newCard.onclick = function() { makeEditable(this); };
+            newCard.innerHTML = \`
+                <div class="income-card-header">
+                    <div>
+                        <div class="income-card-title">Nova Carteira</div>
+                        <input type="text" class="edit-input" value="Nova Carteira" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                        <div class="income-card-number">0000000000</div>
+                        <input type="text" class="edit-input" value="0000000000" onblur="saveCard(this.parentElement.parentElement.parentElement)">
+                    </div>
+                </div>
+                <div class="income-value positive">0 BRL</div>
+                <input type="text" class="edit-input" value="0 BRL" onblur="saveCard(this.parentElement)">
+                <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
+                <div class="income-chart">
+                    <svg width="100%" height="60" viewBox="0 0 200 60">
+                        <!-- Grid lines -->
+                        <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                        <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                        <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                        <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                        <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                        <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                        <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                        <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                        <!-- Axes -->
+                        <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                        <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                        <!-- Fill area -->
+                        <polygon points="0,60 0,30 50,30 100,30 150,30 200,30 200,60" class="fill-area"/>
+                        <!-- Line -->
+                        <polyline points="0,30 50,30 100,30 150,30 200,30" fill="none" stroke="#00d4aa" stroke-width="3"/>
+                    </svg>
+                </div>
+            \`;
+            // Insert before the add button
+            const addBtn = column.querySelector('.add-card-btn');
+            column.insertBefore(newCard, addBtn);
+        }
+
+        // Function to make card editable
+        function makeEditable(card) {
+            if (!isLoggedIn) {
+                alert('Você precisa estar logado para editar as carteiras.');
+                return;
+            }
+            card.classList.add('editing');
+        }
+
+        // Function to save card changes
+        function saveCard(card) {
+            const titleInput = card.querySelector('.edit-input[value="' + card.querySelector('.income-card-title').textContent + '"]');
+            const numberInput = card.querySelector('.edit-input[value="' + card.querySelector('.income-card-number').textContent + '"]');
+            const valueInput = card.querySelector('.edit-input[value="' + card.querySelector('.income-value').textContent + '"]');
+
+            if (titleInput) card.querySelector('.income-card-title').textContent = titleInput.value;
+            if (numberInput) card.querySelector('.income-card-number').textContent = numberInput.value;
+            if (valueInput) card.querySelector('.income-value').textContent = valueInput.value;
+
+            card.classList.remove('editing');
+        }
+    </script>
+</body>
+</html>
+    `;
+    res.send(html);
 });
 
 // ROTA ERRO
