@@ -309,12 +309,12 @@ app.get('/', async (req, res) => {
         // Verificar status de login ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
             if (isLoggedIn) {
-                // Load persisted cards for logged-in user
+                // Carregar cards do servidor para o usuário logado
                 fetch('/load-cards')
                     .then(r => r.json())
                     .then(data => {
                         const cards = data.cards || {};
-                        // Create card elements dynamically from loaded data
+                        // Criar elementos de card dinamicamente a partir dos dados carregados
                         Object.keys(cards).forEach(id => {
                             const cardData = cards[id];
                             const leftCol = document.querySelector('.income-grid .income-column');
@@ -361,7 +361,7 @@ app.get('/', async (req, res) => {
 
         let currentCard = null;
 
-        // Function to add a new card
+        // Função para adicionar um novo card
         function addNewCard(column) {
             if (!isLoggedIn) {
                 alert('Você precisa estar logado para adicionar uma nova carteira.');
@@ -397,11 +397,11 @@ app.get('/', async (req, res) => {
                             + '<polyline points="0,30 50,30 100,30 150,30 200,30" fill="none" stroke="#00d4aa" stroke-width="3"></polyline>'
                         + '</svg>'
                     + '</div>';
-            // Insert before the add button
+            // Inserir antes do botão de adicionar
             const addBtn = column.querySelector('.add-card-btn');
             column.insertBefore(newCard, addBtn);
 
-            // Persist the new card immediately
+            // Persistir o novo card imediatamente
             const payload = { cardId, title: 'Nova Carteira', number: '0000000000', value: '0 BRL' };
             fetch('/save-card', {
                 method: 'POST',
@@ -412,7 +412,7 @@ app.get('/', async (req, res) => {
               .catch(err => console.error('Error saving new card', err));
         }
 
-        // Function to open overlay
+        // Função para abrir o overlay
         function openOverlay(card) {
             if (!isLoggedIn) {
                 alert('Você precisa estar logado para editar as carteiras.');
@@ -437,7 +437,7 @@ app.get('/', async (req, res) => {
             currentCard = null;
         }
 
-        // Function to update overlay chart and number display
+        // Função para atualizar o gráfico e exibição do número no overlay
         function updateOverlayChart() {
             const valueText = document.getElementById('overlay-value').value;
             const numericValue = parseFloat(valueText.replace(/[^0-9.-]/g, ''));
@@ -517,7 +517,7 @@ app.get('/', async (req, res) => {
             }
         }
 
-        // Function to update card chart
+        // Função para atualizar o gráfico do card
         function updateCardChart(card, numericValue) {
             const chart = card.querySelector('.income-chart svg');
             if (!chart) return;
@@ -557,7 +557,7 @@ app.get('/', async (req, res) => {
             fillArea.setAttribute('fill', numericValue > 0 ? 'rgba(0, 212, 170, 0.2)' : numericValue < 0 ? 'rgba(255, 68, 68, 0.2)' : 'rgba(255, 221, 0, 0.2)');
         }
 
-        // Function to delete a card (called from delete button)
+        // Função para excluir um card (chamada pelo botão de excluir)
         function deleteCard(evt, btn) {
             if (evt && evt.stopPropagation) evt.stopPropagation();
             const card = btn.closest('.income-card');
@@ -584,7 +584,7 @@ app.get('/', async (req, res) => {
               });
         }
 
-        // Function to save overlay changes
+        // Função para salvar os dados do overlay
         function saveOverlay() {
             if (!currentCard) return;
             const title = document.getElementById('overlay-title').value;
@@ -1244,7 +1244,7 @@ app.post('/save-card', async (req, res) => {
         const banco = cliente.db(nomeBanco);
         const colecaoUsuarios = banco.collection('usuarios');
         
-        // Create or update cards array in user document
+        // Criar ou atualizar o array de cards no documento do usuário
         const resultado = await colecaoUsuarios.updateOne(
             { usuario },
             {
@@ -1284,7 +1284,7 @@ app.post('/delete-card', async (req, res) => {
         const banco = cliente.db(nomeBanco);
         const colecaoUsuarios = banco.collection('usuarios');
 
-        // Remove the card field from the user's document
+        // Remover o card do documento do usuário
         const resultado = await colecaoUsuarios.updateOne(
             { usuario },
             { $unset: { [`cards.${cardId}`]: "" } }
