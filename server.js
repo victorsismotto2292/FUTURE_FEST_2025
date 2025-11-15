@@ -1344,5 +1344,5 @@ app.get('/suporte', protegerRota, (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Servidor rodando na porta: http://192.168.15.42:${port}/`);    
+    console.log(`Servidor rodando na porta: http://localhost:${port}/`);    
 });
