@@ -57,7 +57,7 @@
                         <div class="contact-detail">
                             <p style="margin: 0; color: white;"><strong>Telefone:</strong> (11) 3665-6292</p>
                         </div>
-                        <button class="btn-support">Ligar Agora</button>
+                        <button class="btn-support" id="link-grupo-future">Ligar Agora</button>
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                                 <p><strong>Email Escolar:</strong> rm16385@fiap.com.br</p>
                                 <p><strong>Redes Sociais:</strong> </p>
                                 <a href=""><img src="/img/Email.png" id="rounded float-start" style="max-width: 50px; max-height: 50px;" alt="..."></a>
-                                <a href=""><img src="/img/Whatsapp.png" id="whatapp-joao" style="max-width: 50px; max-height: 50px;" alt="..."></a>
+                                <a href=""><img src="/img/Whatsapp.png" id="whatsapp-joao" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Teams.png" id="teams-joao" style="max-width: 50px; max-height: 50px;" alt="Teams"></a>
                             </div>
                         </div>
@@ -213,10 +213,15 @@
             window.open(whatsappLink, '_blank');
         }
         document.getElementById('whatsapp-samantha').onclick = function (){
-            const telefone = '551195476254';
+            const telefone = '5511954756254';
             const whatsappLink = `https://wa.me/${telefone}?text=Ol%C3%A1!%20Vim%20diretamente%20do%20site%20da%20WORKIN!`;
             window.open(whatsappLink, '_blank');
         }
+        document.getElementById('link-grupo-future').onclick = function () {
+            const telefone = 'https://chat.whatsapp.com/EyasE9ol9kvBMqFZRvFKGr';
+            const whatsappLink = `https://wa.me/${telefone}?text=Ol%C3%A1!%20Vim%20diretamente%20do%20site%20da%20WORKIN!`;
+            window.open(whatsappLink, '_blank');
+        };
     </script>
 </body>
 </html>
