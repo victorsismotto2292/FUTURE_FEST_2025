@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = 3010;
+const port = 3005;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -21,10 +21,13 @@ app.use(session({
 const urlMongo = 'mongodb+srv://victor_sismotto:teste@loginfuture.9uxk4yr.mongodb.net/?appName=loginFuture';
 const nomeBanco = 'loginFuture';
 
+
+
 // ROTA PRINCIPAL
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     const isLoggedIn = !!req.session.usuario;
+
     const html = `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -38,6 +41,159 @@ app.get('/', (req, res) => {
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <style>
+        .overlay-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .overlay-backdrop.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .overlay.active {
+            display: flex;
+        }
+        .overlay-content {
+            background: linear-gradient(135deg, #1B2C3E 0%, #253D56 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 221, 0, 0.2);
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-btn:hover {
+            color: #FFDD00;
+        }
+        .overlay-header {
+            margin-bottom: 20px;
+        }
+        .overlay-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .overlay-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #FFDD00;
+            box-shadow: 0 0 10px rgba(255, 221, 0, 0.3);
+        }
+        #overlay-number {
+            font-size: 18px;
+        }
+        .overlay-chart {
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .save-overlay-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+            border: none;
+            border-radius: 10px;
+            color: #1B2C3E;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .save-overlay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
+        }
+        .overlay-value-display {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .card-delete {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+            z-index: 5;
+        }
+        .income-card:hover .card-delete { display: block; }
+        .positive-text {
+            color: #00d4aa;
+        }
+        .negative-text {
+            color: #ff4444;
+        }
+        .neutral-text {
+            color: #FFDD00;
+        }
+        /* Chart grid and axis styling */
+        .grid-line {
+            stroke: rgba(255,255,255,0.06);
+            stroke-width: 1;
+        }
+        .axis {
+            stroke: rgba(255,255,255,0.12);
+            stroke-width: 1.2;
+        }
+    </style>
 
 </head>
 <body>
@@ -97,108 +253,6 @@ app.get('/', (req, res) => {
         <div class="income-grid">
             <!-- Coluna Esquerda -->
             <div class="income-column">
-                <div class="income-card" onclick="makeEditable(this)">
-                    <div class="income-card-header">
-                        <div>
-                            <div class="income-card-title">Conta</div>
-                            <input type="text" class="edit-input" value="Conta" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                            <div class="income-card-number">2101889945</div>
-                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                        </div>
-                    </div>
-                    <div class="income-value positive">2 311  BRL</div>
-                    <input type="text" class="edit-input" value="2 311  BRL" onblur="saveCard(this.parentElement)">
-                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
-                    <div class="income-chart">
-                        <svg width="100%" height="60" viewBox="0 0 200 60">
-                            <!-- Grid lines -->
-                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
-                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
-                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
-                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
-                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
-                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
-                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
-                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
-                            <!-- Axes -->
-                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
-                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
-                            <!-- Fill area -->
-                            <polygon points="0,60 0,40 50,30 100,20 150,10 200,5 200,60" class="fill-area"/>
-                            <!-- Line -->
-                            <polyline points="0,40 50,30 100,20 150,10 200,5" fill="none" stroke="#00d4aa" stroke-width="3"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="income-card" onclick="makeEditable(this)">
-                    <div class="income-card-header">
-                        <div>
-                            <div class="income-card-title">Poupança</div>
-                            <input type="text" class="edit-input" value="Poupança" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                            <div class="income-card-number">2101889945</div>
-                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                        </div>
-                    </div>
-                    <div class="income-value negative">5 620  BRL</div>
-                    <input type="text" class="edit-input" value="5 620  BRL" onblur="saveCard(this.parentElement)">
-                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
-                    <div class="income-chart">
-                        <svg width="100%" height="60" viewBox="0 0 200 60">
-                            <!-- Grid lines -->
-                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
-                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
-                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
-                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
-                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
-                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
-                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
-                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
-                            <!-- Axes -->
-                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
-                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
-                            <!-- Fill area -->
-                            <polygon points="0,60 0,10 50,15 100,25 150,40 200,50 200,60" class="fill-area"/>
-                            <!-- Line -->
-                            <polyline points="0,10 50,15 100,25 150,40 200,50" fill="none" stroke="#ff4444" stroke-width="3"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="income-card" onclick="makeEditable(this)">
-                    <div class="income-card-header">
-                        <div>
-                            <div class="income-card-title">Carteira Familiar</div>
-                            <input type="text" class="edit-input" value="Carteira Familiar" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                            <div class="income-card-number">2101889945</div>
-                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                        </div>
-                    </div>
-                    <div class="income-value positive">795  BRL</div>
-                    <input type="text" class="edit-input" value="795  BRL" onblur="saveCard(this.parentElement)">
-                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
-                    <div class="income-chart">
-                        <svg width="100%" height="60" viewBox="0 0 200 60">
-                            <!-- Grid lines -->
-                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
-                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
-                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
-                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
-                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
-                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
-                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
-                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
-                            <!-- Axes -->
-                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
-                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
-                            <!-- Fill area -->
-                            <polygon points="0,60 0,45 50,35 100,40 150,25 200,15 200,60" class="fill-area"/>
-                            <!-- Line -->
-                            <polyline points="0,45 50,35 100,40 150,25 200,15" fill="none" stroke="#00d4aa" stroke-width="3"/>
-                        </svg>
-                    </div>
-                </div>
-
                 <button class="add-card-btn" onclick="addNewCard(this.parentElement)">
                     Adicionar uma nova carteira ou conta bancária
                 </button>
@@ -209,111 +263,40 @@ app.get('/', (req, res) => {
 
             <!-- Coluna Direita -->
             <div class="income-column">
-                <div class="income-card" onclick="makeEditable(this)">
-                    <div class="income-card-header">
-                        <div>
-                            <div class="income-card-title">Conta</div>
-                            <input type="text" class="edit-input" value="Conta" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                            <div class="income-card-number">2101889945</div>
-                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                        </div>
-                    </div>
-                    <div class="income-value positive">2 311  BRL</div>
-                    <input type="text" class="edit-input" value="2 311  BRL" onblur="saveCard(this.parentElement)">
-                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
-                    <div class="income-chart">
-                        <svg width="100%" height="60" viewBox="0 0 200 60">
-                            <!-- Grid lines -->
-                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
-                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
-                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
-                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
-                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
-                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
-                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
-                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
-                            <!-- Axes -->
-                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
-                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
-                            <!-- Fill area -->
-                            <polygon points="0,60 0,40 50,30 100,20 150,10 200,5 200,60" class="fill-area"/>
-                            <!-- Line -->
-                            <polyline points="0,40 50,30 100,20 150,10 200,5" fill="none" stroke="#00d4aa" stroke-width="3"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="income-card" onclick="makeEditable(this)">
-                    <div class="income-card-header">
-                        <div>
-                            <div class="income-card-title">Poupança</div>
-                            <input type="text" class="edit-input" value="Poupança" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                            <div class="income-card-number">2101889945</div>
-                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                        </div>
-                    </div>
-                    <div class="income-value negative">5 620  BRL</div>
-                    <input type="text" class="edit-input" value="5 620  BRL" onblur="saveCard(this.parentElement)">
-                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
-                    <div class="income-chart">
-                        <svg width="100%" height="60" viewBox="0 0 200 60">
-                            <!-- Grid lines -->
-                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
-                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
-                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
-                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
-                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
-                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
-                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
-                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
-                            <!-- Axes -->
-                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
-                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
-                            <!-- Fill area -->
-                            <polygon points="0,60 0,10 50,15 100,25 150,40 200,50 200,60" class="fill-area"/>
-                            <!-- Line -->
-                            <polyline points="0,10 50,15 100,25 150,40 200,50" fill="none" stroke="#ff4444" stroke-width="3"/>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="income-card" onclick="makeEditable(this)">
-                    <div class="income-card-header">
-                        <div>
-                            <div class="income-card-title">Carteira Familiar</div>
-                            <input type="text" class="edit-input" value="Carteira Familiar" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                            <div class="income-card-number">2101889945</div>
-                            <input type="text" class="edit-input" value="2101889945" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                        </div>
-                    </div>
-                    <div class="income-value positive">795  BRL</div>
-                    <input type="text" class="edit-input" value="795  BRL" onblur="saveCard(this.parentElement)">
-                    <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
-                    <div class="income-chart">
-                        <svg width="100%" height="60" viewBox="0 0 200 60">
-                            <!-- Grid lines -->
-                            <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
-                            <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
-                            <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
-                            <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
-                            <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
-                            <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
-                            <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
-                            <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
-                            <!-- Axes -->
-                            <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
-                            <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
-                            <!-- Fill area -->
-                            <polygon points="0,60 0,45 50,35 100,40 150,25 200,15 200,60" class="fill-area"/>
-                            <!-- Line -->
-                            <polyline points="0,45 50,35 100,40 150,25 200,15" fill="none" stroke="#00d4aa" stroke-width="3"/>
-                        </svg>
-                    </div>
-                </div>
-
                 <button class="add-card-btn" onclick="addNewCard(this.parentElement)">
                     Adicionar uma nova carteira ou conta bancária
                 </button>
+            </div>
+        </div>
+
+        <!-- Overlay Modal -->
+        <div id="overlay-backdrop" class="overlay-backdrop" onclick="closeOverlay()"></div>
+        <div id="overlay" class="overlay" onclick="closeOverlay()">
+            <div class="overlay-content" onclick="event.stopPropagation()">
+                <button class="close-btn" onclick="closeOverlay()">×</button>
+                <div class="overlay-header">
+                    <input type="text" id="overlay-title" class="overlay-input" placeholder="Título" oninput="updateOverlayChart()">
+                    <div class="overlay-value-display neutral-text" id="overlay-number-display">R$ 0</div>
+                    <input type="text" id="overlay-number" class="overlay-input" placeholder="Número da conta" oninput="updateOverlayChart()">
+                </div>
+                <input type="text" id="overlay-value" class="overlay-input" placeholder="Valor (ex: 1000 BRL)" oninput="updateOverlayChart()">
+                <div class="overlay-chart">
+                    <svg id="overlay-svg" width="100%" height="200" viewBox="0 0 200 60">
+                        <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
+                        <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
+                        <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
+                        <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
+                        <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
+                        <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
+                        <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
+                        <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
+                        <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
+                        <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
+                        <polygon points="0,60 0,30 50,30 100,30 150,30 200,30 200,60" class="fill-area" fill="rgba(255, 221, 0, 0.2)"/>
+                        <polyline id="overlay-polyline" points="0,30 50,30 100,30 150,30 200,30" fill="none" stroke="#FFDD00" stroke-width="3"/>
+                    </svg>
+                </div>
+                <button class="save-overlay-btn" onclick="saveOverlay()">Salvar</button>
             </div>
         </div>
     </section>
@@ -325,37 +308,58 @@ app.get('/', (req, res) => {
 
         // Verificar status de login ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            if (!isLoggedIn) {
-                applyLockOverlay();
-            } else {
-                removeLockOverlay();
+            if (isLoggedIn) {
+                // Load persisted cards for logged-in user
+                fetch('/load-cards')
+                    .then(r => r.json())
+                    .then(data => {
+                        const cards = data.cards || {};
+                        // Create card elements dynamically from loaded data
+                        Object.keys(cards).forEach(id => {
+                            const cardData = cards[id];
+                            const leftCol = document.querySelector('.income-grid .income-column');
+                            const newCard = document.createElement('div');
+                            newCard.className = 'income-card';
+                            newCard.setAttribute('data-card-id', id);
+                            const titleText = cardData.title || 'Nova Carteira';
+                            const numberText = cardData.number || '0000000000';
+                            const valNum = parseFloat((cardData.value||'0').toString().replace(/[^0-9.-]/g,''));
+                            const valClass = (isNaN(valNum) || valNum === 0) ? 'neutral' : (valNum > 0 ? 'positive' : 'negative');
+                            const valText = cardData.value || '0 BRL';
+                            newCard.innerHTML = '<div class="income-card-header">'
+                                + '<div>'
+                                    + '<div class="income-card-title">' + titleText + '</div>'
+                                    + '<div class="income-card-number">' + numberText + '</div>'
+                                + '</div>'
+                            + '</div>'
+                            + '<button class="card-delete" onclick="deleteCard(event,this)">🗑</button>'
+                            + '<div class="income-value ' + valClass + '">' + valText + '</div>'
+                            + '<div class="income-chart">'
+                                + '<svg width="100%" height="60" viewBox="0 0 200 60">'
+                                    + '<line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>'
+                                    + '<line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>'
+                                    + '<line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>'
+                                    + '<line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>'
+                                    + '<line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>'
+                                    + '<line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>'
+                                    + '<line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>'
+                                    + '<line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>'
+                                    + '<line x1="0" y1="60" x2="200" y2="60" class="axis"/>'
+                                    + '<line x1="0" y1="0" x2="0" y2="60" class="axis"/>'
+                                    + '<polygon class="fill-area" points="0,60 0,30 50,30 100,30 150,30 200,30 200,60"></polygon>'
+                                    + '<polyline points="0,30 50,30 100,30 150,30 200,30" fill="none" stroke="#00d4aa" stroke-width="3"></polyline>'
+                                + '</svg>'
+                            + '</div>';
+                            newCard.onclick = function() { openOverlay(this); };
+                            leftCol.insertBefore(newCard, leftCol.querySelector('.add-card-btn'));
+                            updateCardChart(newCard, valNum);
+                        });
+                    })
+                    .catch(err => console.error('Erro ao carregar cards:', err));
             }
         });
 
-        // Aplicar sobreposição de bloqueio aos cartões se não estiver logado
-        function applyLockOverlay() {
-            const cards = document.querySelectorAll('.income-card');
-            cards.forEach(card => {
-                const overlay = document.createElement('div');
-                overlay.className = 'lock-overlay';
-                overlay.innerHTML = '<i class="bi bi-lock-fill"></i><p>Faça login para acessar suas carteiras e contas.</p>';
-                card.style.position = 'relative';
-                card.style.pointerEvents = 'none';
-                card.appendChild(overlay);
-            });
-        }
-
-        // Remover cards de bloqueio ao fazer login
-        function removeLockOverlay() {
-            const cards = document.querySelectorAll('.income-card');
-            cards.forEach(card => {
-                const overlay = card.querySelector('.lock-overlay');
-                if (overlay) {
-                    overlay.remove();
-                }
-                card.style.pointerEvents = 'auto';
-            });
-        }
+        let currentCard = null;
 
         // Function to add a new card
         function addNewCard(column) {
@@ -363,67 +367,246 @@ app.get('/', (req, res) => {
                 alert('Você precisa estar logado para adicionar uma nova carteira.');
                 return;
             }
+            const cardId = 'card-' + Date.now();
             const newCard = document.createElement('div');
             newCard.className = 'income-card';
-            newCard.onclick = function() { makeEditable(this); };
-            newCard.innerHTML = \`
-                <div class="income-card-header">
-                    <div>
-                        <div class="income-card-title">Nova Carteira</div>
-                        <input type="text" class="edit-input" value="Nova Carteira" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                        <div class="income-card-number">0000000000</div>
-                        <input type="text" class="edit-input" value="0000000000" onblur="saveCard(this.parentElement.parentElement.parentElement)">
-                    </div>
-                </div>
-                <div class="income-value positive">0 BRL</div>
-                <input type="text" class="edit-input" value="0 BRL" onblur="saveCard(this.parentElement)">
-                <button class="save-btn" onclick="saveCard(this.parentElement)">Salvar</button>
-                <div class="income-chart">
-                    <svg width="100%" height="60" viewBox="0 0 200 60">
-                        <!-- Grid lines -->
-                        <line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>
-                        <line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>
-                        <line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>
-                        <line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>
-                        <line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>
-                        <line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>
-                        <line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>
-                        <line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>
-                        <!-- Axes -->
-                        <line x1="0" y1="60" x2="200" y2="60" class="axis"/>
-                        <line x1="0" y1="0" x2="0" y2="60" class="axis"/>
-                        <!-- Fill area -->
-                        <polygon points="0,60 0,30 50,30 100,30 150,30 200,30 200,60" class="fill-area"/>
-                        <!-- Line -->
-                        <polyline points="0,30 50,30 100,30 150,30 200,30" fill="none" stroke="#00d4aa" stroke-width="3"/>
-                    </svg>
-                </div>
-            \`;
+            newCard.setAttribute('data-card-id', cardId);
+            newCard.onclick = function() { openOverlay(this); };
+                newCard.innerHTML = ''
+                    + '<div class="income-card-header">'
+                        + '<div>'
+                            + '<div class="income-card-title">Nova Carteira</div>'
+                            + '<div class="income-card-number">0000000000</div>'
+                        + '</div>'
+                    + '</div>'
+                    + '<button class="card-delete" onclick="deleteCard(event,this)">🗑</button>'
+                    + '<div class="income-value neutral">0 BRL</div>'
+                    + '<div class="income-chart">'
+                        + '<svg width="100%" height="60" viewBox="0 0 200 60">'
+                            + '<line x1="0" y1="10" x2="200" y2="10" class="grid-line"/>'
+                            + '<line x1="0" y1="20" x2="200" y2="20" class="grid-line"/>'
+                            + '<line x1="0" y1="30" x2="200" y2="30" class="grid-line"/>'
+                            + '<line x1="0" y1="40" x2="200" y2="40" class="grid-line"/>'
+                            + '<line x1="0" y1="50" x2="200" y2="50" class="grid-line"/>'
+                            + '<line x1="50" y1="0" x2="50" y2="60" class="grid-line"/>'
+                            + '<line x1="100" y1="0" x2="100" y2="60" class="grid-line"/>'
+                            + '<line x1="150" y1="0" x2="150" y2="60" class="grid-line"/>'
+                            + '<line x1="0" y1="60" x2="200" y2="60" class="axis"/>'
+                            + '<line x1="0" y1="0" x2="0" y2="60" class="axis"/>'
+                            + '<polygon points="0,60 0,30 50,30 100,30 150,30 200,30 200,60" class="fill-area"/>'
+                            + '<polyline points="0,30 50,30 100,30 150,30 200,30" fill="none" stroke="#00d4aa" stroke-width="3"></polyline>'
+                        + '</svg>'
+                    + '</div>';
             // Insert before the add button
             const addBtn = column.querySelector('.add-card-btn');
             column.insertBefore(newCard, addBtn);
+
+            // Persist the new card immediately
+            const payload = { cardId, title: 'Nova Carteira', number: '0000000000', value: '0 BRL' };
+            fetch('/save-card', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(r => r.json())
+              .then(resp => console.log('New card saved', resp))
+              .catch(err => console.error('Error saving new card', err));
         }
 
-        // Function to make card editable
-        function makeEditable(card) {
+        // Function to open overlay
+        function openOverlay(card) {
             if (!isLoggedIn) {
                 alert('Você precisa estar logado para editar as carteiras.');
                 return;
             }
-            card.classList.add('editing');
+            currentCard = card;
+            const title = card.querySelector('.income-card-title').textContent;
+            const number = card.querySelector('.income-card-number').textContent;
+            const value = card.querySelector('.income-value').textContent;
+            document.getElementById('overlay-title').value = title;
+            document.getElementById('overlay-number').value = number;
+            document.getElementById('overlay-value').value = value;
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('overlay-backdrop').classList.add('active');
+            updateOverlayChart();
         }
 
-        // Function to save card changes
-        function saveCard(card) {
-            const titleInput = card.querySelector('.edit-input[value="' + card.querySelector('.income-card-title').textContent + '"]');
-            const numberInput = card.querySelector('.edit-input[value="' + card.querySelector('.income-card-number').textContent + '"]');
-            const valueInput = card.querySelector('.edit-input[value="' + card.querySelector('.income-value').textContent + '"]');
+        // Function to close overlay
+        function closeOverlay() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('overlay-backdrop').classList.remove('active');
+            currentCard = null;
+        }
 
-            if (titleInput) card.querySelector('.income-card-title').textContent = titleInput.value;
-            if (numberInput) card.querySelector('.income-card-number').textContent = numberInput.value;
-            if (valueInput) card.querySelector('.income-value').textContent = valueInput.value;
+        // Function to update overlay chart and number display
+        function updateOverlayChart() {
+            const valueText = document.getElementById('overlay-value').value;
+            const numericValue = parseFloat(valueText.replace(/[^0-9.-]/g, ''));
+            const displayEl = document.getElementById('overlay-number-display');
+            const polyline = document.getElementById('overlay-polyline');
+            const fillArea = document.getElementById('overlay-svg').querySelector('.fill-area');
+            
+            // Update number display with color
+            if (isNaN(numericValue) || numericValue === 0) {
+                displayEl.textContent = 'R$ 0';
+                displayEl.className = 'overlay-value-display neutral-text';
+            } else if (numericValue > 0) {
+                displayEl.textContent = 'R$ ' + numericValue.toFixed(2);
+                displayEl.className = 'overlay-value-display positive-text';
+            } else {
+                displayEl.textContent = 'R$ ' + numericValue.toFixed(2);
+                displayEl.className = 'overlay-value-display negative-text';
+            }
 
-            card.classList.remove('editing');
+            // Update chart
+            let strokeColor, points, fillPoints;
+            if (isNaN(numericValue) || numericValue === 0) {
+                strokeColor = '#FFDD00';
+                points = '0,30 50,30 100,30 150,30 200,30';
+                fillPoints = '0,60 0,30 50,30 100,30 150,30 200,30 200,60';
+            } else if (numericValue > 0) {
+                strokeColor = '#00d4aa';
+                const steepness = Math.min(Math.abs(numericValue) / 100, 25);
+                const startY = 50;
+                const endY = Math.max(50 - steepness, 5);
+                const y1 = startY - (startY - endY) * 0.25;
+                const y2 = startY - (startY - endY) * 0.5;
+                const y3 = startY - (startY - endY) * 0.75;
+                points = '0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY;
+                fillPoints = '0,60 0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY + ' 200,60';
+            } else {
+                strokeColor = '#ff4444';
+                const steepness = Math.min(Math.abs(numericValue) / 100, 25);
+                const startY = 10;
+                const endY = Math.min(10 + steepness, 55);
+                const y1 = startY + (endY - startY) * 0.25;
+                const y2 = startY + (endY - startY) * 0.5;
+                const y3 = startY + (endY - startY) * 0.75;
+                points = '0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY;
+                fillPoints = '0,60 0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY + ' 200,60';
+            }
+
+            polyline.setAttribute('points', points);
+            polyline.setAttribute('stroke', strokeColor);
+            fillArea.setAttribute('points', fillPoints);
+            fillArea.setAttribute('fill', numericValue > 0 ? 'rgba(0, 212, 170, 0.2)' : numericValue < 0 ? 'rgba(255, 68, 68, 0.2)' : 'rgba(255, 221, 0, 0.2)');
+
+            // Update card in real-time (mirror title, number, value and styles)
+            if (currentCard) {
+                const cardTitle = currentCard.querySelector('.income-card-title');
+                const cardNumberEl = currentCard.querySelector('.income-card-number');
+                const cardValue = currentCard.querySelector('.income-value');
+
+                // Mirror fields
+                cardTitle.textContent = document.getElementById('overlay-title').value;
+                cardNumberEl.textContent = document.getElementById('overlay-number').value;
+                cardValue.textContent = document.getElementById('overlay-value').value;
+
+                // Apply classes/colors for positive / negative / neutral (zero)
+                if (isNaN(numericValue) || numericValue === 0) {
+                    cardValue.className = 'income-value neutral';
+                    cardNumberEl.style.color = '#FFDD00';
+                } else if (numericValue > 0) {
+                    cardValue.className = 'income-value positive';
+                    cardNumberEl.style.color = '#00d4aa';
+                } else {
+                    cardValue.className = 'income-value negative';
+                    cardNumberEl.style.color = '#ff4444';
+                }
+
+                updateCardChart(currentCard, numericValue);
+            }
+        }
+
+        // Function to update card chart
+        function updateCardChart(card, numericValue) {
+            const chart = card.querySelector('.income-chart svg');
+            if (!chart) return;
+            const polyline = chart.querySelector('polyline');
+            const fillArea = chart.querySelector('.fill-area');
+            let strokeColor, points, fillPoints;
+
+            if (numericValue === 0 || isNaN(numericValue)) {
+                strokeColor = '#FFDD00';
+                points = '0,30 50,30 100,30 150,30 200,30';
+                fillPoints = '0,60 0,30 50,30 100,30 150,30 200,30 200,60';
+            } else if (numericValue > 0) {
+                strokeColor = '#00d4aa';
+                const steepness = Math.min(numericValue / 100, 25);
+                const startY = 50;
+                const endY = Math.max(50 - steepness, 5);
+                const y1 = startY - (startY - endY) * 0.25;
+                const y2 = startY - (startY - endY) * 0.5;
+                const y3 = startY - (startY - endY) * 0.75;
+                points = '0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY;
+                fillPoints = '0,60 0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY + ' 200,60';
+            } else {
+                strokeColor = '#ff4444';
+                const steepness = Math.min(Math.abs(numericValue) / 100, 25);
+                const startY = 10;
+                const endY = Math.min(10 + steepness, 55);
+                const y1 = startY + (endY - startY) * 0.25;
+                const y2 = startY + (endY - startY) * 0.5;
+                const y3 = startY + (endY - startY) * 0.75;
+                points = '0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY;
+                fillPoints = '0,60 0,' + startY + ' 50,' + y1 + ' 100,' + y2 + ' 150,' + y3 + ' 200,' + endY + ' 200,60';
+            }
+
+            polyline.setAttribute('points', points);
+            polyline.setAttribute('stroke', strokeColor);
+            fillArea.setAttribute('points', fillPoints);
+            fillArea.setAttribute('fill', numericValue > 0 ? 'rgba(0, 212, 170, 0.2)' : numericValue < 0 ? 'rgba(255, 68, 68, 0.2)' : 'rgba(255, 221, 0, 0.2)');
+        }
+
+        // Function to delete a card (called from delete button)
+        function deleteCard(evt, btn) {
+            if (evt && evt.stopPropagation) evt.stopPropagation();
+            const card = btn.closest('.income-card');
+            if (!card) return;
+            const cardId = card.getAttribute('data-card-id');
+            if (!cardId) return;
+            if (!confirm('Confirma excluir esta conta/carteira?')) return;
+
+            fetch('/delete-card', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cardId })
+            }).then(r => r.json())
+              .then(data => {
+                  if (data && data.success) {
+                      // Remove card from DOM
+                      card.remove();
+                  } else {
+                      alert('Erro ao excluir: ' + (data && data.message ? data.message : 'Erro desconhecido'));
+                  }
+              }).catch(err => {
+                  console.error('Erro ao excluir card:', err);
+                  alert('Erro ao excluir conta. Veja o console para detalhes.');
+              });
+        }
+
+        // Function to save overlay changes
+        function saveOverlay() {
+            if (!currentCard) return;
+            const title = document.getElementById('overlay-title').value;
+            const number = document.getElementById('overlay-number').value;
+            const value = document.getElementById('overlay-value').value;
+            const cardId = currentCard.getAttribute('data-card-id');
+            
+            // Update card DOM
+            currentCard.querySelector('.income-card-title').textContent = title;
+            currentCard.querySelector('.income-card-number').textContent = number;
+            currentCard.querySelector('.income-value').textContent = value;
+            
+            // Send to server to persist
+            fetch('/save-card', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cardId, title, number, value })
+            }).then(res => res.json())
+              .then(data => console.log('Card saved:', data))
+              .catch(err => console.error('Save error:', err));
+            
+            closeOverlay();
         }
     </script>
 </body>
@@ -453,7 +636,7 @@ app.post('/register', async (req, res) => {
         const usuarioExistente = await colecaoUsuarios.findOne({ usuario: req.body.usuario });
 
         if(usuarioExistente){
-        htmlPage = 
+        const htmlPage = 
         `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -506,13 +689,14 @@ app.post('/register', async (req, res) => {
 
             await colecaoUsuarios.insertOne({
                 usuario: req.body.usuario,
-                senha: senhaCriptografada
+                senha: senhaCriptografada,
+                cards: {}
             });
             res.redirect('/login');
         }
     }
     catch (erro){
-        htmlPage = 
+        const htmlPage = 
         `
  <!DOCTYPE html>
 <html lang="pt-BR">
@@ -557,7 +741,7 @@ app.post('/register', async (req, res) => {
         res.send(htmlPage);
     }
     finally{
-        cliente.close();
+        await cliente.close();
     }
 });
 
@@ -584,7 +768,7 @@ app.post('/login', async (req, res) => {
         }
     }
     catch (erro){
-        htmlPage = 
+        const htmlPage = 
         `
  <!DOCTYPE html>
 <html lang="pt-BR">
@@ -629,7 +813,7 @@ app.post('/login', async (req, res) => {
         res.send(htmlPage);
     }
     finally{
-        cliente.close();
+        await cliente.close();
     }
 });
 
@@ -1043,6 +1227,99 @@ app.get('/perfil', protegerRota, (req, res) => {
 </html>
     `;
     res.send(html);
+});
+
+// ROTA PARA SALVAR ALTERAÇÕES DO CARD
+app.post('/save-card', async (req, res) => {
+    const usuario = req.session.usuario;
+    if (!usuario) {
+        return res.status(401).json({ success: false, message: 'Não autenticado' });
+    }
+
+    const { cardId, title, number, value } = req.body;
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+        
+        // Create or update cards array in user document
+        const resultado = await colecaoUsuarios.updateOne(
+            { usuario },
+            {
+                $set: {
+                    [`cards.${cardId}`]: {
+                        id: cardId,
+                        title,
+                        number,
+                        value,
+                        updatedAt: new Date()
+                    }
+                }
+            },
+            { upsert: true }
+        );
+        
+        res.json({ success: true, message: 'Card salvo com sucesso', resultado });
+    } catch (erro) {
+        console.error('Erro ao salvar card:', erro);
+        res.status(500).json({ success: false, message: 'Erro ao salvar', erro: erro.message });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA DELETAR UM CARD
+app.post('/delete-card', async (req, res) => {
+    const usuario = req.session.usuario;
+    if (!usuario) return res.status(401).json({ success: false, message: 'Não autenticado' });
+
+    const { cardId } = req.body;
+    if (!cardId) return res.status(400).json({ success: false, message: 'cardId é obrigatório' });
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // Remove the card field from the user's document
+        const resultado = await colecaoUsuarios.updateOne(
+            { usuario },
+            { $unset: { [`cards.${cardId}`]: "" } }
+        );
+
+        console.log('DELETE-CARD called by user:', usuario, 'cardId:', cardId, 'mongoResult:', resultado);
+
+        res.json({ success: true, message: 'Card removido com sucesso', resultado });
+    } catch (err) {
+        console.error('Erro ao deletar card:', err);
+        res.status(500).json({ success: false, message: 'Erro ao deletar card', erro: err.message });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA CARREGAR CARDS SALVOS PELO USUÁRIO
+app.get('/load-cards', async (req, res) => {
+    const usuario = req.session.usuario;
+    if (!usuario) return res.json({ cards: {} });
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+        const usuarioDoc = await colecaoUsuarios.findOne({ usuario });
+        const cards = (usuarioDoc && usuarioDoc.cards) ? usuarioDoc.cards : {};
+        res.json({ cards });
+    } catch (err) {
+        console.error('Erro ao buscar cards:', err);
+        res.status(500).json({ cards: {} });
+    } finally {
+        await cliente.close();
+    }
 });
 
 // ROTAS PROTEGIDAS PARA USUÁRIOS LOGADOS
