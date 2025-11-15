@@ -186,6 +186,14 @@
             color: #FFDD00;
         }
 
+        .contact-detail a img {
+            transition: transform 0.3s ease;
+        }
+
+        .contact-detail a:hover img {
+            transform: scale(1.1);
+        }
+
         .btn-support {
             width: 100%;
             padding: 15px;

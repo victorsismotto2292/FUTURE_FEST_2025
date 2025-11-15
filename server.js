@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = 3005;
+const port = process.env.PORT || 3005;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -1344,5 +1344,5 @@ app.get('/suporte', protegerRota, (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Servidor rodando na porta: http://localhost:${port}/`);    
+    console.log(`Servidor rodando na porta: http://192.168.15.42:${port}/`);    
 });
