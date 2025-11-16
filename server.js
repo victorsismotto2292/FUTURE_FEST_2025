@@ -609,6 +609,31 @@ app.get('/', async (req, res) => {
             closeOverlay();
         }
     </script>
+    ${isLoggedIn ? `<script>
+    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>` : `<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const button = document.createElement('div');
+      button.style.position = 'fixed';
+      button.style.bottom = '20px';
+      button.style.right = '20px';
+      button.style.width = '60px';
+      button.style.height = '60px';
+      button.style.background = 'linear-gradient(135deg, #FFDD00, #FED061)';
+      button.style.borderRadius = '50%';
+      button.style.display = 'flex';
+      button.style.alignItems = 'center';
+      button.style.justifyContent = 'center';
+      button.style.cursor = 'pointer';
+      button.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+      button.style.zIndex = '1000';
+      button.innerHTML = '<i class="bi bi-chat-dots" style="font-size: 24px; color: #1B2C3E;"></i>';
+      button.onclick = function() {
+        alert('Você precisa de um cadastro ou estar logado no site para usar a IA "Mony", por favor, crie uma conta ou entre com uma conta pré-existente');
+      };
+      document.body.appendChild(button);
+    });
+    </script>`}
 </body>
 </html>
     `;
