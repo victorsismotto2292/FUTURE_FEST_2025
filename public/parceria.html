@@ -46,11 +46,19 @@
                         <p>Entre em contato para oportunidades de parceria e colaboração mútua. Juntos, podemos criar soluções inovadoras e alcançar resultados extraordinários.</p>
                         
                         <div class="contact-info">
-                            <p><strong>Email:</strong> parceria@workin.com</p>
+                            <p><strong>Email:</strong> suporteworkin@gmail.com</p>
                             <p style="margin-bottom: 0;"><strong>Telefone:</strong> (11) 3665-6292</p>
                         </div>
                         
-                        <button class="btn-partnership">Enviar Mensagem</button>
+                        <a href=""><button class="btn-partnership" id="gmail-suporte">Enviar Mensagem</button></a>
+
+                        <script>
+                            document.getElementById('gmail-suporte').onclick = function () {
+                                const email = 'suporteworkin@gmail.com';
+                                const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+                                window.open(gmailLink, '_blank');
+                            };
+                        </script>
                     </div>
                 </div>
             </div>

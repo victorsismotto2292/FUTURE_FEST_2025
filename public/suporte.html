@@ -45,9 +45,9 @@
                         <h5>Contato por Email</h5>
                         <p>Envie-nos um email e responderemos o mais breve possível.</p>
                         <div class="contact-detail">
-                            <p style="margin: 0; color: white;"><strong>Email:</strong> suporte@workin.com</p>
+                            <p style="margin: 0; color: white;"><strong>Email:</strong> suporteworkin@gmail.com</p>
                         </div>
-                        <button class="btn-support">Enviar Email</button>
+                        <a href=""><button class="btn-support" id="gmail-suporte">Enviar Email</button></a>
                     </div>
                 </div>
 
@@ -89,7 +89,7 @@
                                 <p><strong>Telefone:</strong> +551191687-9216</p>
                                 <p><strong>Email Escolar:</strong> rm16458@fiap.com.br</p>
                                 <p><strong>Redes Sociais:</strong> </p>
-                                <a href=""><img src="/img/Email.png" id="rounded float-start" style="max-width: 50px; max-height: 50px;" alt="..."></a>
+                                <a href=""><img src="/img/Email.png" id="gmail-arthur" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Whatsapp.png" id="whatsapp-arthur" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Teams.png" id="teams-arthur" style="max-width: 50px; max-height: 50px;" alt="Teams"></a>
                             </div>
@@ -103,7 +103,7 @@
                                 <p><strong>Telefone:</strong> +551196665-6205</p>
                                 <p><strong>Email Escolar:</strong> rm16385@fiap.com.br</p>
                                 <p><strong>Redes Sociais:</strong> </p>
-                                <a href=""><img src="/img/Email.png" id="rounded float-start" style="max-width: 50px; max-height: 50px;" alt="..."></a>
+                                <a href=""><img src="/img/Email.png" id="gmail-joao" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Whatsapp.png" id="whatsapp-joao" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Teams.png" id="teams-joao" style="max-width: 50px; max-height: 50px;" alt="Teams"></a>
                             </div>
@@ -117,7 +117,7 @@
                                 <p><strong>Telefone:</strong> +551195040-1512</p>
                                 <p><strong>Email Escolar:</strong> rm16249@fiap.com.br</p>
                                 <p><strong>Redes Sociais:</strong> </p>
-                                <a href=""><img src="/img/Email.png" id="rounded float-start" style="max-width: 50px; max-height: 50px;" alt="..."></a>
+                                <a href=""><img src="/img/Email.png" id="gmail-murilo" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Whatsapp.png" id="whatsapp-murilo" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Teams.png" id="teams-murilo" style="max-width: 50px; max-height: 50px;" alt="Teams"></a>
                             </div>
@@ -131,7 +131,7 @@
                                 <p><strong>Telefone:</strong> +551195475-6254 </p>
                                 <p><strong>Email Escolar:</strong> rm16256@fiap.com.br</p>
                                 <p><strong>Redes Sociais:</strong> </p>
-                                <a href=""><img src="/img/Email.png" id="rounded float-start" style="max-width: 50px; max-height: 50px;" alt="..."></a>
+                                <a href=""><img src="/img/Email.png" id="gmail-samantha" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Whatsapp.png" id="whatsapp-samantha" style="max-width: 50px; max-height: 50px;" alt="..."></a>
                                 <a href=""><img src="/img/Teams.png" id="teams-samantha" style="max-width: 50px; max-height: 50px;" alt="Teams"></a>
                             </div>
@@ -230,6 +230,37 @@
             const telefone = 'https://chat.whatsapp.com/EyasE9ol9kvBMqFZRvFKGr';
             const whatsappLink = `https://wa.me/${telefone}?text=Ol%C3%A1!%20Vim%20diretamente%20do%20site%20da%20WORKIN!`;
             window.open(whatsappLink, '_blank');
+        };
+        // FUNÇÕES GMAIL:
+        document.getElementById('gmail-victor').onclick = function () {
+            const email = 'vgr.sismotto@gmail.com';
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+            window.open(gmailLink, '_blank');
+        };
+        document.getElementById('gmail-arthur').onclick = function () {
+            const email = 'rm16458@fiap.com.br';
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+            window.open(gmailLink, '_blank');
+        };
+        document.getElementById('gmail-joao').onclick = function () {
+            const email = 'rm16385@fiap.com.br';
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+            window.open(gmailLink, '_blank');
+        };
+        document.getElementById('gmail-murilo').onclick = function () {
+            const email = 'rm16249@fiap.com.br';
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+            window.open(gmailLink, '_blank');
+        };
+        document.getElementById('gmail-samantha').onclick = function () {
+            const email = 'rm16256@fiap.com.br';
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+            window.open(gmailLink, '_blank');
+        };
+        document.getElementById('gmail-suporte').onclick = function () {
+            const email = 'suporteworkin@gmail.com';
+            const gmailLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${email}`;
+            window.open(gmailLink, '_blank');
         };
     </script>
     <footer class="footer">
