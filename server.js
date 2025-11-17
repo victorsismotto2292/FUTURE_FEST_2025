@@ -18,9 +18,9 @@ app.use(session({
     saveUninitialized: true,
 }));
 
+
 const urlMongo = 'mongodb+srv://victor_sismotto:teste@loginfuture.9uxk4yr.mongodb.net/?appName=loginFuture';
 const nomeBanco = 'loginFuture';
-
 
 
 // ROTA PRINCIPAL
@@ -34,7 +34,7 @@ app.get('/', async (req, res) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FUTURE - Work.In</title>
+    <title>WORKIN - Work.In</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/style/inicial.css">
@@ -217,7 +217,7 @@ app.get('/', async (req, res) => {
         </div>
     </main>
 
-    <a href="/login" class="login-button-container"><button class="footer_button">Login</button></a>
+    <a href="/login" class="login-button-container"><button class="footer_button" style="text-decoration: none;">Login</button></a>
 
     <section class="features-section">
         <div class="features-grid">
@@ -1368,6 +1368,10 @@ app.get('/suporte', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/suporte.html');
 });
 
+app.get('/cursos', protegerRota, (req, res) => {
+    res.sendFile(__dirname + '/public/cursos.html');
+});
+
 app.listen(port, () => {
-    console.log(`Servidor rodando na porta: http://localhost:${port}/`);    
+    console.log(`Servidor rodando na porta: http://localhost:${port}/`);
 });
