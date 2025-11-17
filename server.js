@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = process.env.PORT || 3033;
+const port = process.env.PORT || 3560;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -472,154 +472,167 @@ app.get('/', async (req, res) => {
 
         // Função para inicializar o formulário de cálculo de renda
         function initializeIncomeCalculator() {
-            const incomeForm = document.getElementById('incomeForm');
-            const loadingSection = document.getElementById('loadingSection');
-            const resultsSection = document.getElementById('resultsSection');
-            const progressBar = document.getElementById('progressBar');
-            const loadingMessage = document.getElementById('loadingMessage');
-            const microcreditResult = document.getElementById('microcreditResult');
-            const suggestionsList = document.getElementById('suggestionsList');
+        const incomeForm = document.getElementById('incomeForm');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const progressBar = document.getElementById('progressBar');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const microcreditResult = document.getElementById('microcreditResult');
+        const suggestionsList = document.getElementById('suggestionsList');
 
-            incomeForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Validate form
-                const region = document.getElementById('region').value;
-                const salary = parseFloat(document.getElementById('salary').value);
-                const bankFees = parseFloat(document.getElementById('bankFees').value);
-                const paymentTypes = Array.from(document.querySelectorAll('input[name="paymentType"]:checked')).map(cb => cb.value);
-                const frequency = document.getElementById('frequency').value;
-
-                if (!region || !salary || !bankFees || paymentTypes.length === 0 || !frequency) {
-                    alert('Por favor, preencha todos os campos obrigatórios.');
-                    return;
-                }
-
-                // Hide form and show loading
-                incomeForm.style.display = 'none';
-                loadingSection.style.display = 'block';
-                resultsSection.style.display = 'none';
-
-                // Loading animation
-                const messages = [
-                    'Calculando salário...',
-                    'Efetuando algoritmo...',
-                    'Obtendo resultado final'
-                ];
-
-                let messageIndex = 0;
-                let progress = 0;
-
-                const loadingInterval = setInterval(() => {
-                    progress += Math.random() * 15 + 5;
-                    if (progress > 100) progress = 100;
-                    progressBar.style.width = progress + '%';
-
-                    if (progress >= (messageIndex + 1) * 33.33) {
-                        messageIndex++;
-                        if (messageIndex < messages.length) {
-                            loadingMessage.textContent = messages[messageIndex];
-                        }
-                    }
-
-                    if (progress >= 100) {
-                        clearInterval(loadingInterval);
-                        setTimeout(() => {
-                            showResults(region, salary, bankFees, paymentTypes, frequency);
-                        }, 500);
-                    }
-                }, 200);
-            });
-
-            // Event listener for recalculate button
-            const recalculateBtn = document.getElementById('recalculateBtn');
-            recalculateBtn.addEventListener('click', function() {
-                // Reset form fields
-                document.getElementById('region').value = '';
-                document.getElementById('salary').value = '';
-                document.getElementById('bankFees').value = '';
-                document.querySelectorAll('input[name="paymentType"]').forEach(cb => cb.checked = false);
-                document.getElementById('frequency').value = '';
-
-                // Reset progress bar
-                progressBar.style.width = '0%';
-                loadingMessage.textContent = 'Calculando salário...';
-
-                // Show form and hide results/loading
-                incomeForm.style.display = 'block';
-                loadingSection.style.display = 'none';
-                resultsSection.style.display = 'none';
-            });
-
-            function showResults(region, salary, bankFees, paymentTypes, frequency) {
-                loadingSection.style.display = 'none';
-                resultsSection.style.display = 'block';
-
-                // Calculate microcredit (simplified logic)
-                let baseCredit = salary * 0.3; // 30% of salary
-                let regionMultiplier = getRegionMultiplier(region);
-                let paymentBonus = paymentTypes.length * 50; // Bonus for each payment type
-                let frequencyMultiplier = frequency === 'monthly' ? 1 : 12;
-
-                let microcredit = (baseCredit * regionMultiplier + paymentBonus) * frequencyMultiplier - bankFees;
-
-                // Ensure positive result
-                microcredit = Math.max(microcredit, 0);
-
-                microcreditResult.textContent = \`Microcrédito Total: R$ \${microcredit.toFixed(2)}\`;
-
-                // Generate suggestions
-                suggestionsList.innerHTML = '';
-                const suggestions = generateSuggestions(region, salary, bankFees, paymentTypes, frequency, microcredit);
-                suggestions.forEach(suggestion => {
-                    const li = document.createElement('li');
-                    li.textContent = suggestion;
-                    suggestionsList.appendChild(li);
-                });
-            }
-
-            function getRegionMultiplier(region) {
-                const multipliers = {
-                    'norte': 1.2,
-                    'nordeste': 1.1,
-                    'centro-oeste': 1.15,
-                    'sudeste': 1.0,
-                    'sul': 1.05
-                };
-                return multipliers[region] || 1.0;
-            }
-
-            function generateSuggestions(region, salary, bankFees, paymentTypes, frequency, microcredit) {
-                const suggestions = [];
-
-                if (salary < 2000) {
-                    suggestions.push('Considere buscar oportunidades de capacitação profissional para aumentar sua renda.');
-                }
-
-                if (bankFees > salary * 0.05) {
-                    suggestions.push('Avalie reduzir despesas bancárias optando por contas digitais gratuitas.');
-                }
-
-                if (paymentTypes.length < 3) {
-                    suggestions.push('Diversifique seus métodos de pagamento para maior flexibilidade financeira.');
-                }
-
-                if (region === 'norte' || region === 'nordeste') {
-                    suggestions.push('Explore programas regionais de microcrédito para empreendedores locais.');
-                }
-
-                if (microcredit < 1000) {
-                    suggestions.push('Considere economizar mais para aumentar seu potencial de microcrédito.');
-                } else {
-                    suggestions.push('Parabéns! Você tem um bom potencial para microcrédito. Considere investir em educação financeira.');
-                }
-
-                suggestions.push('Mantenha um histórico positivo de pagamentos para melhorar suas chances de aprovação.');
-                suggestions.push('Monitore regularmente suas finanças para identificar oportunidades de melhoria.');
-
-                return suggestions;
-            }
+        if (!incomeForm || !loadingSection || !resultsSection || !progressBar || !loadingMessage || !microcreditResult || !suggestionsList) {
+            console.error('Um ou mais elementos do formulário de cálculo não foram encontrados no DOM.');
+            return;
         }
+
+        incomeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const region = document.getElementById('region')?.value;
+            const salary = parseFloat(document.getElementById('salary')?.value);
+            const bankFees = parseFloat(document.getElementById('bankFees')?.value);
+            const paymentTypes = Array.from(document.querySelectorAll('input[name="paymentType"]:checked')).map(cb => cb.value);
+
+            // Detecta frequência: tenta radio button primeiro, depois select
+            let frequency = document.querySelector('input[name="frequency"]:checked')?.value;
+            if (!frequency) {
+                frequency = document.getElementById('frequency')?.value;
+            }
+
+            // Validação robusta
+            if (!region || isNaN(salary) || isNaN(bankFees) || paymentTypes.length === 0 || !frequency) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            // Mostrar loading e esconder formulário/resultados
+            incomeForm.style.display = 'none';
+            loadingSection.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            const messages = [
+                'Calculando salário...',
+                'Efetuando algoritmo...',
+                'Obtendo resultado final'
+            ];
+
+            let messageIndex = 0;
+            let progress = 0;
+
+            const loadingInterval = setInterval(() => {
+                progress += Math.random() * 15 + 5;
+                if (progress > 100) progress = 100;
+                progressBar.style.width = progress + '%';
+
+                if (progress >= (messageIndex + 1) * 33.33) {
+                    messageIndex++;
+                    if (messageIndex < messages.length) {
+                        loadingMessage.textContent = messages[messageIndex];
+                    }
+                }
+
+                if (progress >= 100) {
+                    clearInterval(loadingInterval);
+                    setTimeout(() => {
+                        showResults(region, salary, bankFees, paymentTypes, frequency);
+                    }, 500);
+                }
+            }, 200);
+        });
+
+        const recalculateBtn = document.getElementById('recalculateBtn');
+        recalculateBtn?.addEventListener('click', resetCalculator);
+
+        const recalculateBtnResults = document.getElementById('recalculateBtnResults');
+        recalculateBtnResults?.addEventListener('click', resetCalculator);
+
+        function resetCalculator() {
+            document.getElementById('region').value = '';
+            document.getElementById('salary').value = '';
+            document.getElementById('bankFees').value = '';
+            document.querySelectorAll('input[name="paymentType"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="frequency"]').forEach(cb => cb.checked = false);
+            const frequencySelect = document.getElementById('frequency');
+            if (frequencySelect) frequencySelect.value = '';
+
+            progressBar.style.width = '0%';
+            loadingMessage.textContent = 'Calculando salário...';
+
+            incomeForm.style.display = 'block';
+            loadingSection.style.display = 'none';
+            resultsSection.style.display = 'none';
+        }
+
+        function showResults(region, salary, bankFees, paymentTypes, frequency) {
+            loadingSection.style.display = 'none';
+            resultsSection.style.display = 'block';
+
+            let baseCredit = salary * 0.3;
+            let regionMultiplier = getRegionMultiplier(region);
+            let paymentBonus = paymentTypes.length * 50;
+
+            let microcredit = 0;
+
+            if (frequency === 'annual') {
+                microcredit = (baseCredit * regionMultiplier + paymentBonus) * 12 - bankFees * 12;
+            } else if (frequency === 'monthly') {
+                microcredit = (baseCredit * regionMultiplier + paymentBonus) - bankFees;
+            }
+
+            microcredit = Math.max(microcredit, 0);
+
+            if (microcreditResult) {
+                microcreditResult.textContent = 'Microcrédito Total: R$ ' + microcredit.toFixed(2);
+            }
+
+            suggestionsList.innerHTML = '';
+            const suggestions = generateSuggestions(region, salary, bankFees, paymentTypes, frequency, microcredit);
+            suggestions.forEach(suggestion => {
+                const li = document.createElement('li');
+                li.textContent = suggestion;
+                suggestionsList.appendChild(li);
+            });
+        }
+
+        function getRegionMultiplier(region) {
+            const multipliers = {
+                'norte': 1.2,
+                'nordeste': 1.1,
+                'centro-oeste': 1.15,
+                'sudeste': 1.0,
+                'sul': 1.05
+            };
+            return multipliers[region] || 1.0;
+        }
+
+        function generateSuggestions(region, salary, bankFees, paymentTypes, frequency, microcredit) {
+            const suggestions = [];
+
+            if (salary < 2000) suggestions.push('Considere buscar oportunidades de capacitação profissional para aumentar sua renda.');
+            if (bankFees > salary * 0.05) suggestions.push('Avalie reduzir despesas bancárias optando por contas digitais gratuitas.');
+            if (paymentTypes.length < 3) suggestions.push('Diversifique seus métodos de pagamento para maior flexibilidade financeira.');
+            if (region === 'norte' || region === 'nordeste') suggestions.push('Explore programas regionais de microcrédito para empreendedores locais.');
+
+            if (microcredit < 1000) {
+                suggestions.push('Considere economizar mais para aumentar seu potencial de microcrédito.');
+            } else {
+                suggestions.push('Parabéns! Você tem um bom potencial para microcrédito. Considere investir em educação financeira.');
+            }
+
+            suggestions.push('Mantenha um histórico positivo de pagamentos para melhorar suas chances de aprovação.');
+            suggestions.push('Monitore regularmente suas finanças para identificar oportunidades de melhoria.');
+
+            return suggestions;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeIncomeCalculator();
+    });
+
+
+
+
 
         let currentCard = null;
 

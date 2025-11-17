@@ -1,4 +1,4 @@
- o  mude<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -258,9 +258,7 @@
                 let baseCredit = salary * 0.3; // 30% of salary
                 let regionMultiplier = getRegionMultiplier(region);
                 let paymentBonus = paymentTypes.length * 50; // Bonus for each payment type
-                let frequencyMultiplier = frequency === 'monthly' ? 1 : 12;
 
-                let microcredit = (baseCredit * regionMultiplier + paymentBonus) * frequencyMultiplier - bankFees;
 
                 // Ensure positive result
                 microcredit = Math.max(microcredit, 0);
