@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = process.env.PORT || 3005;
+const port = process.env.PORT || 3535;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -1368,7 +1368,7 @@ app.get('/suporte', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/suporte.html');
 });
 
-app.get('/cursos', protegerRota, (req, res) => {
+app.get('/cursos', (req, res) => {
     res.sendFile(__dirname + '/public/cursos.html');
 });
 
