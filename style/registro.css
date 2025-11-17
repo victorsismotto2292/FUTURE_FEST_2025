@@ -367,6 +367,13 @@
             color: #FED061;
         }
 
+        footer.footer {
+            padding: 24px 0;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
         /* Animações */
         @keyframes float {
             0%, 100% {

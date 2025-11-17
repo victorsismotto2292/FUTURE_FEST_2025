@@ -168,6 +168,13 @@
             text-decoration: underline;
         }
 
+        footer.footer {
+            padding: 24px 0;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;

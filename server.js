@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = process.env.PORT || 3535;
+const port = process.env.PORT || 3035;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -634,6 +634,9 @@ app.get('/', async (req, res) => {
       document.body.appendChild(button);
     });
     </script>`}
+    <footer class="footer">
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
 </body>
 </html>
     `;
@@ -1105,6 +1108,13 @@ app.get('/perfil', protegerRota, (req, res) => {
             font-size: 14px;
         }
 
+        footer.footer {
+            padding: 24px 0;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -1243,6 +1253,9 @@ app.get('/perfil', protegerRota, (req, res) => {
 
             <a href="/logout"><button class="btn-logout">Logout</button></a>
         </div>
+        <footer class="footer">
+            <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+        </footer>        
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
@@ -1370,6 +1383,10 @@ app.get('/suporte', protegerRota, (req, res) => {
 
 app.get('/cursos', (req, res) => {
     res.sendFile(__dirname + '/public/cursos.html');
+});
+
+app.get('/curriculos', (req, res) => {
+    res.sendFile(__dirname + '/public/curriculos.html');
 });
 
 app.listen(port, () => {

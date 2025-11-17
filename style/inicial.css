@@ -150,6 +150,13 @@
             padding: 40px 20px;
         }
 
+        footer.footer {
+            padding: 24px 0;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
         .footer_button {
             color: white;
             width: 200px;
