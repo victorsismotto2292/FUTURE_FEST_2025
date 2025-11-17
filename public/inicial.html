@@ -187,6 +187,255 @@
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+            document.addEventListener('DOMContentLoaded', function() {
+            const incomeForm = document.getElementById('incomeForm');
+            const loadingSection = document.getElementById('loadingSection');
+            const resultsSection = document.getElementById('resultsSection');
+            const progressBar = document.getElementById('progressBar');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const microcreditResult = document.getElementById('microcreditResult');
+            const suggestionsList = document.getElementById('suggestionsList');
+            const recalculateBtn = document.getElementById('recalculateBtn');
+
+            incomeForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Validate form
+                const region = document.getElementById('region').value;
+                const salary = parseFloat(document.getElementById('salary').value);
+                const bankFees = parseFloat(document.getElementById('bankFees').value);
+                const paymentTypes = Array.from(document.querySelectorAll('input[name="paymentType"]:checked')).map(cb => cb.value);
+                const frequency = document.getElementById('frequency').value;
+
+                if (!region || !salary || !bankFees || paymentTypes.length === 0 || !frequency) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                // Hide form and show loading
+                incomeForm.style.display = 'none';
+                loadingSection.style.display = 'block';
+                resultsSection.style.display = 'none';
+
+                // Loading animation
+                const messages = [
+                    'Calculando salário...',
+                    'Efetuando algoritmo...',
+                    'Obtendo resultado final'
+                ];
+
+                let messageIndex = 0;
+                let progress = 0;
+
+                const loadingInterval = setInterval(() => {
+                    progress += Math.random() * 15 + 5;
+                    if (progress > 100) progress = 100;
+                    progressBar.style.width = progress + '%';
+
+                    if (progress >= (messageIndex + 1) * 33.33) {
+                        messageIndex++;
+                        if (messageIndex < messages.length) {
+                            loadingMessage.textContent = messages[messageIndex];
+                        }
+                    }
+
+                    if (progress >= 100) {
+                        clearInterval(loadingInterval);
+                        setTimeout(() => {
+                            showResults(region, salary, bankFees, paymentTypes, frequency);
+                        }, 500);
+                    }
+                }, 200);
+            });
+
+            function showResults(region, salary, bankFees, paymentTypes, frequency) {
+                loadingSection.style.display = 'none';
+                resultsSection.style.display = 'block';
+
+                // Calculate microcredit (simplified logic)
+                let baseCredit = salary * 0.3; // 30% of salary
+                let regionMultiplier = getRegionMultiplier(region);
+                let paymentBonus = paymentTypes.length * 50; // Bonus for each payment type
+                let frequencyMultiplier = frequency === 'monthly' ? 1 : 12;
+
+                let microcredit = (baseCredit * regionMultiplier + paymentBonus) * frequencyMultiplier - bankFees;
+
+                // Ensure positive result
+                microcredit = Math.max(microcredit, 0);
+
+                microcreditResult.textContent = `Microcrédito Total: R$ ${microcredit.toFixed(2)}`;
+
+                // Generate suggestions
+                suggestionsList.innerHTML = '';
+                const suggestions = generateSuggestions(region, salary, bankFees, paymentTypes, frequency, microcredit);
+                suggestions.forEach(suggestion => {
+                    const li = document.createElement('li');
+                    li.textContent = suggestion;
+                    suggestionsList.appendChild(li);
+                });
+            }
+
+            function getRegionMultiplier(region) {
+                const multipliers = {
+                    'norte': 1.2,
+                    'nordeste': 1.1,
+                    'centro-oeste': 1.15,
+                    'sudeste': 1.0,
+                    'sul': 1.05
+                };
+                return multipliers[region] || 1.0;
+            }
+
+            function generateSuggestions(region, salary, bankFees, paymentTypes, frequency, microcredit) {
+                const suggestions = [];
+
+                if (salary < 2000) {
+                    suggestions.push('Considere buscar oportunidades de capacitação profissional para aumentar sua renda.');
+                }
+
+                if (bankFees > salary * 0.05) {
+                    suggestions.push('Avalie reduzir despesas bancárias optando por contas digitais gratuitas.');
+                }
+
+                if (paymentTypes.length < 3) {
+                    suggestions.push('Diversifique seus métodos de pagamento para maior flexibilidade financeira.');
+                }
+
+                if (region === 'norte' || region === 'nordeste') {
+                    suggestions.push('Explore programas regionais de microcrédito para empreendedores locais.');
+                }
+
+                if (microcredit < 1000) {
+                    suggestions.push('Considere economizar mais para aumentar seu potencial de microcrédito.');
+                } else {
+                    suggestions.push('Parabéns! Você tem um bom potencial para microcrédito. Considere investir em educação financeira.');
+                }
+
+                suggestions.push('Mantenha um histórico positivo de pagamentos para melhorar suas chances de aprovação.');
+                suggestions.push('Monitore regularmente suas finanças para identificar oportunidades de melhoria.');
+
+                return suggestions;
+            }
+
+            // Re-calculate button functionality
+            recalculateBtn.addEventListener('click', function() {
+                // Reset form fields
+                document.getElementById('region').value = '';
+                document.getElementById('salary').value = '';
+                document.getElementById('bankFees').value = '';
+                document.querySelectorAll('input[name="paymentType"]:checked').forEach(cb => cb.checked = false);
+                document.getElementById('frequency').value = '';
+
+                // Hide results and show form
+                resultsSection.style.display = 'none';
+                incomeForm.style.display = 'block';
+            });
+        });
+    </script>
+
+    <!-- Modal de Cálculo de Renda -->
+    <div class="modal fade" id="incomeCalculatorModal" tabindex="-1" aria-labelledby="incomeCalculatorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="background: rgba(44, 62, 80, 0.95); border: 2px solid rgba(255, 255, 255, 0.1);">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="incomeCalculatorModalLabel" style="color: white;">Calculadora de Renda e Microcrédito</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="incomeForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="region" class="form-label" style="color: white;">Região de Residência *</label>
+                                    <select class="form-control" id="region" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="norte">Norte</option>
+                                        <option value="nordeste">Nordeste</option>
+                                        <option value="centro-oeste">Centro-Oeste</option>
+                                        <option value="sudeste">Sudeste</option>
+                                        <option value="sul">Sul</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="salary" class="form-label" style="color: white;">Renda Salarial Mensal (R$) *</label>
+                                    <input type="number" class="form-control" id="salary" min="0" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="bankFees" class="form-label" style="color: white;">Despesas Bancárias Mensais (R$) *</label>
+                                    <input type="number" class="form-control" id="bankFees" min="0" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" style="color: white;">Tipos de Pagamento Efetuados *</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="pix" value="pix">
+                                        <label class="form-check-label" for="pix" style="color: white;">Pix</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="creditCard" value="creditCard">
+                                        <label class="form-check-label" for="creditCard" style="color: white;">Cartão de Crédito</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="debitCard" value="debitCard">
+                                        <label class="form-check-label" for="debitCard" style="color: white;">Cartão de Débito</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="paypal" value="paypal">
+                                        <label class="form-check-label" for="paypal" style="color: white;">PayPal</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="other" value="other">
+                                        <label class="form-check-label" for="other" style="color: white;">Outros</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="frequency" class="form-label" style="color: white;">Frequência de Pagamentos *</label>
+                                    <select class="form-control" id="frequency" required>
+                                        <option value="">Selecione...</option>
+                                        <option value="monthly">Mensal</option>
+                                        <option value="annual">Anual</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg" id="calculateBtn">Calcular</button>
+                            <button type="button" class="btn btn-secondary btn-lg ms-3" id="recalculateBtn">Re-calcular Renda</button>
+                        </div>
+                    </form>
+
+                    <!-- Loading Animation -->
+                    <div id="loadingSection" class="text-center mt-4" style="display: none;">
+                        <div class="progress mb-3">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="progressBar"></div>
+                        </div>
+                        <p id="loadingMessage" style="color: white; font-size: 18px;">Calculando salário...</p>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="resultsSection" class="mt-4" style="display: none;">
+                        <div class="card" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #00d4aa;">Resultado do Cálculo</h5>
+                                <p id="microcreditResult" class="card-text" style="color: white;"></p>
+                                <h6 style="color: #FFDD00;">Sugestões para Melhorar sua Faixa Salarial:</h6>
+                                <ul id="suggestionsList" style="color: white;"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante para Abrir Modal -->
+    <button class="floating-btn" data-bs-toggle="modal" data-bs-target="#incomeCalculatorModal">
+        <i class="bi bi-calculator"></i>
+    </button>
+
     <footer class="footer">
         <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
     </footer>

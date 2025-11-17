@@ -663,6 +663,75 @@
             align-items: center;
         }
 
+        /* Floating Button */
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00d4aa, #00a88f);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(0, 212, 170, 0.6);
+        }
+
+        .floating-btn i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 15px;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00d4aa;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(0, 212, 170, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-check-input:checked {
+            background-color: #00d4aa;
+            border-color: #00d4aa;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4aa, #00a88f);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #00a88f, #009b7d);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 170, 0.4);
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .features-grid {
@@ -678,5 +747,15 @@
 
             .divider-line {
                 display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .floating-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
             }
         }
