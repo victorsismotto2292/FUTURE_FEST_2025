@@ -50,7 +50,7 @@
                             <li><i class="bi bi-check-circle-fill"></i>Suporte por email</li>
                             <li><i class="bi bi-check-circle-fill"></i>Certificado de conclusão</li>
                         </ul>
-                        <button class="btn-pricing">Escolher Plano</button>
+                        <button class="btn-pricing" data-plan="Básico" data-bs-toggle="modal" data-bs-target="#paymentModal">Escolher Plano</button>
                     </div>
                 </div>
 
@@ -67,7 +67,7 @@
                             <li><i class="bi bi-check-circle-fill"></i>Mentorias mensais</li>
                             <li><i class="bi bi-check-circle-fill"></i>Projetos exclusivos</li>
                         </ul>
-                        <button class="btn-pricing">Escolher Plano</button>
+                        <button class="btn-pricing" data-plan="Profissional" data-bs-toggle="modal" data-bs-target="#paymentModal">Escolher Plano</button>
                     </div>
                 </div>
 
@@ -83,7 +83,7 @@
                             <li><i class="bi bi-check-circle-fill"></i>Relatórios avançados</li>
                             <li><i class="bi bi-check-circle-fill"></i>API de integração</li>
                         </ul>
-                        <button class="btn-pricing">Escolher Plano</button>
+                        <button class="btn-pricing" data-plan="Empresarial" data-bs-toggle="modal" data-bs-target="#paymentModal">Escolher Plano</button>
                     </div>
                 </div>
             </div>
@@ -131,9 +131,70 @@
         </div>
     </main>
 
+    <!-- Modal de Pagamento -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Escolher Método de Pagamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="selectedPlan">Você selecionou o plano: <strong></strong></p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Cartão de Crédito/Débito</h6>
+                            <button class="btn btn-outline-primary w-100 mb-2" onclick="selectPayment('Cartão de Crédito')">Cartão de Crédito</button>
+                            <button class="btn btn-outline-primary w-100 mb-2" onclick="selectPayment('Cartão de Débito')">Cartão de Débito</button>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Outros Métodos</h6>
+                            <button class="btn btn-outline-success w-100 mb-2" onclick="selectPayment('Pix')">Pix</button>
+                            <button class="btn btn-outline-info w-100 mb-2" onclick="selectPayment('QR Code')">QR Code</button>
+                            <button class="btn btn-outline-warning w-100 mb-2" onclick="selectPayment('PayPal')">PayPal</button>
+                            <button class="btn btn-outline-secondary w-100 mb-2" onclick="selectPayment('Aproximação')">Aproximação</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmPayment" disabled>Confirmar Pagamento</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+        let selectedPlan = '';
+        let selectedPaymentMethod = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn-pricing');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    selectedPlan = this.getAttribute('data-plan');
+                    document.getElementById('selectedPlan').innerHTML = 'Você selecionou o plano: <strong>' + selectedPlan + '</strong>';
+                    selectedPaymentMethod = '';
+                    document.getElementById('confirmPayment').disabled = true;
+                });
+            });
+        });
+
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+            document.getElementById('confirmPayment').disabled = false;
+            document.getElementById('confirmPayment').innerText = 'Confirmar Pagamento com ' + method;
+        }
+
+        document.getElementById('confirmPayment').addEventListener('click', function() {
+            alert('Pagamento confirmado para o plano ' + selectedPlan + ' usando ' + selectedPaymentMethod + '!');
+            // Aqui você pode adicionar lógica para processar o pagamento
+            const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+            modal.hide();
+        });
+
+        (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
     </script>
     <footer class="footer">
         <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
