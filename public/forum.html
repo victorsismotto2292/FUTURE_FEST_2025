@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprender - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/style/forum.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+ 
+</head>
+<body>
+   <div class="container forum-topics-section">
+    <div class="hero-section text-start mb-4">
+        <h1 class="forum-title">Fórum</h1>
+        <p>fórum fórum testar testar</p>
+        
+    </div>
+
+    <div class="topics-table-container">
+        <table class="table table-dark table-borderless topic-list">
+            <thead>
+                <tr>
+                    <th class="col-8">TÓPICO</th>
+                    <th class="text-center col-1 d-none d-md-table-cell">RESPOSTAS</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="topic-highlight">
+                    <td>
+                        <i class="bi bi-pin-fill text-warning me-2"></i>
+                        <a href="#" class="topic-link topic-pinned">REGRAS</a>
+                        <div class="topic-meta">por <a class="redator"></a> em 01/11/2025</div>
+                    </td>
+                    <td class="text-center d-none d-md-table-cell">
+                        <span class="topic-stats"><a class="respostas"></a></span>
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <td>
+                        <a href="#" class="topic-link">teste2</a>
+                        <div class="topic-meta">por</div>
+                    </td>
+                    <td class="text-center">
+                        <span class="topic-stats"><a class="respostas"></a></span>
+                    </td>
+                </tr>
+                <tr class="topic-low-activity">
+                    <td>
+                        <a href="#" class="topic-link">teste3</a>
+                        <div class="topic-meta">por</div>
+                    </td>
+                    <td class="text-center d-none d-md-table-cell">
+                        <span class="topic-stats"><a class="respostas"></a></span>
+                    </td>
+                    
+                </tr>
+            </tbody>
+        </table>
+    </div><br>  
+    <a href="#modal-novo-topico" class="btn-new-topic" data-bs-toggle="modal">
+            <i class="bi bi-plus-circle-fill me-2"></i> Criar Novo Tópico
+        </a>
+        <div class="resume-builder">
+                <button class="nav-btn" data-step="8">
+                    <i class="bi bi-check-circle"></i>
+                    <span>Finalizar</span>
+                </button>
+            </div>
+
+            <form id="post-form" class="post-form">
+                <div class="form-step active" id="step1">
+                    <h3><i class="bi bi-person-circle"></i> Adicionar um novo tópico</h3>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="topico" class="form-label">
+                                <i class="bi bi-person"></i> Assunto
+                            </label>
+                            <input type="text" class="form-control" id="topico" name="topico" placeholder="Assunto abordado pelo tópico" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="texto" class="form-label">
+                                <i class="bi bi-person"></i>  
+                            </label>
+                            <input type="text" class="form-control" id="texto" name="texto" placeholder="Digite seu sobrenome" required>
+                        </div>
+                    </div>
+            </form>
+        </div>      
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
+    <footer class="footer">
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
