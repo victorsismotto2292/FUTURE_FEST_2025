@@ -765,18 +765,18 @@ app.get('/', async (req, res) => {
             fillArea.setAttribute('points', fillPoints);
             fillArea.setAttribute('fill', numericValue > 0 ? 'rgba(0, 212, 170, 0.2)' : numericValue < 0 ? 'rgba(255, 68, 68, 0.2)' : 'rgba(255, 221, 0, 0.2)');
 
-            // Update card in real-time (mirror title, number, value and styles)
+            // Atualização do card em tempo real
             if (currentCard) {
                 const cardTitle = currentCard.querySelector('.income-card-title');
                 const cardNumberEl = currentCard.querySelector('.income-card-number');
                 const cardValue = currentCard.querySelector('.income-value');
 
-                // Mirror fields
+                // Campo espelhado
                 cardTitle.textContent = document.getElementById('overlay-title').value;
                 cardNumberEl.textContent = document.getElementById('overlay-number').value;
                 cardValue.textContent = document.getElementById('overlay-value').value;
 
-                // Apply classes/colors for positive / negative / neutral (zero)
+                // Aplicar classes/cores para positivo / negativo / neutro (zero)
                 if (isNaN(numericValue) || numericValue === 0) {
                     cardValue.className = 'income-value neutral';
                     cardNumberEl.style.color = '#FFDD00';
