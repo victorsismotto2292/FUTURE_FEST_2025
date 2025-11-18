@@ -1710,6 +1710,10 @@ app.get('/curriculos', (req, res) => {
     res.sendFile(__dirname + '/public/curriculos.html');
 });
 
+app.get('/forum', (req, res) => {
+    res.sendFile(__dirname + '/public/forum.html');
+});
+
 app.listen(port, () => {
     console.log(`Servidor rodando na porta: http://localhost:${port}/`);
 });
