@@ -8,256 +8,351 @@ body {
                         radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
                         radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
                         radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
-                        linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
+                        #1f1f1f; /* Cor de fundo principal */
+            color: white;
+            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
-            font-family: 'Arial', sans-serif;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            min-height: 100vh;
-            background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
-                        linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
-                        radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
-                        radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
-                        radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
-                        linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
-            display: flex;
-            flex-direction: column;
-            font-family: 'Arial', sans-serif;
-        }
-
+        /* Barra de navegação (bar) */
         .bar {
-            margin-top: 30px;
-            position: relative;
+            width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
-            padding: 0 20px;
+            padding: 10px 40px;
+            box-sizing: border-box;
+            background: rgba(31, 31, 31, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .img2_logo {
-            width: 160px;
-            height: 70px;
-            margin-right: 20px;
+            width: 100px;
+            height: 50px;
+            margin-right: 30px;
         }
 
         .bar h4 {
+            margin: 0;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            margin: 0;
-            margin-top: 20px;
         }
 
         .bar h4 a {
             color: white;
             text-decoration: none;
-            margin: 0 20px;
-            font-size: 19px;
-            transition: all 0.3s ease;
-            position: relative;
-            font-family: 'Jockey One';
-        }
-
-        .bar h4 a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #FFDD00;
-            transition: width 0.3s ease;
+            margin: 0 15px;
+            font-size: 18px;
+            font-weight: 500;
+            transition: color 0.3s ease;
         }
 
         .bar h4 a:hover {
             color: #FFDD00;
         }
 
-        .bar h4 a:hover::after {
-            width: 100%;
-        }
-
+        /* Botão Sair/Perfil */
         .start {
-            color: white;
-            width: 170px;
-            height: 60px;
-            background: transparent;
-            border: 3px solid #FFDD00;
-            border-radius: 30px;
+            margin-left: auto;
+            background-color: #00d4aa;
+            border: none;
+            color: black;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            font-weight: 600;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
 
         .start:hover {
-            background-color: #ffef8835;
+            background-color: #00a88f;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.4);
         }
 
-        .progress {
-            height: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            margin-top: 10px;
-        }
-
-        .progress-bar {
-            background: linear-gradient(90deg, #FFDD00, #FED061);
-        }
-
+        /* Seção Principal */
         .main {
-            padding: 60px 0;
-            flex: 1;
-        }
-
-        .hero-section {
-            text-align: center;
-            margin-bottom: 60px;
-            animation: fadeInDown 0.8s ease;
-        }
-
-        .hero-section h1 {
-            font-size: 48px;
-            font-weight: 700;
-            color: #FFFFFF;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .hero-section p {
-            font-size: 24px;
-            color: rgba(255, 255, 255, 0.9);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .course-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 40px 30px;
-            transition: all 0.4s ease;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        .course-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 221, 0, 0.1), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .course-card:hover::before {
-            left: 100%;
-        }
-
-        .course-card:hover {
-            transform: translateY(-15px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border-color: #FFDD00;
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .course-icon {
-            font-size: 60px;
-            color: #FFDD00;
-            margin-bottom: 20px;
-        }
-
-        .course-card h5 {
-            color: white;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .course-card p {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 30px;
             flex-grow: 1;
+            padding: 40px 20px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            animation: fadeIn 1s ease-in-out;
         }
 
-        .btn-course {
-            width: 100%;
-            padding: 15px;
-            border-radius: 30px;
+        .forum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #FFDD00;
+            padding-bottom: 15px;
+        }
+
+        .forum-header h1 {
+            font-size: 40px;
+            color: #FFDD00;
             font-weight: 700;
+        }
+
+        .btn-new-topic {
+            background-color: #00d4aa;
+            color: black;
+            border: none;
+            padding: 12px 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
             font-size: 18px;
-            border: 3px solid #FFDD00;
-            background: transparent;
-            color: white;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: bold;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-new-topic:hover {
+            background-color: #00a88f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 212, 170, 0.5);
+        }
+
+        /* Lista de Tópicos */
+        .topic-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .topic-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .topic-list thead th {
+            color: #FFDD00;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 15px 20px;
+            border-bottom: 2px solid rgba(255, 221, 0, 0.4);
+            vertical-align: middle;
+        }
+
+        .topic-list tbody tr {
+            transition: background-color 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .topic-list tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.15) !important;
             cursor: pointer;
         }
 
-        .btn-course:hover {
-            background: #ffef8835;
-            transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
+        .topic-highlight {
+            background-color: rgba(79, 0, 132, 0.35);
+            border-left: 5px solid #FFDD00;
         }
 
-        .benefits-section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            padding: 50px 30px;
-            margin-top: 60px;
-            animation: fadeIn 1s ease;
+        .topic-pinned {
+            font-weight: 700 !important;
         }
 
-        .benefits-section h4 {
+        .topic-list tbody td {
             color: white;
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 40px;
+            padding: 15px 20px;
+            vertical-align: middle;
+        }
+
+        .topic-link {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .topic-link:hover {
+            color: #00d4aa;
+            text-decoration: none;
+        }
+
+        .topic-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .topic-meta i {
+            margin-right: 5px;
+        }
+
+        .topic-meta span {
+            margin-right: 15px;
+        }
+
+        .topic-replies, .topic-author, .topic-date {
             text-align: center;
         }
 
-        .benefit-item {
-            text-align: center;
+        /* Estilos do Modal */
+        .modal-content {
+            background-color: #282828;
+            color: white;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding: 20px;
         }
 
-        .benefit-item i {
-            font-size: 50px;
+        .modal-title {
             color: #FFDD00;
-            margin-bottom: 15px;
-        }
-
-        .benefit-item h5 {
-            color: white;
             font-weight: 700;
-            margin: 15px 0;
-            font-size: 22px;
+            font-size: 24px;
         }
 
-        .benefit-item p {
-            color: rgba(255, 255, 255, 0.85);
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+        .modal-body {
+            padding: 30px 20px;
+        }
+
+        .modal-body h4 {
+            color: #00d4aa;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .topic-content {
+            background-color: #3a3a3a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* Mantém quebras de linha e espaços */
+        }
+
+        .reply-section {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px; /* Espaço para a barra de rolagem */
+        }
+
+        /* Estilo da barra de rolagem para navegadores WebKit (Chrome, Safari) */
+        .reply-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reply-section::-webkit-scrollbar-thumb {
+            background-color: #00d4aa;
+            border-radius: 10px;
+        }
+
+        .reply-section::-webkit-scrollbar-track {
+            background-color: #3a3a3a;
+            border-radius: 10px;
+        }
+
+        .reply-card {
+            background-color: #1f1f1f;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00d4aa;
+        }
+
+        .reply-author {
+            font-weight: 700;
+            color: #00d4aa;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .reply-meta {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 10px;
+        }
+
+        .reply-content {
+            font-size: 14px;
+            color: white;
+            white-space: pre-wrap;
+        }
+
+        .form-label {
+            color: #dcdcdc;
+            font-weight: 500;
+        }
+
+        .form-control {
+            background-color: #3a3a3a;
+            border: 1px solid #555;
+            color: #f0f0f0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            resize: none;
+        }
+
+        .form-control:focus {
+            background-color: #3a3a3a;
+            border-color: #00d4aa;
+            box-shadow: 0 0 0 0.25rem rgba(0, 212, 170, 0.25);
+            color: #f0f0f0;
+        }
+
+        .btn-reply-send {
+            background-color: #FFDD00;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
             font-size: 16px;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
 
+        .btn-reply-send:hover {
+            background-color: #FED061;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 221, 0, 0.4);
+        }
+
+        /* Footer */
         footer.footer {
             padding: 24px 0;
             text-align: center;
             color: rgba(255,255,255,0.7);
             font-size: 14px;
+            margin-top: auto; /* Empurra o footer para o final */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+
+        /* Animações */
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -289,346 +384,87 @@ body {
             }
         }
 
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .topic-list thead th:nth-child(3), /* Respostas */
+            .topic-list tbody td:nth-child(3) {
+                display: none;
+            }
+        }
+
         @media (max-width: 768px) {
             .bar {
                 margin-top: 20px;
                 flex-wrap: wrap;
+                padding: 10px 20px;
             }
 
             .img2_logo {
-                width: 150px;
-                height: 70px;
+                width: 120px;
+                height: 60px;
             }
 
             .bar h4 {
                 position: static;
                 transform: none;
-                margin-top: 20px;
+                margin-top: 15px;
                 width: 100%;
                 text-align: center;
             }
 
             .bar h4 a {
-                font-size: 16px;
-                margin: 0 10px;
+                font-size: 14px;
+                margin: 0 8px;
             }
 
             .start {
-                width: 140px;
-                height: 50px;
+                width: 100%;
+                margin-left: 0;
                 margin-top: 15px;
             }
 
-            .hero-section h1 {
-                font-size: 36px;
+            .main {
+                padding: 20px 10px;
             }
 
-            .hero-section p {
-                font-size: 18px;
+            .forum-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .course-card {
-                margin-bottom: 20px;
+            .forum-header h1 {
+                font-size: 30px;
+                margin-bottom: 15px;
+            }
+
+            .btn-new-topic {
+                width: 100%;
+                font-size: 16px;
+            }
+
+            .topic-list thead th:nth-child(2), /* Autor */
+            .topic-list tbody td:nth-child(2) {
+                display: none;
+            }
+
+            .topic-list thead th:nth-child(4), /* Data */
+            .topic-list tbody td:nth-child(4) {
+                display: none;
+            }
+
+            .topic-list thead th {
+                padding: 10px 15px;
+            }
+
+            .topic-list tbody td {
+                padding: 10px 15px;
+            }
+
+            .topic-link {
+                font-size: 16px;
+            }
+
+            .reply-section {
+                max-height: 200px;
             }
         }
-
-        @media (max-width: 480px) {
-            .hero-section h1 {
-                font-size: 28px;
-            }
-
-            .benefits-section {
-                padding: 30px 20px;
-            }
-        }
-
-
-.forum-topics-section {
-    padding-top: 20px;
-}
-
-.forum-title {
-    font-size: 40px;
-    font-weight: 700;
-    color: #FFFFFF;
-    margin-bottom: 5px;
-}
-
-.hero-section p {
-    
-    font-size: 18px;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 20px;
-}
-
-.btn-new-topic {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 25px;
-    border-radius: 25px;
-    font-weight: 700;
-    font-size: 18px;
-    background: #FFDD00; 
-    color: #1B2C3E;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.btn-new-topic:hover {
-    background: #FED061;
-    color: #000000;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 221, 0, 0.4);
-}
-
-.topics-table-container {
-    background: rgba(255, 255, 255, 0.08); 
-    backdrop-filter: blur(5px);
-    border-radius: 15px;
-    overflow: hidden; 
-    border: 1px solid rgba(255, 221, 0, 0.2); 
-    margin-top: 30px;
-}
-
-.topic-list {
-    margin-bottom: 0;
-}
-
-
-.topic-list thead th {
-    color: #FFDD00;
-    font-size: 14px;
-    font-weight: 700;
-    padding: 15px 20px;
-    border-bottom: 2px solid rgba(255, 221, 0, 0.4);
-    vertical-align: middle;
-}
-
-.topic-list tbody tr {
-    transition: background-color 0.3s ease;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.topic-list tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    cursor: pointer;
-}
-
-.topic-highlight {
-    background-color: rgba(79, 0, 132, 0.35);
-    border-left: 5px solid #FFDD00;
-}
-
-.topic-pinned {
-    font-weight: 700 !important;
-}
-
-.topic-list tbody td {
-    color: white;
-    padding: 15px 20px;
-    vertical-align: middle;
-}
-
-.topic-link {
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 3px;
-    transition: color 0.2s ease;
-}
-
-.topic-link:hover {
-    color: #FFDD00;
-}
-
-.topic-meta {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 13px;
-}
-
-.topic-stats {
-    font-weight: 700;
-    font-size: 18px;
-    color: #FFDD00;
-}
-
-.topic-low-activity td {
-    opacity: 0.7;
-}
-
-/* ESTILOS ADICIONAIS PARA forum.css 
-  (Não precisamos mais de novoforum.css)
-*/
-
-/* Estilo para as Abas (Tabs) */
-.nav-tabs {
-    border-bottom: 2px solid rgba(255, 221, 0, 0.4); /* Amarelo da sua paleta */
-}
-
-.nav-tabs .nav-item .nav-link {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-bottom: none;
-    color: rgba(255, 255, 255, 0.7);
-    margin-right: 5px;
-    border-radius: 8px 8px 0 0;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.nav-tabs .nav-item .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-
-.nav-tabs .nav-item .nav-link.active {
-    background: rgba(255, 221, 0, 0.15); /* Amarelo da sua paleta */
-    border-color: rgba(255, 221, 0, 0.4);
-    color: #FFDD00; /* Amarelo da sua paleta */
-    font-weight: 700;
-}
-
-.tab-content {
-    background: rgba(44, 62, 80, 0.25);
-    border: 1px solid rgba(255, 221, 0, 0.2);
-    border-top: none;
-    padding: 20px;
-    border-radius: 0 0 8px 8px;
-}
-
-/* Estilo para o Modal (baseado no seu novoforum.css) */
-.modal-content {
-    background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
-                linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
-                radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
-                linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
-    border: 2px solid rgba(255, 221, 0, 0.3);
-    color: #fff;
-    border-radius: 15px;
-}
-
-.modal-header {
-    border-bottom: 1px solid rgba(255, 221, 0, 0.2);
-}
-
-.modal-title {
-    color: #FFDD00;
-    font-family: 'Jockey One', sans-serif;
-}
-
-.modal-body .form-label {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
-}
-
-.modal-body .form-control {
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border-radius: 8px;
-    padding: 12px;
-}
-
-.modal-body .form-control:focus {
-    background: rgba(0, 0, 0, 0.4);
-    border-color: #FFDD00;
-    box-shadow: 0 0 10px rgba(255, 221, 0, 0.3);
-    color: #fff;
-}
-
-/* Botão de Postar Tópico (dentro do modal) */
-.btn-new-topic-submit {
-    background: linear-gradient(90deg, #FFDD00, #FED061); /* Amarelo da sua paleta */
-    border: none;
-    color: #1B2C3E; /* Azul escuro da sua paleta */
-    font-weight: bold;
-    padding: 10px 20px;
-    transition: all 0.3s ease;
-}
-
-.btn-new-topic-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 221, 0, 0.3);
-}
-
-/* Estilo para a seção de conteúdo do tópico na modal */
-.topic-content-section {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    border-left: 5px solid #00d4aa; /* Cor de destaque */
-}
-
-.topic-content-section h5 {
-    color: #FFDD00;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.topic-content-section p {
-    color: white;
-    white-space: pre-wrap; /* Mantém quebras de linha e espaços */
-}
-
-/* Botões de Ação na Modal (Excluir/Editar) */
-.topic-actions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.btn-topic-action {
-    padding: 5px 10px;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.btn-topic-action i {
-    margin-right: 5px;
-}
-
-.btn-delete {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-}
-
-.btn-delete:hover {
-    background-color: #c82333;
-}
-
-.btn-edit {
-    background-color: #ffc107;
-    color: #212529;
-    border: none;
-}
-
-.btn-edit:hover {
-    background-color: #e0a800;
-}
-
-@media (max-width: 768px) {
-    .topic-list thead th {
-        padding: 10px 15px;
-    }
-    .topic-list tbody td {
-        padding: 10px 15px;
-    }
-    .topic-link {
-        font-size: 16px;
-    }
-    .btn-new-topic {
-        width: 100%;
-        justify-content: center;
-        font-size: 16px;
-    }
-    .hero-section p {
-        text-align: left;
-    }
-}

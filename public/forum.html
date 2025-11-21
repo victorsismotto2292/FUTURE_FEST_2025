@@ -9,52 +9,65 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+
     <style>
+        /* Estilos baseados no forum.css original, adaptados para o novo design */
         body {
             margin: 0;
             padding: 0;
             width: 100%;
             min-height: 100vh;
+            /* Novo background baseado no modelo fornecido */
             background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
                         linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
                         radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
                         radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
                         radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
                         linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
-            font-family: 'Arial', sans-serif;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Barra de navegação (bar) - Adaptada ao novo estilo */
         .bar {
             margin-top: 30px;
+            width: 100%;
             display: flex;
+            justify-content: flex-start;
             align-items: center;
             padding: 0 40px;
-            position: relative;
+            box-sizing: border-box;
+            position: relative; /* Removido sticky/z-index e background semi-transparente */
         }
 
         .img2_logo {
-            width: 160px;
-            height: 70px;
+            width: 160px; /* Aumentado */
+            height: 70px; /* Aumentado */
+            margin-right: 30px;
         }
 
         .bar h4 {
+            margin: 0;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            margin: 0;
-            margin-top: 20px;
+            margin-top: 20px; /* Adicionado para alinhar ao logo */
         }
 
         .bar h4 a {
             color: white;
             text-decoration: none;
-            margin: 0 20px;
-            font-size: 19px;
+            margin: 0 20px; /* Aumentado */
+            font-size: 19px; /* Aumentado */
+            font-weight: 500;
             transition: all 0.3s ease;
             position: relative;
-            font-family: 'Jockey One';
+            font-family: 'Jockey One', sans-serif; /* Fonte do modelo */
         }
 
+        /* Sublinhado e hover do modelo */
         .bar h4 a::after {
             content: '';
             position: absolute;
@@ -73,24 +86,30 @@
         .bar h4 a:hover::after {
             width: 100%;
         }
-
+    
         .start {
-            padding: 12px 30px;
-            background: linear-gradient(90deg, #FFDD00, #FED061);
-            border: none;
-            border-radius: 30px;
-            color: #1B2C3E;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            margin-left: 1500px; /* Esta propriedade empurra o botão para a direita no Flexbox (nav.bar) */
+            background-color: transparent; /* Fundo transparente */
+            border: 3px solid #FFDD00; /* Contorno amarelo vibrante (Estilo da imagem) */
+            color: white; /* Cor do texto branca */
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
             font-size: 16px;
+            cursor: pointer;
+            border-radius: 50px; /* Borda bem arredondada */
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
 
-        .start:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
-        }
+.start:hover {
+    background-color: rgba(255, 221, 0, 0.2); /* Efeito de brilho sutil ao passar o mouse */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 221, 0, 0.4);
+}
 
+        /* Estilos da barra de progresso */
         .progress {
             height: 5px;
             background: rgba(255, 255, 255, 0.1);
@@ -101,16 +120,22 @@
             background: linear-gradient(90deg, #FFDD00, #FED061);
         }
 
+        /* Seção Principal */
         .main {
+            flex-grow: 1;
             padding: 40px 20px;
-            min-height: calc(100vh - 200px);
+            min-height: calc(100vh - 200px); /* Ajuste de altura */
+            margin: 0 auto;
+            animation: fadeIn 1s ease-in-out;
         }
 
-        .container {
+        .forum-container {
             max-width: 1200px;
+            width: 100%;
             margin: 0 auto;
         }
-
+        
+        /* Novos estilos de título e subtítulo */
         .page-title {
             color: white;
             text-align: center;
@@ -127,6 +152,7 @@
             margin-bottom: 50px;
         }
 
+        /* Nova estrutura de ações */
         .forum-actions {
             display: flex;
             justify-content: space-between;
@@ -136,7 +162,14 @@
             flex-wrap: wrap;
         }
 
-        .btn-new-topic {
+        .header-actions {
+             /* Escondido pois a nova estrutura usa forum-actions */
+             display: none;
+        }
+
+
+        /* Botão Novo Tópico - Adaptado ao novo estilo de botão amarelo */
+        .btn-new-topic, .btn-primary-create {
             padding: 14px 30px;
             background: linear-gradient(90deg, #FFDD00, #FED061);
             border: none;
@@ -146,19 +179,28 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 16px;
+            box-shadow: none !important; /* Remove box-shadow do bootstrap */
         }
-
-        .btn-new-topic:hover {
+        
+        .btn-new-topic:hover, .btn-primary-create:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
+            background: linear-gradient(90deg, #FFDD00, #FED061); /* Garante a manutenção do gradiente */
         }
-
+        
+        /* Nova barra de busca */
         .search-bar {
             flex: 1;
             max-width: 500px;
+            position: relative; /* Para posicionar o ícone de busca se necessário (removido no HTML) */
+        }
+        
+        .search-box {
+            /* O search-box antigo foi substituído por search-bar */
+            display: none;
         }
 
-        .search-bar input {
+        .search-bar input, #searchInput {
             width: 100%;
             padding: 12px 20px;
             background: rgba(255, 255, 255, 0.1);
@@ -177,7 +219,12 @@
             border-color: #FFDD00;
             background: rgba(255, 255, 255, 0.15);
         }
-
+        
+        /* Estrutura de tópicos em cards */
+        .topic-list-section {
+            display: none; /* Esconder a lista de tópicos em tabela */
+        }
+        
         .topics-list {
             display: flex;
             flex-direction: column;
@@ -249,7 +296,7 @@
             font-weight: 600;
         }
 
-        .topic-replies {
+        .topic-replies-count { /* Renomeado para evitar conflito com a classe de metadados do JS */
             background: rgba(255, 221, 0, 0.2);
             padding: 5px 15px;
             border-radius: 20px;
@@ -257,10 +304,12 @@
             font-size: 14px;
         }
 
+        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 80px 20px;
             color: rgba(255, 255, 255, 0.6);
+            display: none;
         }
 
         .empty-state i {
@@ -273,79 +322,228 @@
             color: white;
             margin-bottom: 10px;
         }
-
-        /* Modal Styles */
+        
+        /* Estilos do Modal (adaptados) */
         .modal-content {
             background: rgba(27, 44, 62, 0.98);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
             border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
         }
 
         .modal-header {
             border-bottom: 2px solid rgba(255, 221, 0, 0.3);
+            padding: 20px;
         }
 
         .modal-title {
             color: white;
+            font-weight: 700;
+            font-size: 24px;
         }
 
-        .btn-close {
+        .modal-header .btn-close {
             filter: invert(1);
         }
 
-        .form-control, .form-control:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+        .modal-body {
+            padding: 30px 20px;
+        }
+
+        .topic-detail .topic-content {
+            background-color: rgba(255, 255, 255, 0.05); /* Escurecido do original */
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+        
+        .topic-detail .topic-meta {
+            color: #FFDD00; /* Destaque na meta do tópico */
+            margin-bottom: 10px;
+        }
+        
+        .reply-section, .replies-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        
+        .reply-section::-webkit-scrollbar, .replies-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reply-section::-webkit-scrollbar-thumb, .replies-list::-webkit-scrollbar-thumb {
+            background-color: #FFDD00; /* Mudança de cor para amarelo */
+            border-radius: 10px;
+        }
+
+        .reply-section::-webkit-scrollbar-track, .replies-list::-webkit-scrollbar-track {
+            background-color: #3a3a3a;
+            border-radius: 10px;
+        }
+
+        .reply-card, .reply-item {
+            background-color: #1f1f1f;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #FFDD00; /* Mudança de cor para amarelo */
+        }
+
+        .reply-author strong {
+            font-weight: 700;
+            color: #FFDD00; /* Mudança de cor para amarelo */
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .reply-meta {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 0 !important; /* Resetar o margin-left */
+            margin-top: 5px;
+        }
+        
+        .reply-item .reply-meta {
+            font-size: 10px;
+        }
+
+        .reply-content {
+            font-size: 14px;
             color: white;
-        }
-
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-control:focus {
-            border-color: #FFDD00;
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 0 0.2rem rgba(255, 221, 0, 0.25);
+            white-space: pre-wrap;
         }
 
         .form-label {
-            color: white;
+            color: white; /* Mudança de cor para white */
             font-weight: 600;
         }
 
-        footer {
-            padding: 20px;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            resize: none;
         }
 
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #FFDD00;
+            box-shadow: 0 0 0 0.2rem rgba(255, 221, 0, 0.25);
+            color: #f0f0f0;
+        }
+        
+        /* Botão Enviar Resposta - Adaptado ao novo estilo de botão amarelo */
+        .btn-reply-submit {
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reply-submit:hover {
+            background-color: #FED061;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(255, 221, 0, 0.4);
+        }
+
+        /* Footer */
+        footer.footer {
+            padding: 24px 0;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+
+        /* Animações (mantidas do original) */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsividade (adaptada) */
         @media (max-width: 768px) {
+            .bar {
+                margin-top: 20px;
+                flex-wrap: wrap;
+                padding: 10px 20px;
+            }
+
+            .img2_logo {
+                width: 120px;
+                height: 60px;
+            }
+
             .bar h4 {
                 position: static;
                 transform: none;
-                margin-top: 20px;
+                margin-top: 15px;
                 width: 100%;
                 text-align: center;
             }
 
             .bar h4 a {
                 font-size: 14px;
-                margin: 0 10px;
+                margin: 0 8px;
+            }
+            
+            .bar h4 a::after {
+                bottom: -2px;
+            }
+
+            .start {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 15px;
+                padding: 10px 20px;
+            }
+
+            .main {
+                padding: 20px 10px;
             }
 
             .page-title {
                 font-size: 36px;
             }
-
+            
             .forum-actions {
                 flex-direction: column;
                 align-items: stretch;
             }
 
+            .btn-new-topic, .btn-primary-create {
+                width: 100%;
+                font-size: 16px;
+            }
+
             .search-bar {
                 max-width: 100%;
+            }
+
+            .reply-section, .replies-list {
+                max-height: 200px;
+            }
+            
+            .topic-footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
         }
     </style>
@@ -361,7 +559,7 @@
             <a href="/comunidade">Comunidade</a>
             <a href="/suporte">Suporte</a>
             <a href="/perfil">Perfil</a>
-            <a href="/logout">Logout</a>
+            <a href="/logout">Logout</a>            
         </h4>
         <a href="/perfil"><button class="start">Perfil</button></a>
     </nav>
@@ -370,109 +568,94 @@
     </div>
 
     <main class="main">
-        <div class="container">
-            <h1 class="page-title">Fórum da Comunidade</h1>
-            <p class="page-subtitle">Participe das discussões e compartilhe conhecimento</p>
+        <div class="forum-container">
+            <h1 class="page-title"><i class="bi bi-chat-dots-fill"></i> Fórum da Comunidade</h1>
+            <p class="page-subtitle">Conecte-se com outros usuários, tire dúvidas e compartilhe conhecimento.</p>
 
             <div class="forum-actions">
-                <button class="btn-new-topic" data-bs-toggle="modal" data-bs-target="#newTopicModal">
-                    <i class="bi bi-plus-circle"></i> Criar Novo Tópico
-                </button>
+                <button id="createTopicBtn" class="btn-new-topic"><i class="bi bi-plus-circle-fill"></i> Criar Novo Tópico</button>
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="Buscar tópicos...">
                 </div>
             </div>
 
-            <div class="topics-list" id="topicsList">
-                <!-- Os tópicos serão carregados aqui dinamicamente -->
+            <section class="topics-list" id="topicsList">
+                </section>
+            
+            <div class="empty-state" id="loadingMessage">
+                <i class="bi bi-hourglass-split"></i>
+                <h3>Carregando tópicos...</h3>
             </div>
-
-            <div class="empty-state" id="emptyState" style="display: none;">
+            
+            <div class="empty-state" id="noTopicsMessage" style="display: none;">
                 <i class="bi bi-chat-square-text"></i>
                 <h3>Nenhum tópico encontrado</h3>
                 <p>Seja o primeiro a criar um tópico!</p>
             </div>
+            
+            <section class="topic-list-section" style="display: none;">
+                <table class="topic-list">
+                    <thead><tr><th>Tópico</th><th class="text-center">Autor</th><th class="text-center">Respostas</th><th class="text-center">Criação</th></tr></thead>
+                    <tbody id="topicsTableBody"></tbody>
+                </table>
+            </section>
+
         </div>
     </main>
 
-    <!-- Modal para criar novo tópico -->
-    <div class="modal fade" id="newTopicModal" tabindex="-1" aria-labelledby="newTopicModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="newTopicModalLabel">Criar Novo Tópico</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="newTopicForm">
-                        <div class="mb-3">
-                            <label for="topicTitle" class="form-label">Título do Tópico</label>
-                            <input type="text" class="form-control" id="topicTitle" required placeholder="Digite o título do seu tópico">
-                        </div>
-                        <div class="mb-3">
-                            <label for="topicContent" class="form-label">Conteúdo</label>
-                            <textarea class="form-control" id="topicContent" rows="6" required placeholder="Descreva seu tópico em detalhes"></textarea>
-                        </div>
-                        <div class="text-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-new-topic">Publicar Tópico</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Carregar tópicos ao iniciar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTopics();
-            setupSearch();
-            setupNewTopicForm();
-        });
+    document.addEventListener('DOMContentLoaded', () => {
+        const createTopicBtn = document.getElementById('createTopicBtn');
+        const topicsList = document.getElementById('topicsList'); // Novo ID para a lista de cards
+        const loadingMessage = document.getElementById('loadingMessage');
+        const noTopicsMessage = document.getElementById('noTopicsMessage');
+        const searchInput = document.getElementById('searchInput');
 
-        // Função para carregar tópicos
-        function loadTopics() {
-            fetch('/load-topics')
+        // Redireciona para o login se o usuário não estiver logado
+        createTopicBtn.addEventListener('click', () => {
+            fetch('/is-logged-in')
                 .then(response => response.json())
                 .then(data => {
-                    const topicsList = document.getElementById('topicsList');
-                    const emptyState = document.getElementById('emptyState');
-                    
-                    if (data.topics && data.topics.length > 0) {
-                        topicsList.innerHTML = '';
-                        emptyState.style.display = 'none';
-                        
-                        // Ordenar tópicos por data (mais recentes primeiro)
-                        data.topics.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                        
-                        data.topics.forEach(topic => {
-                            const topicCard = createTopicCard(topic);
-                            topicsList.appendChild(topicCard);
-                        });
+                    if (data.isLoggedIn) {
+                        // Se o usuário estiver logado, redireciona para a rota de criação de tópico
+                        // Se houver um modal de criação de tópico, ele deve ser exibido aqui em vez de redirecionar
+                        window.location.href = '/novoforum'; 
                     } else {
-                        topicsList.innerHTML = '';
-                        emptyState.style.display = 'block';
+                        alert('Você precisa estar logado para criar um novo tópico.');
+                        window.location.href = '/login';
                     }
                 })
-                .catch(error => {
-                    console.error('Erro ao carregar tópicos:', error);
-                });
+                .catch(err => console.error('Erro ao verificar login:', err));
+        });
+
+        // Função para formatar a data
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleDateString('pt-BR', options);
         }
 
-        // Função para criar um card de tópico
+        // Função para escapar HTML (para usar no innerHTML)
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, (m) => map[m]);
+        }
+        
+        // Função para criar o Card de Tópico (novo elemento)
         function createTopicCard(topic) {
             const card = document.createElement('div');
             card.className = 'topic-card';
-            card.onclick = () => openTopic(topic.id);
+            card.setAttribute('data-topic-id', topic.id);
             
-            const date = new Date(topic.createdAt).toLocaleDateString('pt-BR');
+            const date = formatDate(topic.createdAt).split(' ')[0]; // Apenas a data
             const repliesCount = topic.replies ? topic.replies.length : 0;
+            const contentSnippet = escapeHtml(topic.content).substring(0, 200);
             
             card.innerHTML = `
                 <div class="topic-header">
@@ -480,108 +663,196 @@
                         <div class="topic-title">${escapeHtml(topic.title)}</div>
                         <div class="topic-meta">
                             <span><i class="bi bi-calendar"></i> ${date}</span>
-                            <span><i class="bi bi-person"></i> ${escapeHtml(topic.author)}</span>
                         </div>
                     </div>
                 </div>
                 <div class="topic-content">
-                    ${escapeHtml(topic.content).substring(0, 200)}${topic.content.length > 200 ? '...' : ''}
+                    ${contentSnippet}${topic.content.length > 200 ? '...' : ''}
                 </div>
                 <div class="topic-footer">
                     <span class="topic-author">Por ${escapeHtml(topic.author)}</span>
-                    <span class="topic-replies">
+                    <span class="topic-replies-count">
                         <i class="bi bi-chat-dots"></i> ${repliesCount} ${repliesCount === 1 ? 'resposta' : 'respostas'}
                     </span>
                 </div>
             `;
             
+            card.addEventListener('click', () => {
+                openTopicModal(topic.id);
+            });
+            
             return card;
         }
 
-        // Função para abrir um tópico específico
-        function openTopic(topicId) {
-            window.location.href = `/topic/${topicId}`;
-        }
 
-        // Função de busca
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                const topicCards = document.querySelectorAll('.topic-card');
-                let visibleCount = 0;
+        // Função para carregar e exibir os tópicos
+        async function loadTopics() {
+            loadingMessage.style.display = 'block';
+            topicsList.innerHTML = ''; // Limpa a lista de cards
+            noTopicsMessage.style.display = 'none';
+
+            try {
+                const response = await fetch('/topics');
+                const data = await response.json();
+
+                loadingMessage.style.display = 'none';
+
+                if (!data.topics || data.topics.length === 0) {
+                    noTopicsMessage.style.display = 'block';
+                    return;
+                }
                 
-                topicCards.forEach(card => {
-                    const title = card.querySelector('.topic-title').textContent.toLowerCase();
-                    const content = card.querySelector('.topic-content').textContent.toLowerCase();
-                    
-                    if (title.includes(searchTerm) || content.includes(searchTerm)) {
-                        card.style.display = 'block';
-                        visibleCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
+                // Exibe os tópicos como cards
+                data.topics.forEach(topic => {
+                    const card = createTopicCard(topic);
+                    topicsList.appendChild(card);
                 });
+
+            } catch (error) {
+                console.error('Erro ao carregar tópicos:', error);
+                loadingMessage.querySelector('h3').innerText = 'Erro ao carregar tópicos.';
+                loadingMessage.querySelector('i').className = 'bi bi-x-octagon';
+            }
+        }
+        
+        // Função para buscar tópicos (adaptada para a nova estrutura de cards)
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const topicCards = document.querySelectorAll('.topic-card');
+            let visibleCount = 0;
+            
+            topicCards.forEach(card => {
+                // Como não temos os dados brutos, buscamos no innerHTML. 
+                // Se a busca fosse do lado do cliente, seria melhor manter os dados no JS.
+                const title = card.querySelector('.topic-title').textContent.toLowerCase();
+                const content = card.querySelector('.topic-content').textContent.toLowerCase();
                 
-                const emptyState = document.getElementById('emptyState');
-                if (visibleCount === 0) {
-                    emptyState.style.display = 'block';
+                if (title.includes(searchTerm) || content.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCount++;
                 } else {
-                    emptyState.style.display = 'none';
+                    card.style.display = 'none';
                 }
             });
-        }
+            
+            if (visibleCount === 0) {
+                noTopicsMessage.style.display = 'block';
+                noTopicsMessage.querySelector('h3').innerText = `Nenhum tópico encontrado para "${searchInput.value}"`;
+            } else {
+                noTopicsMessage.style.display = 'none';
+                noTopicsMessage.querySelector('h3').innerText = `Nenhum tópico encontrado`;
+            }
+        });
 
-        // Função para configurar o formulário de novo tópico
-        function setupNewTopicForm() {
-            const form = document.getElementById('newTopicForm');
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const title = document.getElementById('topicTitle').value;
-                const content = document.getElementById('topicContent').value;
-                
-                fetch('/save-topic', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ title, content })
-                })
+
+        // Função para abrir o modal do tópico e carregar as respostas (adaptada para o novo estilo)
+        function openTopicModal(topicId) {
+            fetch('/topic-details/' + topicId)
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        // Fechar modal
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('newTopicModal'));
-                        modal.hide();
-                        
-                        // Limpar formulário
-                        form.reset();
-                        
-                        // Recarregar tópicos
-                        loadTopics();
-                        
-                        alert('Tópico criado com sucesso!');
-                    } else {
-                        alert('Erro ao criar tópico: ' + (data.message || 'Erro desconhecido'));
+                    if (!data.topic) {
+                        alert('Tópico não encontrado.');
+                        return;
                     }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao criar tópico. Por favor, tente novamente.');
-                });
-            });
-        }
 
-        // Função para escapar HTML e prevenir XSS
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+                    const topic = data.topic;
+                    const modal = document.createElement('div');
+                    modal.classList.add('modal', 'fade');
+                    modal.id = 'topicModal';
+                    modal.setAttribute('tabindex', '-1');
+                    modal.setAttribute('aria-labelledby', 'topicModalLabel');
+                    modal.setAttribute('aria-hidden', 'true');
+
+                    const repliesHtml = topic.replies.map(reply => `
+                        <div class="reply-item">
+                            <p class="reply-content">${escapeHtml(reply.content)}</p>
+                            <p class="reply-meta"><strong>${escapeHtml(reply.author)}</strong> - ${formatDate(reply.createdAt)}</p>
+                        </div>
+                    `).join('');
+
+                    modal.innerHTML = `
+                        <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="topicModalLabel">${escapeHtml(topic.title)}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="topic-detail">
+                                        <p class="topic-meta">Criado por **${escapeHtml(topic.author)}** em ${formatDate(topic.createdAt)}</p>
+                                        <div class="topic-content">${escapeHtml(topic.content)}</div>
+                                    </div>
+
+                                    <hr style="border-color: rgba(255, 255, 255, 0.1);">
+
+                                    <h6 style="color: white; font-weight: 700;">Respostas (${topic.replies.length})</h6>
+                                    <div class="replies-list">
+                                        ${repliesHtml}
+                                    </div>
+                                    
+                                    <hr style="border-color: rgba(255, 255, 255, 0.1);">
+
+                                    <h6 style="color: white; font-weight: 700;">Deixar uma resposta</h6>
+                                    <form id="replyForm">
+                                        <input type="hidden" name="topicId" value="${topic.id}">
+                                        <div class="mb-3">
+                                            <textarea class="form-control" id="replyContent" name="replyContent" rows="3" placeholder="Digite sua resposta..." required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-reply-submit">Enviar Resposta</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.body.appendChild(modal);
+                    const bsModal = new bootstrap.Modal(modal);
+                    bsModal.show();
+
+                    // Adicionar lógica de envio de resposta
+                    document.getElementById('replyForm').addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        const replyContent = document.getElementById('replyContent').value;
+                        
+                        fetch('/save-reply', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ topicId: topic.id, replyContent: replyContent })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Recarregar o modal ou a página para ver a nova resposta
+                                bsModal.hide();
+                                loadTopics(); // Recarrega para atualizar a contagem de respostas
+                            } else {
+                                alert('Erro: ' + (data.message || 'Erro desconhecido. Você pode precisar fazer login.'));
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Erro:', err);
+                            alert('Erro ao salvar resposta.');
+                        });
+                    });
+
+                    modal.addEventListener('hidden.bs.modal', function() {
+                        modal.remove();
+                    });
+                })
+                .catch(err => console.error('Erro ao carregar respostas:', err));
         }
-    </script>
-    <script>
+        
+        // Inicializa o carregamento dos tópicos ao carregar a página
+        loadTopics();
+    });
+
     (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
     </script>
+    <footer class="footer">
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
 </body>
 </html>
