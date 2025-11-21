@@ -992,7 +992,7 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
     try{
         await cliente.connect();
         const banco = cliente.db(nomeBanco);
@@ -1118,7 +1118,7 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    const cliente = new MongoClient(urlMongo, {useUnifiedTopology: true});
+    const cliente = new MongoClient(urlMongo);
     try{
         await cliente.connect();
         const banco = cliente.db(nomeBanco);
@@ -1216,7 +1216,7 @@ function protegerRota(req, res, proximo){
 
 // ROTA PARA VERIFICAR SE O USUÁRIO ESTÁ LOGADO
 app.get('/is-logged-in', (req, res) => {
-    console.log(' Verificando login via /is-logged-in');
+    console.log('Verificando login via /is-logged-in');
     console.log('Usuário na sessão:', req.session.usuario);
     
     if (req.session.usuario) {
@@ -1651,7 +1651,7 @@ app.post('/save-card', async (req, res) => {
     }
 
     const { cardId, title, number, value } = req.body;
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
     
     try {
         await cliente.connect();
@@ -1692,7 +1692,7 @@ app.post('/delete-card', async (req, res) => {
     const { cardId } = req.body;
     if (!cardId) return res.status(400).json({ success: false, message: 'cardId é obrigatório' });
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
     try {
         await cliente.connect();
         const banco = cliente.db(nomeBanco);
@@ -1720,7 +1720,7 @@ app.get('/load-cards', async (req, res) => {
     const usuario = req.session.usuario;
     if (!usuario) return res.json({ cards: {} });
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
     try {
         await cliente.connect();
         const banco = cliente.db(nomeBanco);
@@ -1737,6 +1737,7 @@ app.get('/load-cards', async (req, res) => {
 });
 
 // ROTA PARA SALVAR NOVO TÓPICO (CORRIGIDA)
+// ROTA PARA SALVAR NOVO TÓPICO
 app.post('/save-topic', async (req, res) => {
     if (!req.session.usuario) {
         return res.status(401).json({ success: false, message: 'Usuário não logado' });
@@ -1753,7 +1754,7 @@ app.post('/save-topic', async (req, res) => {
         replies: []
     };
     
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -1765,11 +1766,9 @@ app.post('/save-topic', async (req, res) => {
             { $push: { topics: newTopic } }
         );
 
-        // *** AQUI ESTÁ A CORREÇÃO: Verifica se 1 documento foi atualizado ***
         if (result.matchedCount === 1) {
             res.json({ success: true, topicId: newTopic.id });
         } else {
-            // Caso em que o usuário estava logado, mas não foi encontrado no DB (sessão desatualizada)
             res.status(404).json({ success: false, message: 'Usuário não encontrado para salvar o tópico.' });
         }
 
@@ -1784,10 +1783,10 @@ app.post('/save-topic', async (req, res) => {
 // ROTA PARA CARREGAR TÓPICOS
 app.get('/load-topics', async (req, res) => {
     if (!req.session.usuario) {
-        // Retorna um erro 401 para o frontend, se não estiver logado
-        return res.status(401).json({ error: 'Usuário não logado' });
+        return res.status(401).json({ error: 'Usuário não logado', topics: [] });
     }
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -1808,7 +1807,7 @@ app.get('/load-topics', async (req, res) => {
         res.json({ topics: allTopics });
     } catch (error) {
         console.error('Erro ao carregar tópicos:', error);
-        res.status(500).json({ topics: [] });
+        res.status(500).json({ topics: [], error: 'Erro ao carregar tópicos' });
     } finally {
         await cliente.close();
     }
@@ -1863,7 +1862,7 @@ app.get('/load-my-topics', protegerRota, async (req, res) => {
         return res.status(401).json({ topics: [] });
     }
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -1892,7 +1891,7 @@ app.get('/load-my-topics', protegerRota, async (req, res) => {
 app.get('/load-replies/:topicId', async (req, res) => {
     const { topicId } = req.params;
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -1936,7 +1935,7 @@ app.post('/save-reply', async (req, res) => {
         createdAt: new Date()
     };
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -1977,7 +1976,7 @@ app.put('/update-topic/:topicId', async (req, res) => {
         return res.status(400).json({ success: false, message: 'Título e conteúdo são obrigatórios' });
     }
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2012,7 +2011,7 @@ app.delete('/delete-topic/:topicId', async (req, res) => {
     const { topicId } = req.params;
     const usuarioLogado = req.session.usuario;
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2046,7 +2045,7 @@ app.get('/user-replies', async (req, res) => {
     }
 
     const usuarioLogado = req.session.usuario;
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
