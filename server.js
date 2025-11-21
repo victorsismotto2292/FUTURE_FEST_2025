@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3015;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -2123,7 +2123,7 @@ app.get('/curriculos', protegerRota, (req, res) => {
 });
 
 // ROTA PARA PÁGINA DO FÓRUM (USANDO PROTEÇÃO DE ROTA)
-app.get('/forum', protegerRota, (req, res) => {
+app.get('/forum', (req, res) => {  // sem protegerRota aqui
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(__dirname + '/public/forum.html');
 });
