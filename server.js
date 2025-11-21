@@ -15,8 +15,24 @@ app.use(express.static('public'));
 app.use(session({
     secret: 'maxima-seguranca-confia',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: 'lax'
+    }
 }));
+// Middleware de debug para todas as requisições
+app.use((req, res, next) => {
+    console.log('\n=== REQUISIÇÃO ===');
+    console.log('URL:', req.url);
+    console.log('Método:', req.method);
+    console.log('SessionID:', req.sessionID);
+    console.log('Usuário na sessão:', req.session.usuario);
+    console.log('==================\n');
+    next();
+});
 
 
 const urlMongo = 'mongodb+srv://victor_sismotto:teste@loginfuture.9uxk4yr.mongodb.net/?appName=loginFuture';
@@ -400,10 +416,10 @@ app.get('/', async (req, res) => {
         </div>
     </div>
 
-    -${isLoggedIn ? `<!-- Botão Flutuante para Abrir Modal -->
-    -<button class="floating-btn" data-bs-toggle="modal" data-bs-target="#incomeCalculatorModal" style="position: fixed; bottom: 20px; left: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #FFDD00, #FED061); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; border: none;">
-    -<i class="bi bi-calculator" style="font-size: 24px; color: #1B2C3E;"></i>
-    -</button>` : ''}
+    ${isLoggedIn ? `<!-- Botão Flutuante para Abrir Modal -->
+    <button class="floating-btn" data-bs-toggle="modal" data-bs-target="#incomeCalculatorModal" style="position: fixed; bottom: 20px; left: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, #FFDD00, #FED061); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000; border: none;">
+    <i class="bi bi-calculator" style="font-size: 24px; color: #1B2C3E;"></i>
+    </button>` : ''}
 
 
 
@@ -886,25 +902,25 @@ app.get('/', async (req, res) => {
     </script>
 ${isLoggedIn ? `<script>
 document.addEventListener('DOMContentLoaded', function() {
--  // Calculator button
--  const calcButton = document.createElement('div');
--  calcButton.style.position = 'fixed';
--  calcButton.style.bottom = '20px';
--  calcButton.style.left = '20px';
--  calcButton.style.width = '60px';
--  calcButton.style.height = '60px';
--  calcButton.style.background = 'linear-gradient(135deg, #FFDD00, #FED061)';
--  calcButton.style.borderRadius = '50%';
--  calcButton.style.display = 'flex';
--  calcButton.style.alignItems = 'center';
--  calcButton.style.justifyContent = 'center';
--  calcButton.style.cursor = 'pointer';
--  calcButton.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
--  calcButton.style.zIndex = '1000';
--  calcButton.setAttribute('data-bs-toggle', 'modal');
--  calcButton.setAttribute('data-bs-target', '#incomeCalculatorModal');
--  calcButton.innerHTML = '<i class="bi bi-calculator" style="font-size: 24px; color: #1B2C3E;"></i>';
--  document.body.appendChild(calcButton);
+// Calculator button
+const calcButton = document.createElement('div');
+calcButton.style.position = 'fixed';
+calcButton.style.bottom = '20px';
+calcButton.style.left = '20px';
+calcButton.style.width = '60px';
+calcButton.style.height = '60px';
+calcButton.style.background = 'linear-gradient(135deg, #FFDD00, #FED061)';
+calcButton.style.borderRadius = '50%';
+calcButton.style.display = 'flex';
+calcButton.style.alignItems = 'center';
+calcButton.style.justifyContent = 'center';
+calcButton.style.cursor = 'pointer';
+calcButton.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+calcButton.style.zIndex = '1000';
+calcButton.setAttribute('data-bs-toggle', 'modal');
+calcButton.setAttribute('data-bs-target', '#incomeCalculatorModal');
+calcButton.innerHTML = '<i class="bi bi-calculator" style="font-size: 24px; color: #1B2C3E;"></i>';
+document.body.appendChild(calcButton);
 
   // Chatbot button
   const chatButton = document.createElement('div');
@@ -1039,8 +1055,10 @@ app.post('/register', async (req, res) => {
             await colecaoUsuarios.insertOne({
                 usuario: req.body.usuario,
                 senha: senhaCriptografada,
-                cards: {}
+                cards: {},
+                topics: []
             });
+
             res.redirect('/login');
         }
     }
@@ -1100,7 +1118,7 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    const cliente  = new MongoClient(urlMongo, {useUnifiedTopology: true});
+    const cliente = new MongoClient(urlMongo, {useUnifiedTopology: true});
     try{
         await cliente.connect();
         const banco = cliente.db(nomeBanco);
@@ -1109,14 +1127,27 @@ app.post('/login', async (req, res) => {
         const usuario = await colecaoUsuarios.findOne({ usuario: req.body.usuario });
 
         if(usuario && await bcrypt.compare(req.body.senha, usuario.senha)){
+            // 1. Define a variável de sessão
             req.session.usuario = req.body.usuario;
-            res.redirect('/');
+            
+            // CORREÇÃO CRÍTICA: Salva a sessão explicitamente ANTES de redirecionar.
+            // Isso resolve o problema de "race condition" (falha de tempo).
+            return req.session.save(err => {
+                if (err) {
+                    console.error('Erro ao salvar sessão durante o login:', err);
+                    // Em caso de falha no salvamento da sessão, redireciona para erro.
+                    return res.redirect('/erro');
+                }
+                // 2. Redireciona para a home APENAS depois que a sessão foi salva com sucesso
+                res.redirect('/');
+            });
         }
         else{
             res.redirect('/erro');
         }
     }
     catch (erro){
+        console.error('Erro no login:', erro); // Adicionado para debug
         const htmlPage = 
         `
  <!DOCTYPE html>
@@ -1168,13 +1199,37 @@ app.post('/login', async (req, res) => {
 
 // ROTA COM FUNÇÃO PARA USUÁRIOS LOGADOS:
 function protegerRota(req, res, proximo){
+    console.log('PROTEGER ROTA CHAMADA');
+    console.log('   URL:', req.url);
+    console.log('   SessionID:', req.sessionID);
+    console.log('   Usuário:', req.session.usuario);
+    
     if(req.session.usuario){
+        console.log('Acesso permitido');
         proximo();
     }
     else{
+        console.log('Acesso negado - redirecionando para /register');
         res.redirect('/register');
     }
 }
+
+// ROTA PARA VERIFICAR SE O USUÁRIO ESTÁ LOGADO
+app.get('/is-logged-in', (req, res) => {
+    console.log(' Verificando login via /is-logged-in');
+    console.log('Usuário na sessão:', req.session.usuario);
+    
+    if (req.session.usuario) {
+        res.json({ 
+            loggedIn: true, 
+            usuario: req.session.usuario 
+        });
+    } else {
+        res.json({ 
+            loggedIn: false 
+        });
+    }
+});
 
 // ROTA LOGOUT
 app.get('/logout', (req, res) => {
@@ -1681,6 +1736,364 @@ app.get('/load-cards', async (req, res) => {
     }
 });
 
+// ROTA PARA SALVAR NOVO TÓPICO (CORRIGIDA)
+app.post('/save-topic', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+    
+    const { title, content } = req.body;
+
+    const newTopic = {
+        id: Date.now().toString(),
+        title: title,
+        content: content,
+        author: req.session.usuario,
+        createdAt: new Date(),
+        replies: []
+    };
+    
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { usuario: req.session.usuario }, 
+            { $push: { topics: newTopic } }
+        );
+
+        // *** AQUI ESTÁ A CORREÇÃO: Verifica se 1 documento foi atualizado ***
+        if (result.matchedCount === 1) {
+            res.json({ success: true, topicId: newTopic.id });
+        } else {
+            // Caso em que o usuário estava logado, mas não foi encontrado no DB (sessão desatualizada)
+            res.status(404).json({ success: false, message: 'Usuário não encontrado para salvar o tópico.' });
+        }
+
+    } catch (error) {
+        console.error('Erro ao salvar tópico:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao salvar tópico.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA CARREGAR TÓPICOS
+app.get('/load-topics', async (req, res) => {
+    if (!req.session.usuario) {
+        // Retorna um erro 401 para o frontend, se não estiver logado
+        return res.status(401).json({ error: 'Usuário não logado' });
+    }
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const users = await colecaoUsuarios.find({}).toArray();
+
+        const allTopics = [];
+        users.forEach(user => {
+            if (user.topics) {
+                user.topics.forEach(topic => {
+                    allTopics.push(topic);
+                });
+            }
+        });
+
+        res.json({ topics: allTopics });
+    } catch (error) {
+        console.error('Erro ao carregar tópicos:', error);
+        res.status(500).json({ topics: [] });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA ABRIR UM TÓPICO ESPECÍFICO
+app.get('/topic/:topicId', protegerRota, async (req, res) => {
+    const { topicId } = req.params;
+    
+    // Por enquanto, vamos só enviar uma página simples
+    // Você pode criar um topic.html mais elaborado depois
+    res.send(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <title>Tópico - WORKIN</title>
+            <style>
+                body { 
+                    background: #1B2C3E; 
+                    color: white; 
+                    font-family: Arial; 
+                    padding: 40px;
+                    text-align: center;
+                }
+                h1 { color: #FFDD00; }
+                a { 
+                    display: inline-block;
+                    margin-top: 20px;
+                    padding: 12px 30px;
+                    background: #FFDD00;
+                    color: #1B2C3E;
+                    text-decoration: none;
+                    border-radius: 30px;
+                    font-weight: bold;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Tópico ID: ${topicId}</h1>
+            <p>Visualização detalhada do tópico será implementada em breve!</p>
+            <a href="/forum">← Voltar ao Fórum</a>
+        </body>
+        </html>
+    `);
+});
+
+// ROTA PARA CARREGAR APENAS OS TÓPICOS DO USUÁRIO LOGADO
+app.get('/load-my-topics', protegerRota, async (req, res) => {
+    const usuarioNome = req.session.usuario;
+    if (!usuarioNome) {
+        return res.status(401).json({ topics: [] });
+    }
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // Encontra o usuário logado
+        const usuarioDoc = await colecaoUsuarios.findOne({ usuario: usuarioNome });
+
+        if (usuarioDoc && usuarioDoc.topics) {
+            // Retorna apenas a array 'topics' desse usuário
+            res.json({ topics: usuarioDoc.topics });
+        } else {
+            // Usuário encontrado, mas não tem tópicos
+            res.json({ topics: [] });
+        }
+    } catch (error) {
+        console.error('Erro ao carregar meus tópicos:', error);
+        res.status(500).json({ topics: [] });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA CARREGAR RESPOSTAS DE UM TÓPICO
+app.get('/load-replies/:topicId', async (req, res) => {
+    const { topicId } = req.params;
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const users = await colecaoUsuarios.find({}).toArray();
+
+        let replies = [];
+        for (const user of users) {
+            if (user.topics) {
+                const topic = user.topics.find(t => t.id === topicId);
+                if (topic) {
+                    replies = topic.replies || [];
+                    break;
+                }
+            }
+        }
+
+        res.json({ replies });
+    } catch (error) {
+        console.error('Erro ao carregar respostas:', error);
+        res.status(500).json({ replies: [] });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA SALVAR RESPOSTA (CORRIGIDA)
+app.post('/save-reply', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { topicId, replyContent } = req.body;
+
+    const reply = {
+        id: Date.now().toString(),
+        content: replyContent,
+        author: req.session.usuario,
+        createdAt: new Date()
+    };
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { 'topics.id': topicId },
+            { $push: { 'topics.$.replies': reply } }
+        );
+
+        // *** AQUI ESTÁ A CORREÇÃO: Verifica se 1 documento foi atualizado ***
+        if (result.matchedCount === 1) {
+            res.json({ success: true });
+        } else {
+            // Caso em que o tópico não existe ou houve outro problema de correspondência
+            res.status(404).json({ success: false, message: 'Tópico não encontrado ou erro na atualização.' });
+        }
+    } catch (error) {
+        console.error('Erro ao salvar resposta:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao salvar resposta.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA ATUALIZAR TÓPICO
+app.put('/update-topic/:topicId', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { topicId } = req.params;
+    const { title, content } = req.body;
+    const usuarioLogado = req.session.usuario;
+
+    if (!title || !content) {
+        return res.status(400).json({ success: false, message: 'Título e conteúdo são obrigatórios' });
+    }
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // Garante que apenas o autor do tópico possa atualizá-lo
+        const result = await colecaoUsuarios.updateOne(
+            { 'topics.id': topicId, 'topics.author': usuarioLogado },
+            { $set: { 'topics.$.title': title, 'topics.$.content': content } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Tópico não encontrado ou você não é o autor.' });
+        }
+
+        res.json({ success: true, message: 'Tópico atualizado com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao atualizar tópico:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao atualizar tópico.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA EXCLUIR TÓPICO
+app.delete('/delete-topic/:topicId', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { topicId } = req.params;
+    const usuarioLogado = req.session.usuario;
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // Garante que apenas o autor do tópico possa excluí-lo
+        const result = await colecaoUsuarios.updateOne(
+            { 'topics.id': topicId, 'topics.author': usuarioLogado },
+            { $pull: { topics: { id: topicId } } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Tópico não encontrado ou você não é o autor.' });
+        }
+
+        res.json({ success: true, message: 'Tópico excluído com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao excluir tópico:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao excluir tópico.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA BUSCAR TODAS AS RESPOSTAS DO USUÁRIO
+app.get('/user-replies', async (req, res) => {
+    // 1. Verifica se o usuário está logado
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const usuarioLogado = req.session.usuario;
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // 2. Busca o documento do usuário logado
+        const user = await colecaoUsuarios.findOne(
+            { usuario: usuarioLogado },
+            { projection: { 'topics': 1 } } // Busca apenas o campo 'topics'
+        );
+
+        if (!user || !user.topics) {
+            return res.json({ success: true, replies: [] }); // Retorna lista vazia se não houver tópicos
+        }
+
+        let allReplies = [];
+
+        // 3. Itera sobre os tópicos e extrai as respostas
+        user.topics.forEach(topic => {
+            if (topic.replies && topic.replies.length > 0) {
+                // Filtra as respostas para incluir apenas as do usuário logado
+                const userRepliesInTopic = topic.replies
+                    .filter(reply => reply.author === usuarioLogado)
+                    .map(reply => ({
+                        topicId: topic.id,
+                        topicTitle: topic.title, // Inclui o título do tópico para contexto
+                        replyContent: reply.content,
+                        createdAt: reply.createdAt
+                    }));
+                
+                allReplies = allReplies.concat(userRepliesInTopic);
+            }
+        });
+
+        // 4. Envia a lista de respostas
+        res.json({ success: true, replies: allReplies });
+    } catch (error) {
+        console.error('Erro ao buscar respostas do usuário:', error);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+
+
 // ROTAS PROTEGIDAS PARA USUÁRIOS LOGADOS
 app.get('/planos', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/planos.html');
@@ -1702,20 +2115,18 @@ app.get('/suporte', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/suporte.html');
 });
 
-app.get('/cursos', (req, res) => {
+app.get('/cursos', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/cursos.html');
 });
 
-app.get('/curriculos', (req, res) => {
+app.get('/curriculos', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/curriculos.html');
 });
 
-app.get('/forum', (req, res) => {
+// ROTA PARA PÁGINA DO FÓRUM (USANDO PROTEÇÃO DE ROTA)
+app.get('/forum', protegerRota, (req, res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(__dirname + '/public/forum.html');
-});
-
-app.get('/novoforum', (req, res) => {
-    res.sendFile(__dirname + '/public/novoforum.html')
 });
 
 app.listen(port, () => {

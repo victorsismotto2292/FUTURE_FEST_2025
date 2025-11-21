@@ -3,78 +3,585 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprender - WORKIN</title>
+    <title>Fórum - WORKIN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/style/forum.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
- 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
+                        linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
+                        radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
+                        radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
+                        radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
+                        linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .bar {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: relative;
+        }
+
+        .img2_logo {
+            width: 160px;
+            height: 70px;
+        }
+
+        .bar h4 {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            margin-top: 20px;
+        }
+
+        .bar h4 a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 19px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-family: 'Jockey One';
+        }
+
+        .bar h4 a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #FFDD00;
+            transition: width 0.3s ease;
+        }
+
+        .bar h4 a:hover {
+            color: #FFDD00;
+        }
+
+        .bar h4 a:hover::after {
+            width: 100%;
+        }
+
+        .start {
+            padding: 12px 30px;
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+            border: none;
+            border-radius: 30px;
+            color: #1B2C3E;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
+        }
+
+        .progress {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+        }
+
+        .main {
+            padding: 40px 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            color: white;
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 50px;
+        }
+
+        .forum-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-new-topic {
+            padding: 14px 30px;
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+            border: none;
+            border-radius: 30px;
+            color: #1B2C3E;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .btn-new-topic:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #FFDD00;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .topics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .topic-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .topic-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #FFDD00;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 221, 0, 0.2);
+        }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .topic-title {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .topic-meta {
+            display: flex;
+            gap: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .topic-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .topic-content {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .topic-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .topic-author {
+            color: #FFDD00;
+            font-weight: 600;
+        }
+
+        .topic-replies {
+            background: rgba(255, 221, 0, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: rgba(255, 221, 0, 0.3);
+        }
+
+        .empty-state h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            background: rgba(27, 44, 62, 0.98);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+        }
+
+        .modal-header {
+            border-bottom: 2px solid rgba(255, 221, 0, 0.3);
+        }
+
+        .modal-title {
+            color: white;
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        .form-control, .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-control:focus {
+            border-color: #FFDD00;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 0.2rem rgba(255, 221, 0, 0.25);
+        }
+
+        .form-label {
+            color: white;
+            font-weight: 600;
+        }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .bar h4 {
+                position: static;
+                transform: none;
+                margin-top: 20px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .bar h4 a {
+                font-size: 14px;
+                margin: 0 10px;
+            }
+
+            .page-title {
+                font-size: 36px;
+            }
+
+            .forum-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-bar {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-   <div class="container forum-topics-section">
-    <div class="hero-section text-start mb-4">
-        <h1 class="forum-title">Fórum</h1>
-        <p>fórum fórum testar testar</p>
-        
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+        <h4>
+            <a href="/">Home</a>
+            <a href="/planos">Planos e Preços</a>
+            <a href="/aprender">Aprender</a>
+            <a href="/parceria">Parceria</a>
+            <a href="/comunidade">Comunidade</a>
+            <a href="/suporte">Suporte</a>
+            <a href="/perfil">Perfil</a>
+            <a href="/logout">Logout</a>
+        </h4>
+        <a href="/perfil"><button class="start">Perfil</button></a>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%"></div>
     </div>
 
-    <div class="topics-table-container">
-        <table class="table table-dark table-borderless topic-list">
-            <thead>
-                <tr>
-                    <th class="col-8">TÓPICO</th>
-                    <th class="text-center col-1 d-none d-md-table-cell">RESPOSTAS</th>
-                    
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="topic-highlight">
-                    <td>
-                        <i class="bi bi-pin-fill text-warning me-2"></i>
-                        <a href="#" class="topic-link topic-pinned">REGRAS</a>
-                        <div class="topic-meta">por <a class="redator"></a> em 01/11/2025</div>
-                    </td>
-                    <td class="text-center d-none d-md-table-cell">
-                        <span class="topic-stats"><a class="respostas"></a></span>
-                    </td>
-                    
-                </tr>
-                <tr>
-                    <td>
-                        <a href="#" class="topic-link">teste2</a>
-                        <div class="topic-meta">por</div>
-                    </td>
-                    <td class="text-center">
-                        <span class="topic-stats"><a class="respostas"></a></span>
-                    </td>
-                </tr>
-                <tr class="topic-low-activity">
-                    <td>
-                        <a href="#" class="topic-link">teste3</a>
-                        <div class="topic-meta">por</div>
-                    </td>
-                    <td class="text-center d-none d-md-table-cell">
-                        <span class="topic-stats"><a class="respostas"></a></span>
-                    </td>
-                    
-                </tr>
-            </tbody>
-        </table>
-    </div><br>  
-    <a href="/novoforum" class="btn-new-topic" data-bs-toggle="modal">
-            <i class="bi bi-plus-circle-fill me-2"></i> Criar Novo Tópico
-        </a>
-            
+    <main class="main">
+        <div class="container">
+            <h1 class="page-title">Fórum da Comunidade</h1>
+            <p class="page-subtitle">Participe das discussões e compartilhe conhecimento</p>
+
+            <div class="forum-actions">
+                <button class="btn-new-topic" data-bs-toggle="modal" data-bs-target="#newTopicModal">
+                    <i class="bi bi-plus-circle"></i> Criar Novo Tópico
+                </button>
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Buscar tópicos...">
+                </div>
+            </div>
+
+            <div class="topics-list" id="topicsList">
+                <!-- Os tópicos serão carregados aqui dinamicamente -->
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="bi bi-chat-square-text"></i>
+                <h3>Nenhum tópico encontrado</h3>
+                <p>Seja o primeiro a criar um tópico!</p>
+            </div>
+        </div>
     </main>
+
+    <!-- Modal para criar novo tópico -->
+    <div class="modal fade" id="newTopicModal" tabindex="-1" aria-labelledby="newTopicModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newTopicModalLabel">Criar Novo Tópico</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newTopicForm">
+                        <div class="mb-3">
+                            <label for="topicTitle" class="form-label">Título do Tópico</label>
+                            <input type="text" class="form-control" id="topicTitle" required placeholder="Digite o título do seu tópico">
+                        </div>
+                        <div class="mb-3">
+                            <label for="topicContent" class="form-label">Conteúdo</label>
+                            <textarea class="form-control" id="topicContent" rows="6" required placeholder="Descreva seu tópico em detalhes"></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-new-topic">Publicar Tópico</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Carregar tópicos ao iniciar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTopics();
+            setupSearch();
+            setupNewTopicForm();
+        });
+
+        // Função para carregar tópicos
+        function loadTopics() {
+            fetch('/load-topics')
+                .then(response => response.json())
+                .then(data => {
+                    const topicsList = document.getElementById('topicsList');
+                    const emptyState = document.getElementById('emptyState');
+                    
+                    if (data.topics && data.topics.length > 0) {
+                        topicsList.innerHTML = '';
+                        emptyState.style.display = 'none';
+                        
+                        // Ordenar tópicos por data (mais recentes primeiro)
+                        data.topics.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        
+                        data.topics.forEach(topic => {
+                            const topicCard = createTopicCard(topic);
+                            topicsList.appendChild(topicCard);
+                        });
+                    } else {
+                        topicsList.innerHTML = '';
+                        emptyState.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar tópicos:', error);
+                });
+        }
+
+        // Função para criar um card de tópico
+        function createTopicCard(topic) {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.onclick = () => openTopic(topic.id);
+            
+            const date = new Date(topic.createdAt).toLocaleDateString('pt-BR');
+            const repliesCount = topic.replies ? topic.replies.length : 0;
+            
+            card.innerHTML = `
+                <div class="topic-header">
+                    <div style="flex: 1;">
+                        <div class="topic-title">${escapeHtml(topic.title)}</div>
+                        <div class="topic-meta">
+                            <span><i class="bi bi-calendar"></i> ${date}</span>
+                            <span><i class="bi bi-person"></i> ${escapeHtml(topic.author)}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="topic-content">
+                    ${escapeHtml(topic.content).substring(0, 200)}${topic.content.length > 200 ? '...' : ''}
+                </div>
+                <div class="topic-footer">
+                    <span class="topic-author">Por ${escapeHtml(topic.author)}</span>
+                    <span class="topic-replies">
+                        <i class="bi bi-chat-dots"></i> ${repliesCount} ${repliesCount === 1 ? 'resposta' : 'respostas'}
+                    </span>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Função para abrir um tópico específico
+        function openTopic(topicId) {
+            window.location.href = `/topic/${topicId}`;
+        }
+
+        // Função de busca
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const topicCards = document.querySelectorAll('.topic-card');
+                let visibleCount = 0;
+                
+                topicCards.forEach(card => {
+                    const title = card.querySelector('.topic-title').textContent.toLowerCase();
+                    const content = card.querySelector('.topic-content').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || content.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                const emptyState = document.getElementById('emptyState');
+                if (visibleCount === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    emptyState.style.display = 'none';
+                }
+            });
+        }
+
+        // Função para configurar o formulário de novo tópico
+        function setupNewTopicForm() {
+            const form = document.getElementById('newTopicForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('topicTitle').value;
+                const content = document.getElementById('topicContent').value;
+                
+                fetch('/save-topic', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, content })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Fechar modal
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('newTopicModal'));
+                        modal.hide();
+                        
+                        // Limpar formulário
+                        form.reset();
+                        
+                        // Recarregar tópicos
+                        loadTopics();
+                        
+                        alert('Tópico criado com sucesso!');
+                    } else {
+                        alert('Erro ao criar tópico: ' + (data.message || 'Erro desconhecido'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao criar tópico. Por favor, tente novamente.');
+                });
+            });
+        }
+
+        // Função para escapar HTML e prevenir XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+    <script>
     (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
     </script>
-    <footer class="footer">
-        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
-    </footer>
 </body>
 </html>
