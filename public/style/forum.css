@@ -60,25 +60,20 @@ body {
 
         /* Botão Sair/Perfil */
         .start {
-            margin-left: auto;
-            background-color: #00d4aa;
-            border: none;
-            color: black;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
+            color: white;
+            width: 170px;
+            height: 60px;
+            background: transparent;
+            border: 3px solid #FFDD00;
+            border-radius: 30px;
             cursor: pointer;
-            border-radius: 25px;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease-in-out;
+            font-weight: 600;
         }
 
         .start:hover {
-            background-color: #00a88f;
+            background-color: #ffef8835;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.4);
         }
 
         /* Seção Principal */

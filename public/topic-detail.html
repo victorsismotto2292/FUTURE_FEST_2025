@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tópico - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
+                        linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
+                        radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
+                        radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
+                        radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
+                        linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
+            font-family: 'Arial', sans-serif;
+        }
+
+        .bar {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: relative;
+            justify-content: space-between;
+        }
+
+        .img2_logo {
+            width: 160px;
+            height: 70px;
+        }
+
+        .bar h4 {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            margin-top: 20px;
+        }
+
+        .bar h4 a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 19px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-family: 'Jockey One';
+        }
+
+        .bar h4 a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #FFDD00;
+            transition: width 0.3s ease;
+        }
+
+        .bar h4 a:hover {
+            color: #FFDD00;
+        }
+
+        .bar h4 a:hover::after {
+            width: 100%;
+        }
+
+        .start {
+            color: white;
+            width: 170px;
+            height: 60px;
+            background: transparent;
+            border: 3px solid #FFDD00;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            font-weight: 600;
+        }
+
+        .start:hover {
+            background-color: #ffef8835;
+            transform: translateY(-2px);
+        }
+
+        .progress {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+        }
+
+        .main {
+            padding: 40px 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-button {
+            color: #FFDD00;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: #FED061;
+            transform: translateX(-5px);
+        }
+
+        .topic-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+
+        .topic-title {
+            color: white;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .topic-meta-info {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meta-item i {
+            color: #FFDD00;
+            font-size: 18px;
+        }
+
+        .topic-content {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .replies-section {
+            margin-top: 50px;
+        }
+
+        .replies-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .replies-count {
+            background: rgba(255, 221, 0, 0.2);
+            color: #FFDD00;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 20px;
+        }
+
+        .reply-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reply-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 221, 0, 0.3);
+        }
+
+        .reply-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .reply-author {
+            color: #FFDD00;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .reply-date {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+
+        .reply-content {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 15px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .add-reply-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .add-reply-title {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #FFDD00;
+            box-shadow: 0 0 0 0.2rem rgba(255, 221, 0, 0.25);
+            color: white;
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-submit-reply {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+            border: none;
+            border-radius: 10px;
+            color: #1B2C3E;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit-reply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 221, 0, 0.3);
+        }
+
+        .empty-replies {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .empty-replies i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: rgba(255, 221, 0, 0.3);
+        }
+
+        footer {
+            padding: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .bar h4 {
+                position: static;
+                transform: none;
+                margin-top: 20px;
+            }
+
+            .topic-title {
+                font-size: 24px;
+            }
+
+            .topic-meta-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+        <h4>
+            <a href="/">Home</a>
+            <a href="/planos">Planos e Preços</a>
+            <a href="/aprender">Aprender</a>
+            <a href="/parceria">Parceria</a>
+            <a href="/comunidade">Comunidade</a>
+            <a href="/suporte">Suporte</a>
+            <a href="/perfil">Perfil</a>
+            <a href="/logout">Logout</a>
+        </h4>
+        <a href="/perfil"><button class="start">Perfil</button></a>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%"></div>
+    </div>
+
+    <main class="main">
+        <div class="container">
+            <a href="/forum" class="back-button">
+                <i class="bi bi-arrow-left"></i> Voltar ao Fórum
+            </a>
+
+            <div id="topicContent">
+                <p style="color: white; text-align: center;">Carregando tópico...</p>
+            </div>
+
+            <div class="replies-section" id="repliesSection" style="display: none;">
+                <h3 class="replies-title">
+                    <i class="bi bi-chat-dots"></i> Respostas
+                    <span class="replies-count" id="repliesCount">0</span>
+                </h3>
+                <div id="repliesList"></div>
+                <div class="empty-replies" id="emptyReplies" style="display: none;">
+                    <i class="bi bi-chat-left-dots"></i>
+                    <h5>Nenhuma resposta ainda</h5>
+                    <p>Seja o primeiro a responder este tópico!</p>
+                </div>
+            </div>
+
+            <div class="add-reply-section">
+                <h4 class="add-reply-title">
+                    <i class="bi bi-pen"></i> Adicionar Resposta
+                </h4>
+                <form id="replyForm">
+                    <div class="mb-3">
+                        <label for="replyContent" class="form-label">Sua resposta:</label>
+                        <textarea class="form-control" id="replyContent" rows="4" placeholder="Escreva sua resposta aqui..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit-reply">Enviar Resposta</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const topicId = urlParams.get('id');
+
+        if (!topicId) {
+            document.getElementById('topicContent').innerHTML = '<p style="color: red; text-align: center;">Tópico não encontrado!</p>';
+        } else {
+            loadTopicDetail();
+        }
+
+        function loadTopicDetail() {
+            fetch('/load-topics')
+                .then(response => response.json())
+                .then(data => {
+                    const topic = data.topics.find(t => t.id === topicId);
+                    
+                    if (!topic) {
+                        document.getElementById('topicContent').innerHTML = '<p style="color: red; text-align: center;">Tópico não encontrado!</p>';
+                        return;
+                    }
+
+                    displayTopic(topic);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar tópico:', error);
+                    document.getElementById('topicContent').innerHTML = '<p style="color: red; text-align: center;">Erro ao carregar tópico!</p>';
+                });
+        }
+
+        function displayTopic(topic) {
+            const date = new Date(topic.createdAt).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const topicHTML = `
+                <div class="topic-header">
+                    <h1 class="topic-title">${escapeHtml(topic.title)}</h1>
+                    <div class="topic-meta-info">
+                        <div class="meta-item">
+                            <i class="bi bi-person-circle"></i>
+                            <strong>${escapeHtml(topic.author)}</strong>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-calendar-event"></i>
+                            ${date}
+                        </div>
+                    </div>
+                    <div class="topic-content">${escapeHtml(topic.content)}</div>
+                </div>
+            `;
+
+            document.getElementById('topicContent').innerHTML = topicHTML;
+
+            // Carregar respostas
+            loadReplies(topic);
+        }
+
+        function loadReplies(topic) {
+            const replies = topic.replies || [];
+            const repliesSection = document.getElementById('repliesSection');
+            const repliesList = document.getElementById('repliesList');
+            const emptyReplies = document.getElementById('emptyReplies');
+            const repliesCount = document.getElementById('repliesCount');
+
+            repliesCount.textContent = replies.length;
+
+            if (replies.length === 0) {
+                repliesList.innerHTML = '';
+                emptyReplies.style.display = 'block';
+            } else {
+                emptyReplies.style.display = 'none';
+                repliesList.innerHTML = '';
+
+                replies.forEach(reply => {
+                    const replyDate = new Date(reply.createdAt).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const replyHTML = `
+                        <div class="reply-card">
+                            <div class="reply-header">
+                                <div>
+                                    <div class="reply-author">${escapeHtml(reply.author)}</div>
+                                    <div class="reply-date">${replyDate}</div>
+                                </div>
+                            </div>
+                            <div class="reply-content">${escapeHtml(reply.content)}</div>
+                        </div>
+                    `;
+
+                    repliesList.innerHTML += replyHTML;
+                });
+            }
+
+            repliesSection.style.display = 'block';
+        }
+
+        // Configurar envio de resposta
+        document.getElementById('replyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const replyContent = document.getElementById('replyContent').value;
+
+            fetch('/save-reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topicId, replyContent })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('replyContent').value = '';
+                    alert('Resposta enviada com sucesso!');
+                    loadTopicDetail();
+                } else {
+                    alert('Erro ao enviar resposta: ' + (data.message || 'Erro desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao enviar resposta.');
+            });
+        });
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
