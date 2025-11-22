@@ -922,29 +922,6 @@ calcButton.setAttribute('data-bs-target', '#incomeCalculatorModal');
 calcButton.innerHTML = '<i class="bi bi-calculator" style="font-size: 24px; color: #1B2C3E;"></i>';
 document.body.appendChild(calcButton);
 
-  // Chatbot button
-  const chatButton = document.createElement('div');
-  chatButton.style.position = 'fixed';
-  chatButton.style.bottom = '20px';
-  chatButton.style.right = '20px';
-  chatButton.style.width = '60px';
-  chatButton.style.height = '60px';
-  chatButton.style.background = 'linear-gradient(135deg, #FFDD00, #FED061)';
-  chatButton.style.borderRadius = '50%';
-  chatButton.style.display = 'flex';
-  chatButton.style.alignItems = 'center';
-  chatButton.style.justifyContent = 'center';
-  chatButton.style.cursor = 'pointer';
-  chatButton.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-  chatButton.style.zIndex = '1000';
-  chatButton.innerHTML = '<i class="bi bi-chat-dots" style="font-size: 24px; color: #1B2C3E;"></i>';
-  chatButton.onclick = function() {
-    // Trigger chatbot if available
-    if (window.chatbase) {
-      window.chatbase('open');
-    }
-  };
-  document.body.appendChild(chatButton);
 });
 </script><script>
 (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
