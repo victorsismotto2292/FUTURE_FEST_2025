@@ -233,7 +233,7 @@ app.get('/', async (req, res) => {
         </div>
     </main>
 
-    ${isLoggedIn ? '' : '<a href="/login" class="login-button-container"><button class="footer_button" style="text-decoration: none;">Login</button></a>'}
+    ${isLoggedIn ? '' : '<a href="/login" style="text-decoration: none; display: flex; justify-content: center"><button class="footer_button" style="text-decoration: none;">Login</button></a>'}
 
     <section class="features-section">
         <div class="features-grid">
