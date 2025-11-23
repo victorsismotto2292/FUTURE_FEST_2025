@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = process.env.PORT || 3080;
+const port = process.env.PORT || 3060;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -19,7 +19,7 @@ app.use(session({
     cookie: {
         secure: false,
         httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000, // 24 hrs
         sameSite: 'lax'
     }
 }));

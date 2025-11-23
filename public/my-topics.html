@@ -76,16 +76,22 @@
         }
 
         .start {
-            padding: 12px 30px;
-            background: linear-gradient(90deg, #FFDD00, #FED061);
-            border: none;
+            color: white;
+            width: 170px;
+            height: 60px;
+            background: transparent;
+            border: 3px solid #FFDD00;
             border-radius: 30px;
-            color: #1B2C3E;
-            font-weight: bold;
             cursor: pointer;
-            font-size: 16px;
+            transition: all 0.3s ease-in-out;
+            font-weight: 600;
         }
 
+        .start:hover {
+            background-color: #ffef8835;
+            transform: translateY(-2px);
+        }
+        
         .progress {
             height: 5px;
             background: rgba(255, 255, 255, 0.1);
