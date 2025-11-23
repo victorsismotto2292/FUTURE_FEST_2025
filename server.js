@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = process.env.PORT || 3080;
+const port = process.env.PORT || 3010;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -1104,16 +1104,18 @@ app.post('/login', async (req, res) => {
         const usuario = await colecaoUsuarios.findOne({ usuario: req.body.usuario });
 
         if(usuario && await bcrypt.compare(req.body.senha, usuario.senha)){
+            // 1. Define a variável de sessão
             req.session.usuario = req.body.usuario;
-            req.session.loginTime = new Date();
             
-
+            // CORREÇÃO CRÍTICA: Salva a sessão explicitamente ANTES de redirecionar.
+            // Isso resolve o problema de "race condition" (falha de tempo).
             return req.session.save(err => {
                 if (err) {
                     console.error('Erro ao salvar sessão durante o login:', err);
+                    // Em caso de falha no salvamento da sessão, redireciona para erro.
                     return res.redirect('/erro');
                 }
-
+                // 2. Redireciona para a home APENAS depois que a sessão foi salva com sucesso
                 res.redirect('/');
             });
         }
@@ -1172,66 +1174,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/get-profile-data', async (req, res) => {
-    const usuario = req.session.usuario;
-    if (!usuario) {
-        return res.status(401).json({ error: 'Não autenticado' });
-    }
-
-    const loginTime = req.session.loginTime;
-    const currentTime = new Date();
-    const diffMs = currentTime - new Date(loginTime);
-    
-    // Converter para formato legível
-    let timeString = '';
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-
-    if (days > 0) {
-        timeString = `${days} dia${days > 1 ? 's' : ''}, ${hours}h`;
-    } else if (hours > 0) {
-        timeString = `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-        timeString = `${minutes}m ${seconds}s`;
-    } else {
-        timeString = `${seconds}s`;
-    }
-
-    const cliente = new MongoClient(urlMongo);
-    try {
-        await cliente.connect();
-        const banco = cliente.db(nomeBanco);
-        const colecaoUsuarios = banco.collection('usuarios');
-
-        const usuarioDoc = await colecaoUsuarios.findOne({ usuario });
-        const topics = usuarioDoc?.topics || [];
-        const certifications = usuarioDoc?.certifications || [];
-
-        // Contar certificados
-        let certCount = 0;
-        topics.forEach(topic => {
-            if (topic.certifications) {
-                certCount += topic.certifications.length;
-            }
-        });
-
-        res.json({
-            usuario,
-            timeLoggedIn: timeString,
-            courses: topics.length,
-            certificates: certCount,
-            loginTime: loginTime
-        });
-    } catch (error) {
-        console.error('Erro ao buscar dados do perfil:', error);
-        res.status(500).json({ error: 'Erro ao buscar dados' });
-    } finally {
-        await cliente.close();
-    }
-});
-
 // ROTA COM FUNÇÃO PARA USUÁRIOS LOGADOS:
 function protegerRota(req, res, proximo){
     console.log('PROTEGER ROTA CHAMADA');
@@ -1280,12 +1222,12 @@ app.get('/logout', (req, res) => {
 app.get('/perfil', protegerRota, (req, res) => {
     const usuario = req.session.usuario;
     const html = `
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - WORKIN</title>
+    <title>Perfil - FUTURE</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1314,7 +1256,6 @@ app.get('/perfil', protegerRota, (req, res) => {
             align-items: center;
             padding: 0 40px;
             position: relative;
-            justify-content: space-between;
         }
 
         .img2_logo {
@@ -1359,23 +1300,6 @@ app.get('/perfil', protegerRota, (req, res) => {
             width: 100%;
         }
 
-        .start {
-            color: white;
-            width: 170px;
-            height: 60px;
-            background: transparent;
-            border: 3px solid #FFDD00;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            font-weight: 600;
-        }
-
-        .start:hover {
-            background-color: #ffef8835;
-            transform: translateY(-2px);
-        }
-
         .progress {
             height: 5px;
             background: rgba(255, 255, 255, 0.1);
@@ -1398,6 +1322,7 @@ app.get('/perfil', protegerRota, (req, res) => {
             font-weight: 700;
             margin-bottom: 60px;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: fadeInDown 0.8s ease;
         }
 
         .profile-card {
@@ -1409,6 +1334,7 @@ app.get('/perfil', protegerRota, (req, res) => {
             max-width: 700px;
             margin: 0 auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.8s ease;
         }
 
         .profile-header {
@@ -1449,53 +1375,6 @@ app.get('/perfil', protegerRota, (req, res) => {
             margin-bottom: 25px;
         }
 
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-item {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.6s ease forwards;
-            opacity: 0;
-        }
-
-        .stat-item:nth-child(1) { animation-delay: 0.1s; }
-        .stat-item:nth-child(2) { animation-delay: 0.2s; }
-        .stat-item:nth-child(3) { animation-delay: 0.3s; }
-        .stat-item:nth-child(4) { animation-delay: 0.4s; }
-
-        .stat-item:hover {
-            background: rgba(255, 221, 0, 0.1);
-            border-color: #FFDD00;
-            transform: translateY(-5px);
-        }
-
-        .stat-item i {
-            font-size: 32px;
-            color: #FFDD00;
-            margin-bottom: 10px;
-        }
-
-        .stat-item .stat-value {
-            color: white;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .stat-item .stat-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-        }
-
         .profile-info {
             background: rgba(255, 221, 0, 0.1);
             border: 1px solid rgba(255, 221, 0, 0.3);
@@ -1516,7 +1395,7 @@ app.get('/perfil', protegerRota, (req, res) => {
             letter-spacing: 1px;
         }
 
-        .profile-info #username, .profile-info #timeLogged {
+        .profile-info #username {
             color: white;
             font-size: 24px;
             font-weight: 700;
@@ -1542,6 +1421,46 @@ app.get('/perfil', protegerRota, (req, res) => {
             box-shadow: 0 10px 25px rgba(255, 68, 68, 0.3);
         }
 
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 221, 0, 0.1);
+            border-color: #FFDD00;
+            transform: translateY(-5px);
+        }
+
+        .stat-item i {
+            font-size: 32px;
+            color: #FFDD00;
+            margin-bottom: 10px;
+        }
+
+        .stat-item .stat-value {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-item .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
         footer.footer {
             padding: 24px 0;
             text-align: center;
@@ -1549,10 +1468,10 @@ app.get('/perfil', protegerRota, (req, res) => {
             font-size: 14px;
         }
 
-        @keyframes fadeInUp {
+        @keyframes fadeInDown {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(-30px);
             }
             to {
                 opacity: 1;
@@ -1560,15 +1479,22 @@ app.get('/perfil', protegerRota, (req, res) => {
             }
         }
 
-        .loading {
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 768px) {
             .bar {
                 margin-top: 20px;
                 padding: 0 20px;
+                flex-wrap: wrap;
             }
 
             .img2_logo {
@@ -1586,10 +1512,12 @@ app.get('/perfil', protegerRota, (req, res) => {
 
             .bar h4 a {
                 font-size: 16px;
+                margin: 0 10px;
             }
 
             .page-title {
                 font-size: 36px;
+                margin-bottom: 40px;
             }
 
             .profile-card {
@@ -1597,7 +1525,8 @@ app.get('/perfil', protegerRota, (req, res) => {
             }
 
             .stats-section {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
         }
 
@@ -1619,15 +1548,15 @@ app.get('/perfil', protegerRota, (req, res) => {
                 font-size: 50px;
             }
 
-            .stats-section {
-                grid-template-columns: 1fr;
+            .profile-card h5 {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
     <nav class="bar">
-        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+        <img class="img2_logo" src="/img/image2.png" alt="FUTURE Logo">
         <h4>
             <a href="/">Home</a>
             <a href="/planos">Planos e Preços</a>
@@ -1636,7 +1565,6 @@ app.get('/perfil', protegerRota, (req, res) => {
             <a href="/comunidade">Comunidade</a>
             <a href="/suporte">Suporte</a>
         </h4>
-        <a href="/perfil"><button class="start">Perfil</button></a>
     </nav>
     <div class="progress" role="progressbar">
         <div class="progress-bar" style="width: 0%"></div>
@@ -1651,38 +1579,29 @@ app.get('/perfil', protegerRota, (req, res) => {
                     <i class="bi bi-person-fill"></i>
                 </div>
                 <h5>Bem-vindo ao seu perfil!</h5>
-                <p>Aqui você pode acompanhar seu progresso na plataforma.</p>
+                <p>Aqui você pode gerenciar suas configurações e preferências.</p>
             </div>
 
             <div class="stats-section">
                 <div class="stat-item">
                     <i class="bi bi-book"></i>
-                    <div class="stat-value" id="coursesCount">0</div>
+                    <div class="stat-value">12</div>
                     <div class="stat-label">Cursos</div>
                 </div>
                 <div class="stat-item">
                     <i class="bi bi-award"></i>
-                    <div class="stat-value" id="certificatesCount">0</div>
+                    <div class="stat-value">8</div>
                     <div class="stat-label">Certificados</div>
                 </div>
                 <div class="stat-item">
                     <i class="bi bi-clock-history"></i>
-                    <div class="stat-value" id="timeOnline">0</div>
-                    <div class="stat-label">Tempo Online</div>
-                </div>
-                <div class="stat-item">
-                    <i class="bi bi-chat-dots"></i>
-                    <div class="stat-value" id="topicsCount">0</div>
-                    <div class="stat-label">Tópicos</div>
+                    <div class="stat-value">4.5h</div>
+                    <div class="stat-label">Usando o site</div>
                 </div>
             </div>
 
             <div class="profile-info">
-                <p><strong>Usuário:</strong><span id="username" class="loading">${usuario}</span></p>
-            </div>
-
-            <div class="profile-info">
-                <p><strong>Tempo Logado:</strong><span id="timeLogged" class="loading">0</span></p>
+                <p><strong>Usuário:</strong><span id="username">${usuario}</span></p>
             </div>
 
             <a href="/logout"><button class="btn-logout">Logout</button></a>
@@ -1694,61 +1613,6 @@ app.get('/perfil', protegerRota, (req, res) => {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProfileData();
-            // Atualizar tempo a cada segundo
-            setInterval(updateTime, 1000);
-        });
-
-        function loadProfileData() {
-            fetch('/get-profile-data')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Erro:', data.error);
-                        return;
-                    }
-
-                    // Preencher dados
-                    document.getElementById('username').textContent = data.usuario;
-                    document.getElementById('username').classList.remove('loading');
-                    
-                    document.getElementById('coursesCount').textContent = data.courses;
-                    document.getElementById('certificatesCount').textContent = data.certificates;
-                    document.getElementById('topicsCount').textContent = data.courses; // Tópicos = cursos (você pode ajustar)
-                    document.getElementById('timeOnline').textContent = data.timeLoggedIn;
-
-                    // Armazenar tempo de login para atualização contínua
-                    window.loginTime = new Date(data.loginTime);
-                    updateTime();
-                })
-                .catch(error => console.error('Erro ao carregar perfil:', error));
-        }
-
-    function updateTime() {
-        if (!window.loginTime) return;
-
-        const currentTime = new Date();
-        const diffMs = currentTime - window.loginTime;
-        
-        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-
-        let timeString = '';
-        if (days > 0) {
-            timeString = days + 'd ' + hours + 'h ' + minutes + 'm';
-        } else if (hours > 0) {
-            timeString = hours + 'h ' + minutes + 'm ' + seconds + 's';
-        } else if (minutes > 0) {
-            timeString = minutes + 'm ' + seconds + 's';
-        } else {
-            timeString = seconds + 's';
-        }
-
-        document.getElementById('timeLogged').textContent = timeString;
-    }
     </script>
 </body>
 </html>
