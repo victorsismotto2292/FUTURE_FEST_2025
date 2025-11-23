@@ -52,6 +52,12 @@
             <img class="img1_logo" src="/img/image1.png" alt="Work.In Logo">
         </div>
 
+        <div style="text-align: center; margin-bottom: 20px;">
+            <a href="/my-curriculums" class="btn-primary" style="text-decoration: none; padding: 10px 25px; background: rgba(255,255,255,0.1); border: 2px solid #FFDD00; color: #FFDD00;">
+                <i class="bi bi-folder-symlink"></i> Ver Meus Currículos Salvos
+            </a>
+        </div>
+
         <div class="resume-builder">
             <div class="form-navigation">
                 <button class="nav-btn active" data-step="1">
@@ -277,8 +283,7 @@
         </div>
     </main>
 
-    <!-- Preview Modal -->
-    <div class="modal fade" id="previewModal" tabindex="-1">
+<div class="modal fade" id="previewModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -286,8 +291,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="previewContent">
-                    <!-- Preview content will be populated here -->
-                </div>
+                    </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" data-bs-dismiss="modal">Fechar</button>
                     <button type="button" class="btn-primary" onclick="downloadResume()">
@@ -299,6 +303,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         let currentStep = 1;
         const totalSteps = 8;
@@ -307,13 +312,134 @@
         let skillCount = 0;
         let certificationCount = 0;
         let projectCount = 0;
+        let editId = null; // Variável global para guardar o ID de edição
 
         // Initialize form
         document.addEventListener('DOMContentLoaded', function() {
             updateProgress();
             setupNavigation();
-            setupFormValidation();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            editId = urlParams.get('edit');
+
+            if (editId) {
+                // Modo Edição
+                document.querySelector('.welcome-section h1').textContent = 'Editar Currículo';
+                document.querySelector('.welcome-section p').textContent = 'Modifique as informações do seu currículo salvo.';
+                document.querySelector('.btn-submit').innerHTML = '<i class="bi bi-save"></i> Salvar Alterações';
+                loadCurriculumForEdit(editId);
+            } else {
+                // Modo Criação
+                setupFormValidation(); // Configura validação para um formulário novo
+                addExperience(); // Adiciona um campo de experiência por padrão
+                addEducation(); // Adiciona um campo de educação por padrão
+                addSkill(); // Adiciona um campo de habilidade por padrão
+            }
         });
+
+        // Carrega dados do currículo para edição
+        function loadCurriculumForEdit(id) {
+            fetch(`/get-curriculo/${id}`) // Rota do server.js
+                .then(res => res.json())
+                .then(data => {
+                    if (data.curriculo) {
+                        populateForm(data.curriculo);
+                        setupFormValidation(); // Configura validação DEPOIS de preencher
+                    } else {
+                        alert('Erro: Currículo não encontrado.');
+                        window.location.href = '/curriculos';
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro ao carregar currículo:', err);
+                    alert('Erro ao carregar currículo.');
+                });
+        }
+
+        // Preenche o formulário com dados existentes
+        function populateForm(data) {
+            // Pessoal
+            if (data.pessoal) {
+                document.getElementById('nome').value = data.pessoal.nome || '';
+                document.getElementById('sobrenome').value = data.pessoal.sobrenome || '';
+                document.getElementById('email').value = data.pessoal.email || '';
+                document.getElementById('telefone').value = data.pessoal.telefone || '';
+                document.getElementById('cidade').value = data.pessoal.cidade || '';
+                document.getElementById('estado').value = data.pessoal.estado || '';
+                document.getElementById('cep').value = data.pessoal.cep || '';
+                document.getElementById('resumo').value = data.pessoal.resumo || '';
+                document.getElementById('objetivo').value = data.pessoal.objetivo || '';
+            }
+            
+            // Links
+            if (data.links) {
+                document.getElementById('linkedin').value = data.links.linkedin || '';
+                document.getElementById('github').value = data.links.github || '';
+                document.getElementById('portfolio').value = data.links.portfolio || '';
+                document.getElementById('site').value = data.links.site || '';
+            }
+
+            // Experiências (Recria dinamicamente)
+            if (data.experiencias) {
+                Object.values(data.experiencias).forEach(exp => {
+                    addExperience(); // Isso incrementa experienceCount
+                    document.querySelector(`input[name="empresa${experienceCount}"]`).value = exp.empresa || '';
+                    document.querySelector(`input[name="cargo${experienceCount}"]`).value = exp.cargo || '';
+                    document.querySelector(`input[name="dataInicio${experienceCount}"]`).value = exp.dataInicio || '';
+                    document.querySelector(`input[name="dataFim${experienceCount}"]`).value = exp.dataFim || '';
+                    document.querySelector(`input[name="atual${experienceCount}"]`).checked = exp.atual || false;
+                    document.querySelector(`input[name="localizacao${experienceCount}"]`).value = exp.localizacao || '';
+                    document.querySelector(`textarea[name="descExperiencia${experienceCount}"]`).value = exp.descricao || '';
+                });
+            }
+            
+            // Educação
+            if (data.educacao) {
+                Object.values(data.educacao).forEach(edu => {
+                    addEducation(); // Increments educationCount
+                    document.querySelector(`input[name="instituicao${educationCount}"]`).value = edu.instituicao || '';
+                    document.querySelector(`input[name="curso${educationCount}"]`).value = edu.curso || '';
+                    document.querySelector(`input[name="conclusao${educationCount}"]`).value = edu.conclusao || '';
+                    document.querySelector(`input[name="cursando${educationCount}"]`).checked = edu.cursando || false;
+                    document.querySelector(`input[name="localEdu${educationCount}"]`).value = edu.localizacao || '';
+                    document.querySelector(`input[name="nota${educationCount}"]`).value = edu.nota || '';
+                });
+            }
+
+            // Habilidades
+            if (data.habilidades) {
+                Object.values(data.habilidades).forEach(skill => {
+                    addSkill(); // Increments skillCount
+                    document.querySelector(`input[name="habilidade${skillCount}"]`).value = skill.nome || '';
+                    document.querySelector(`select[name="nivel${skillCount}"]`).value = skill.nivel || '';
+                });
+            }
+
+            // Certificações
+            if (data.certificacoes) {
+                Object.values(data.certificacoes).forEach(cert => {
+                    addCertification(); // Increments certificationCount
+                    document.querySelector(`input[name="certificacao${certificationCount}"]`).value = cert.nome || '';
+                    document.querySelector(`input[name="emissor${certificationCount}"]`).value = cert.emissor || '';
+                    document.querySelector(`input[name="dataEmissao${certificationCount}"]`).value = cert.dataEmissao || '';
+                    document.querySelector(`input[name="dataExpiracao${certificationCount}"]`).value = cert.dataExpiracao || '';
+                    document.querySelector(`input[name="credencial${certificationCount}"]`).value = cert.credencial || '';
+                });
+            }
+
+            // Projetos
+            if (data.projetos) {
+                Object.values(data.projetos).forEach(proj => {
+                    addProject(); // Increments projectCount
+                    document.querySelector(`input[name="nomeProjeto${projectCount}"]`).value = proj.nome || '';
+                    document.querySelector(`input[name="linkProjeto${projectCount}"]`).value = proj.link || '';
+                    document.querySelector(`input[name="dataProjeto${projectCount}"]`).value = proj.data || '';
+                    document.querySelector(`input[name="tecnologias${projectCount}"]`).value = proj.tecnologias || '';
+                    document.querySelector(`textarea[name="descProjeto${projectCount}"]`).value = proj.descricao || '';
+                });
+            }
+        }
+
 
         // Navigation functions
         function setupNavigation() {
@@ -569,440 +695,374 @@
         // Form validation
         function setupFormValidation() {
             const form = document.getElementById('resumeForm');
-            const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
-
-            inputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    validateField(this);
-                });
+            // Validação dinâmica nos campos
+            form.querySelectorAll('input[required], textarea[required], select[required]').forEach(input => {
+                input.addEventListener('blur', () => validateField(input));
             });
-
+            
+            // Validação no submit (usada pela função saveResumeToServer)
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                if (validateForm()) {
-                    generateResume();
+                
+                if (currentStep !== totalSteps) {
+                    goToStep(totalSteps); // Força ir para o último passo
+                    return;
                 }
+
+                if (!validateRequiredFields()) {
+                    goToStep(1); // Volta ao primeiro passo se houver erros
+                    return;
+                }
+
+                saveResumeToServer();
             });
         }
 
         function validateField(field) {
             const value = field.value.trim();
             const isValid = value !== '';
-
             field.classList.toggle('is-invalid', !isValid);
             field.classList.toggle('is-valid', isValid);
-
             return isValid;
         }
 
-        function validateForm() {
-            const requiredFields = document.querySelectorAll('input[required], textarea[required], select[required]');
-            let isValid = true;
+        // Validação de campos obrigatórios
+        function validateRequiredFields() {
+            const requiredFields = [
+                { id: 'nome', name: 'Nome Completo' },
+                { id: 'sobrenome', name: 'Sobrenome' },
+                { id: 'email', name: 'E-mail' },
+                { id: 'telefone', name: 'Telefone' },
+                { id: 'cidade', name: 'Cidade' },
+                { id: 'estado', name: 'Estado' },
+                { id: 'resumo', name: 'Resumo Profissional' }
+            ];
+
+            const emptyFields = [];
 
             requiredFields.forEach(field => {
-                if (!validateField(field)) {
-                    isValid = false;
+                const element = document.getElementById(field.id);
+                if (!element || !element.value.trim()) {
+                    emptyFields.push(field.name);
+                    if (element) {
+                        element.classList.add('is-invalid');
+                    }
+                } else {
+                    if (element) {
+                        element.classList.remove('is-invalid');
+                        element.classList.add('is-valid');
+                    }
                 }
             });
+            
+            // Validação de campos dinâmicos (simplificada, apenas checa o primeiro)
+            if(experienceCount > 0 && !document.querySelector('input[name="empresa1"]')?.value) {
+                emptyFields.push('Empresa (Experiência 1)');
+            }
+            if(educationCount > 0 && !document.querySelector('input[name="instituicao1"]')?.value) {
+                emptyFields.push('Instituição (Educação 1)');
+            }
+             if(skillCount > 0 && !document.querySelector('input[name="habilidade1"]')?.value) {
+                emptyFields.push('Habilidade (Habilidade 1)');
+            }
 
-            return isValid;
+
+            if (emptyFields.length > 0) {
+                alert('Por favor, preencha os seguintes campos obrigatórios:\n\n' + emptyFields.join('\n'));
+                return false;
+            }
+
+            return true;
         }
 
         // Preview and generation functions
         function previewResume() {
             const modal = new bootstrap.Modal(document.getElementById('previewModal'));
             const previewContent = document.getElementById('previewContent');
-
-            // Generate preview HTML
-            const resumeData = collectFormData();
-            previewContent.innerHTML = generateResumeHTML(resumeData);
-
+            const resumeData = collectFormData(); // Coleta os dados do formulário
+            previewContent.innerHTML = generateResumeHTML(resumeData); // Gera o HTML do preview
             modal.show();
         }
 
-        function collectFormData() {
-            const formData = new FormData(document.getElementById('resumeForm'));
-            const data = {};
-
-            for (let [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-
-            return data;
-        }
-
         function generateResumeHTML(data) {
+            // Usa a estrutura de dados nova (com 'pessoal', 'experiencias', etc.)
+            const pessoal = data.pessoal || {};
+            const experiencias = Object.values(data.experiencias || {});
+
             return `
-                <div class="resume-preview">
-                    <header class="resume-header">
+                <div class="resume-preview" style="color: #333; font-family: Arial, sans-serif;">
+                    <header class="resume-header" style="text-align: center; border-bottom: 2px solid #FFDD00; padding-bottom: 15px; margin-bottom: 20px;">
                         <div class="personal-info">
-                            <h1>${data.nome || ''} ${data.sobrenome || ''}</h1>
-                            <div class="contact-info">
-                                <span><i class="bi bi-envelope"></i> ${data.email || ''}</span>
-                                <span><i class="bi bi-telephone"></i> ${data.telefone || ''}</span>
-                                <span><i class="bi bi-geo-alt"></i> ${data.cidade || ''}, ${data.estado || ''}</span>
+                            <h1 style="font-size: 28px; margin-bottom: 5px;">${escapeHtml(pessoal.nome)} ${escapeHtml(pessoal.sobrenome)}</h1>
+                            <div class="contact-info" style="font-size: 14px; color: #555;">
+                                <span><i class="bi bi-envelope"></i> ${escapeHtml(pessoal.email)}</span> |
+                                <span><i class="bi bi-telephone"></i> ${escapeHtml(pessoal.telefone)}</span> |
+                                <span><i class="bi bi-geo-alt"></i> ${escapeHtml(pessoal.cidade)}, ${escapeHtml(pessoal.estado)}</span>
                             </div>
                         </div>
                     </header>
 
-                    <section class="resume-section">
-                        <h2>Resumo Profissional</h2>
-                        <p>${data.resumo || ''}</p>
+                    <section class="resume-section" style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: bold; color: #1B2C3E; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;">Resumo Profissional</h2>
+                        <p style="font-size: 14px; line-height: 1.6;">${escapeHtml(pessoal.resumo)}</p>
                     </section>
 
-                    ${data.objetivo ? `
-                    <section class="resume-section">
-                        <h2>Objetivo</h2>
-                        <p>${data.objetivo}</p>
+                    ${pessoal.objetivo ? `
+                    <section class="resume-section" style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: bold; color: #1B2C3E; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;">Objetivo</h2>
+                        <p style="font-size: 14px; line-height: 1.6;">${escapeHtml(pessoal.objetivo)}</p>
+                    </section>
+                    ` : ''}
+                    
+                    ${experiencias.length > 0 ? `
+                    <section class="resume-section" style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: bold; color: #1B2C3E; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;">Experiência</h2>
+                        ${experiencias.map(exp => `
+                            <div style="margin-bottom: 15px;">
+                                <h3 style="font-size: 16px; font-weight: bold;">${escapeHtml(exp.cargo)}</h3>
+                                <h4 style="font-size: 14px; font-style: italic; color: #555;">${escapeHtml(exp.empresa)} | ${escapeHtml(exp.localizacao)}</h4>
+                                <p style="font-size: 14px; line-height: 1.6;">${escapeHtml(exp.descricao)}</p>
+                            </div>
+                        `).join('')}
                     </section>
                     ` : ''}
 
-                    <!-- Add other sections here -->
-                    <div class="resume-footer">
+                    <div class="resume-footer" style="text-align: center; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #999;">
                         <p>Currículo gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
                     </div>
                 </div>
             `;
         }
-
-    function generateResume() {
-        // Coletar todos os dados do formulário
-        const formData = new FormData(document.getElementById('resumeForm'));
-        const data = {};
-        const experiences = [];
-        const education = [];
-        const skills = [];
-
-        // Dados pessoais
-        for (let [key, value] of formData.entries()) {
-            if (!key.match(/^\d+/)) {
-                data[key] = value;
-            }
-        }
-
-        // Experiências
-        for (let i = 1; i <= experienceCount; i++) {
-            const empresa = document.querySelector(`input[name="empresa${i}"]`);
-            if (empresa && empresa.value) {
-                experiences.push({
-                    empresa: empresa.value,
-                    cargo: document.querySelector(`input[name="cargo${i}"]`)?.value || '',
-                    descExperiencia: document.querySelector(`textarea[name="descExperiencia${i}"]`)?.value || '',
-                    localizacao: document.querySelector(`input[name="localizacao${i}"]`)?.value || ''
-                });
-            }
-        }
-
-        // Educação
-        for (let i = 1; i <= educationCount; i++) {
-            const instituicao = document.querySelector(`input[name="instituicao${i}"]`);
-            if (instituicao && instituicao.value) {
-                education.push({
-                    instituicao: instituicao.value,
-                    curso: document.querySelector(`input[name="curso${i}"]`)?.value || ''
-                });
-            }
-        }
-
-        // Habilidades
-        for (let i = 1; i <= skillCount; i++) {
-            const habilidade = document.querySelector(`input[name="habilidade${i}"]`);
-            if (habilidade && habilidade.value) {
-                skills.push({
-                    habilidade: habilidade.value,
-                    nivel: document.querySelector(`select[name="nivel${i}"]`)?.value || ''
-                });
-            }
-        }
-
-        // Compilar todos os dados
-        const resumeData = {
-            ...data,
-            experiences,
-            education,
-            skills
-        };
-
-        // Salvar no sessionStorage
-        sessionStorage.setItem('curriculumData', JSON.stringify(resumeData));
-
-        // Redirecionar para visualização
-        window.location.href = '/curriculum-view.html';
-    }
-
-        function downloadResume() {
-            // In a real application, this would download the PDF
-            alert('Download do PDF será implementado em breve!');
-        }
-    </script>
-
-    <footer class="footer">
-        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
-    </footer>
-        <script>
-    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-    </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-<script>
-    // Validação de campos obrigatórios
-    function validateRequiredFields() {
-        const requiredFields = [
-            { id: 'nome', name: 'Nome Completo' },
-            { id: 'sobrenome', name: 'Sobrenome' },
-            { id: 'email', name: 'E-mail' },
-            { id: 'telefone', name: 'Telefone' },
-            { id: 'cidade', name: 'Cidade' },
-            { id: 'estado', name: 'Estado' },
-            { id: 'resumo', name: 'Resumo Profissional' }
-        ];
-
-        const emptyFields = [];
-
-        requiredFields.forEach(field => {
-            const element = document.getElementById(field.id);
-            if (!element || !element.value.trim()) {
-                emptyFields.push(field.name);
-                if (element) {
-                    element.classList.add('is-invalid');
-                }
-            } else {
-                if (element) {
-                    element.classList.remove('is-invalid');
-                    element.classList.add('is-valid');
-                }
-            }
-        });
-
-        if (emptyFields.length > 0) {
-            alert('Por favor, preencha os seguintes campos obrigatórios:\n\n' + emptyFields.join('\n'));
-            return false;
-        }
-
-        return true;
-    }
-
-    // Modificar a função de submissão do formulário
-    document.getElementById('resumeForm').addEventListener('submit', function(e) {
-        e.preventDefault();
         
-        if (currentStep !== totalSteps) {
-            alert('Por favor, complete todos os passos antes de finalizar.');
-            return;
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
-        if (!validateRequiredFields()) {
-            return;
-        }
 
-        // Salvar currículo
-        saveResumeToServer();
-    });
-
-    // Função para salvar currículo no servidor
-    function saveResumeToServer() {
-        const resumeData = collectFormData();
-        
-        fetch('/save-curriculo', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(resumeData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Currículo salvo com sucesso!');
-                // Redirecionar para a página inicial
-                window.location.href = '/';
-            } else {
-                alert('Erro ao salvar currículo: ' + (data.message || 'Erro desconhecido'));
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao salvar currículo. Por favor, tente novamente.');
-        });
-    }
-
-    // Função para coletar dados do formulário
-    function collectFormData() {
-        const formData = new FormData(document.getElementById('resumeForm'));
-        const data = {
-            pessoal: {
-                nome: document.getElementById('nome').value,
-                sobrenome: document.getElementById('sobrenome').value,
-                email: document.getElementById('email').value,
-                telefone: document.getElementById('telefone').value,
-                cidade: document.getElementById('cidade').value,
-                estado: document.getElementById('estado').value,
-                cep: document.getElementById('cep').value,
-                resumo: document.getElementById('resumo').value,
-                objetivo: document.getElementById('objetivo').value
-            },
-            experiencias: {},
-            educacao: {},
-            habilidades: {},
-            certificacoes: {},
-            projetos: {},
-            links: {
-                linkedin: document.getElementById('linkedin').value,
-                github: document.getElementById('github').value,
-                portfolio: document.getElementById('portfolio').value,
-                site: document.getElementById('site').value
-            }
-        };
-
-        // Coletar experiências
-        for (let i = 1; i <= experienceCount; i++) {
-            const empresa = document.querySelector(`input[name="empresa${i}"]`);
-            if (empresa && empresa.value) {
-                data.experiencias[`exp${i}`] = {
-                    empresa: empresa.value,
-                    cargo: document.querySelector(`input[name="cargo${i}"]`).value,
-                    dataInicio: document.querySelector(`input[name="dataInicio${i}"]`).value,
-                    dataFim: document.querySelector(`input[name="dataFim${i}"]`).value,
-                    atual: document.querySelector(`input[name="atual${i}"]`)?.checked || false,
-                    localizacao: document.querySelector(`input[name="localizacao${i}"]`).value,
-                    descricao: document.querySelector(`textarea[name="descExperiencia${i}"]`).value
-                };
-            }
-        }
-
-        // Coletar educação
-        for (let i = 1; i <= educationCount; i++) {
-            const instituicao = document.querySelector(`input[name="instituicao${i}"]`);
-            if (instituicao && instituicao.value) {
-                data.educacao[`edu${i}`] = {
-                    instituicao: instituicao.value,
-                    curso: document.querySelector(`input[name="curso${i}"]`).value,
-                    conclusao: document.querySelector(`input[name="conclusao${i}"]`).value,
-                    cursando: document.querySelector(`input[name="cursando${i}"]`)?.checked || false,
-                    localizacao: document.querySelector(`input[name="localEdu${i}"]`).value,
-                    nota: document.querySelector(`input[name="nota${i}"]`).value
-                };
-            }
-        }
-
-        // Coletar habilidades
-        for (let i = 1; i <= skillCount; i++) {
-            const habilidade = document.querySelector(`input[name="habilidade${i}"]`);
-            if (habilidade && habilidade.value) {
-                data.habilidades[`skill${i}`] = {
-                    nome: habilidade.value,
-                    nivel: document.querySelector(`select[name="nivel${i}"]`).value
-                };
-            }
-        }
-
-        // Coletar certificações
-        for (let i = 1; i <= certificationCount; i++) {
-            const certificacao = document.querySelector(`input[name="certificacao${i}"]`);
-            if (certificacao && certificacao.value) {
-                data.certificacoes[`cert${i}`] = {
-                    nome: certificacao.value,
-                    emissor: document.querySelector(`input[name="emissor${i}"]`).value,
-                    dataEmissao: document.querySelector(`input[name="dataEmissao${i}"]`).value,
-                    dataExpiracao: document.querySelector(`input[name="dataExpiracao${i}"]`).value,
-                    credencial: document.querySelector(`input[name="credencial${i}"]`).value
-                };
-            }
-        }
-
-        // Coletar projetos
-        for (let i = 1; i <= projectCount; i++) {
-            const projeto = document.querySelector(`input[name="nomeProjeto${i}"]`);
-            if (projeto && projeto.value) {
-                data.projetos[`proj${i}`] = {
-                    nome: projeto.value,
-                    link: document.querySelector(`input[name="linkProjeto${i}"]`).value,
-                    data: document.querySelector(`input[name="dataProjeto${i}"]`).value,
-                    tecnologias: document.querySelector(`input[name="tecnologias${i}"]`).value,
-                    descricao: document.querySelector(`textarea[name="descProjeto${i}"]`).value
-                };
-            }
-        }
-
-        return data;
-    }
-
-    // Função para gerar PDF (simplificada)
-    function downloadResume() {
-        const resumeData = collectFormData();
-        
-        // Criar conteúdo do PDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        let yPosition = 20;
-        
-        // Título
-        doc.setFontSize(20);
-        doc.setFont(undefined, 'bold');
-        doc.text(`${resumeData.pessoal.nome} ${resumeData.pessoal.sobrenome}`, 20, yPosition);
-        yPosition += 10;
-        
-        // Informações de contato
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        doc.text(`${resumeData.pessoal.email} | ${resumeData.pessoal.telefone}`, 20, yPosition);
-        yPosition += 7;
-        doc.text(`${resumeData.pessoal.cidade}, ${resumeData.pessoal.estado}`, 20, yPosition);
-        yPosition += 15;
-        
-        // Resumo Profissional
-        if (resumeData.pessoal.resumo) {
-            doc.setFontSize(14);
-            doc.setFont(undefined, 'bold');
-            doc.text('Resumo Profissional', 20, yPosition);
-            yPosition += 7;
+        // Função para salvar currículo no servidor (MODIFICADA)
+        function saveResumeToServer() {
+            const resumeData = collectFormData(); // Coleta os dados
             
+            // Define a URL e o Método (Criar NOVO ou Atualizar EXISTENTE)
+            const url = editId ? `/update-curriculo/${editId}` : '/save-curriculo';
+            const method = editId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(resumeData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(editId ? 'Currículo atualizado com sucesso!' : 'Currículo salvo com sucesso!');
+                    
+                    // Salva no sessionStorage para visualização imediata
+                    sessionStorage.setItem('curriculumData', JSON.stringify(resumeData));
+                    
+                    // Redireciona para a página de visualização
+                    window.location.href = '/curriculum-view.html'; 
+                } else {
+                    alert('Erro ao salvar: ' + (data.message || 'Erro desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao salvar currículo. Por favor, tente novamente.');
+            });
+        }
+
+        // Função para coletar dados do formulário
+        function collectFormData() {
+            const formData = new FormData(document.getElementById('resumeForm'));
+            const data = {
+                pessoal: {
+                    nome: document.getElementById('nome').value,
+                    sobrenome: document.getElementById('sobrenome').value,
+                    email: document.getElementById('email').value,
+                    telefone: document.getElementById('telefone').value,
+                    cidade: document.getElementById('cidade').value,
+                    estado: document.getElementById('estado').value,
+                    cep: document.getElementById('cep').value,
+                    resumo: document.getElementById('resumo').value,
+                    objetivo: document.getElementById('objetivo').value
+                },
+                experiencias: {},
+                educacao: {},
+                habilidades: {},
+                certificacoes: {},
+                projetos: {},
+                links: {
+                    linkedin: document.getElementById('linkedin').value,
+                    github: document.getElementById('github').value,
+                    portfolio: document.getElementById('portfolio').value,
+                    site: document.getElementById('site').value
+                }
+            };
+
+            // Coletar experiências
+            for (let i = 1; i <= experienceCount; i++) {
+                const empresa = document.querySelector(`input[name="empresa${i}"]`);
+                if (empresa && empresa.value) {
+                    data.experiencias[`exp${i}`] = {
+                        empresa: empresa.value,
+                        cargo: document.querySelector(`input[name="cargo${i}"]`).value,
+                        dataInicio: document.querySelector(`input[name="dataInicio${i}"]`).value,
+                        dataFim: document.querySelector(`input[name="dataFim${i}"]`).value,
+                        atual: document.querySelector(`input[name="atual${i}"]`)?.checked || false,
+                        localizacao: document.querySelector(`input[name="localizacao${i}"]`).value,
+                        descricao: document.querySelector(`textarea[name="descExperiencia${i}"]`).value
+                    };
+                }
+            }
+
+            // Coletar educação
+            for (let i = 1; i <= educationCount; i++) {
+                const instituicao = document.querySelector(`input[name="instituicao${i}"]`);
+                if (instituicao && instituicao.value) {
+                    data.educacao[`edu${i}`] = {
+                        instituicao: instituicao.value,
+                        curso: document.querySelector(`input[name="curso${i}"]`).value,
+                        conclusao: document.querySelector(`input[name="conclusao${i}"]`).value,
+                        cursando: document.querySelector(`input[name="cursando${i}"]`)?.checked || false,
+                        localizacao: document.querySelector(`input[name="localEdu${i}"]`).value,
+                        nota: document.querySelector(`input[name="nota${i}"]`).value
+                    };
+                }
+            }
+
+            // Coletar habilidades
+            for (let i = 1; i <= skillCount; i++) {
+                const habilidade = document.querySelector(`input[name="habilidade${i}"]`);
+                if (habilidade && habilidade.value) {
+                    data.habilidades[`skill${i}`] = {
+                        nome: habilidade.value,
+                        nivel: document.querySelector(`select[name="nivel${i}"]`).value
+                    };
+                }
+            }
+
+            // Coletar certificações
+            for (let i = 1; i <= certificationCount; i++) {
+                const certificacao = document.querySelector(`input[name="certificacao${i}"]`);
+                if (certificacao && certificacao.value) {
+                    data.certificacoes[`cert${i}`] = {
+                        nome: certificacao.value,
+                        emissor: document.querySelector(`input[name="emissor${i}"]`).value,
+                        dataEmissao: document.querySelector(`input[name="dataEmissao${i}"]`).value,
+                        dataExpiracao: document.querySelector(`input[name="dataExpiracao${i}"]`).value,
+                        credencial: document.querySelector(`input[name="credencial${i}"]`).value
+                    };
+                }
+            }
+
+            // Coletar projetos
+            for (let i = 1; i <= projectCount; i++) {
+                const projeto = document.querySelector(`input[name="nomeProjeto${i}"]`);
+                if (projeto && projeto.value) {
+                    data.projetos[`proj${i}`] = {
+                        nome: projeto.value,
+                        link: document.querySelector(`input[name="linkProjeto${i}"]`).value,
+                        data: document.querySelector(`input[name="dataProjeto${i}"]`).value,
+                        tecnologias: document.querySelector(`input[name="tecnologias${i}"]`).value,
+                        descricao: document.querySelector(`textarea[name="descProjeto${i}"]`).value
+                    };
+                }
+            }
+
+            // Se estiver editando, anexa o ID para a atualização
+            if(editId) {
+                data.id = editId;
+            }
+
+            return data;
+        }
+
+        // Função para gerar PDF (simplificada)
+        function downloadResume() {
+            const resumeData = collectFormData();
+            
+            // Criar conteúdo do PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            let yPosition = 20;
+            
+            // Título
+            doc.setFontSize(20);
+            doc.setFont(undefined, 'bold');
+            doc.text(`${resumeData.pessoal.nome} ${resumeData.pessoal.sobrenome}`, 20, yPosition);
+            yPosition += 10;
+            
+            // Informações de contato
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            const resumoLines = doc.splitTextToSize(resumeData.pessoal.resumo, 170);
-            doc.text(resumoLines, 20, yPosition);
-            yPosition += (resumoLines.length * 5) + 10;
+            doc.text(`${resumeData.pessoal.email} | ${resumeData.pessoal.telefone}`, 20, yPosition);
+            yPosition += 7;
+            doc.text(`${resumeData.pessoal.cidade}, ${resumeData.pessoal.estado}`, 20, yPosition);
+            yPosition += 15;
+            
+            // Resumo Profissional
+            if (resumeData.pessoal.resumo) {
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text('Resumo Profissional', 20, yPosition);
+                yPosition += 7;
+                
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                const resumoLines = doc.splitTextToSize(resumeData.pessoal.resumo, 170);
+                doc.text(resumoLines, 20, yPosition);
+                yPosition += (resumoLines.length * 5) + 10;
+            }
+            
+            // Salvar PDF
+            doc.save(`curriculo_${resumeData.pessoal.nome}_${resumeData.pessoal.sobrenome}.pdf`);
         }
-        
-        // Adicionar mais seções conforme necessário...
-        // (Este é um exemplo básico - você pode expandir para incluir todas as seções)
-        
-        // Salvar PDF
-        doc.save(`curriculo_${resumeData.pessoal.nome}_${resumeData.pessoal.sobrenome}.pdf`);
-    }
 
-    // Atualizar o botão de download no modal
-    const downloadBtn = document.querySelector('.modal-footer .btn-primary');
-    if (downloadBtn) {
-        downloadBtn.onclick = downloadResume;
-    }
-
-    // Preview de foto
-    document.getElementById('foto')?.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Criar preview da imagem
-                let preview = document.getElementById('fotoPreview');
-                if (!preview) {
-                    preview = document.createElement('img');
-                    preview.id = 'fotoPreview';
-                    preview.style.width = '100px';
-                    preview.style.height = '100px';
-                    preview.style.borderRadius = '50%';
-                    preview.style.objectFit = 'cover';
-                    preview.style.marginTop = '10px';
-                    e.target.parentElement.appendChild(preview);
-                }
-                preview.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+        // Atualizar o botão de download no modal
+        const downloadBtn = document.querySelector('.modal-footer .btn-primary');
+        if (downloadBtn) {
+            downloadBtn.onclick = downloadResume;
         }
-    });
-</script>
+
+        // Preview de foto
+        document.getElementById('foto')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    // Criar preview da imagem
+                    let preview = document.getElementById('fotoPreview');
+                    if (!preview) {
+                        preview = document.createElement('img');
+                        preview.id = 'fotoPreview';
+                        preview.style.width = '100px';
+                        preview.style.height = '100px';
+                        preview.style.borderRadius = '50%';
+                        preview.style.objectFit = 'cover';
+                        preview.style.marginTop = '10px';
+                        e.target.parentElement.appendChild(preview);
+                    }
+                    preview.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    
+        // Chatbot
+        (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</body>
+</html>
 </body>
 </html>

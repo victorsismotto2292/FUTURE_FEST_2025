@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Currículos - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <style>
+        /* Estilização baseada no my-topics.html e forum.html */
+        body {
+            margin: 0; padding: 0; width: 100%; min-height: 100vh;
+            background: linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
+            font-family: 'Arial', sans-serif;
+            color: white;
+        }
+        .bar {
+            margin-top: 30px; display: flex; align-items: center; padding: 0 40px; position: relative; justify-content: space-between;
+        }
+        .img2_logo { width: 160px; height: 70px; }
+        .bar h4 { position: absolute; left: 50%; transform: translateX(-50%); margin: 0; margin-top: 20px; }
+        .bar h4 a { color: white; text-decoration: none; margin: 0 20px; font-size: 19px; position: relative; font-family: 'Jockey One'; }
+        .bar h4 a:hover { color: #FFDD00; }
+        .start { color: white; width: 170px; height: 60px; background: transparent; border: 3px solid #FFDD00; border-radius: 30px; cursor: pointer; font-weight: 600; }
+        .main { padding: 40px 20px; min-height: calc(100vh - 200px); }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .page-title { text-align: center; font-size: 48px; font-weight: 700; margin-bottom: 20px; }
+        .page-subtitle { text-align: center; font-size: 18px; margin-bottom: 50px; color: rgba(255, 255, 255, 0.8); }
+        .back-button { color: #FFDD00; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px; }
+        .back-button:hover { color: #FED061; }
+        .curriculum-list { display: flex; flex-direction: column; gap: 20px; }
+        .curriculum-card {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px; padding: 25px; transition: all 0.3s ease;
+        }
+        .curriculum-card:hover { border-color: #FFDD00; transform: translateY(-3px); }
+        .curriculum-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+        .curriculum-summary { color: rgba(255, 255, 255, 0.8); margin-bottom: 15px; }
+        .curriculum-meta { font-size: 14px; color: rgba(255, 255, 255, 0.6); }
+        .curriculum-actions { display: flex; gap: 10px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 20px; flex-wrap: wrap; }
+        .btn-action { text-decoration: none; padding: 8px 15px; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-view { background: #FFDD00; color: #1B2C3E; }
+        .btn-edit { background: rgba(255, 255, 255, 0.2); color: white; }
+        .btn-delete { background: rgba(220, 53, 69, 0.2); color: #dc3545; border: 1px solid #dc3545; cursor: pointer; }
+        .empty-state { text-align: center; padding: 80px 20px; color: rgba(255, 255, 255, 0.6); }
+        .empty-state i { font-size: 80px; margin-bottom: 20px; color: rgba(255, 221, 0, 0.3); }
+        footer { padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 14px; }
+    </style>
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+        <h4>
+            <a href="/">Home</a>
+            <a href="/planos">Planos</a>
+            <a href="/aprender">Aprender</a>
+            <a href="/comunidade">Comunidade</a>
+            <a href="/perfil">Perfil</a>
+            <a href="/logout">Logout</a>
+        </h4>
+        <a href="/perfil"><button class="start">Perfil</button></a>
+    </nav>
+
+    <main class="main">
+        <div class="container">
+            <a href="/curriculos" class="back-button">
+                <i class="bi bi-arrow-left"></i> Voltar para Criação
+            </a>
+            <h1 class="page-title">Meus Currículos</h1>
+            <p class="page-subtitle">Gerencie, edite ou visualize seus currículos salvos.</p>
+
+            <div class="curriculum-list" id="curriculumList">
+                </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="bi bi-file-earmark-person"></i>
+                <h3>Você ainda não salvou nenhum currículo</h3>
+                <p><a href="/curriculos" style="color: #FFDD00;">Criar um novo currículo</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMyCurriculums();
+        });
+
+        function loadMyCurriculums() {
+            const list = document.getElementById('curriculumList');
+            const emptyState = document.getElementById('emptyState');
+            list.innerHTML = '<p style="text-align: center;">Carregando...</p>';
+
+            fetch('/load-curriculos') // Rota do server.js
+                .then(response => response.json())
+                .then(data => {
+                    if (data.curriculos && data.curriculos.length > 0) {
+                        list.innerHTML = '';
+                        emptyState.style.display = 'none';
+                        
+                        data.curriculos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                        
+                        data.curriculos.forEach(curriculo => {
+                            const curriculumCard = createCurriculumCard(curriculo);
+                            list.appendChild(curriculumCard);
+                        });
+                    } else {
+                        list.innerHTML = '';
+                        emptyState.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar currículos:', error);
+                    list.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').textContent = 'Erro ao carregar currículos.';
+                });
+        }
+
+        function createCurriculumCard(curriculo) {
+            const card = document.createElement('div');
+            card.className = 'curriculum-card';
+            card.setAttribute('id', `curriculo-${curriculo.id}`);
+            
+            const date = new Date(curriculo.updatedAt || curriculo.createdAt).toLocaleDateString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+            const nome = curriculo.pessoal?.nome || 'Currículo sem nome';
+            const resumo = (curriculo.pessoal?.resumo || 'Nenhum resumo.').substring(0, 150);
+
+            card.innerHTML = `
+                <div class="curriculum-title">${escapeHtml(nome)}</div>
+                <div class="curriculum-summary">${escapeHtml(resumo)}...</div>
+                <div class="curriculum-meta">Última atualização: ${date}</div>
+                <div class="curriculum-actions">
+                    <a href="/curriculum-view.html?id=${curriculo.id}" class="btn-action btn-view">
+                        <i class="bi bi-eye"></i> Visualizar
+                    </a>
+                    <a href="/curriculos.html?edit=${curriculo.id}" class="btn-action btn-edit">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <button class="btn-action btn-delete" onclick="deleteCurriculum('${curriculo.id}')">
+                        <i class="bi bi-trash"></i> Excluir
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
+        function deleteCurriculum(id) {
+            if (!confirm('Tem certeza que deseja excluir este currículo? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+
+            fetch(`/delete-curriculo/${id}`, { // Rota do server.js
+                method: 'DELETE' 
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Currículo excluído com sucesso!');
+                    document.getElementById(`curriculo-${id}`).remove();
+                    // Checar se a lista ficou vazia
+                    if (document.querySelectorAll('.curriculum-card').length === 0) {
+                        document.getElementById('emptyState').style.display = 'block';
+                    }
+                } else {
+                    alert('Erro ao excluir currículo: ' + (data.message || 'Erro desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao excluir currículo.');
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

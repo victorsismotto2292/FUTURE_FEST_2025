@@ -2585,6 +2585,10 @@ app.get('/eventos', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/eventos.html');
 });
 
+app.get('/my-curriculums', (req, res) => {
+    res.sendFile(__dirname + '/public/my-curriculums.html');
+});
+
 app.listen(port, () => {
     console.log(`Servidor rodando na porta: http://localhost:${port}/`);
 });
