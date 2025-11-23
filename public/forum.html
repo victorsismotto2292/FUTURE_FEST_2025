@@ -30,7 +30,6 @@
             align-items: center;
             padding: 0 40px;
             position: relative;
-            justify-content: space-between;
         }
 
         .img2_logo {
@@ -76,20 +75,20 @@
         }
 
         .start {
-            color: white;
-            width: 170px;
-            height: 60px;
-            background: transparent;
-            border: 3px solid #FFDD00;
+            padding: 12px 30px;
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+            border: none;
             border-radius: 30px;
+            color: #1B2C3E;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
         }
 
         .start:hover {
-            background-color: #ffef8835;
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
         }
 
         .progress {
@@ -378,6 +377,9 @@
                 <button class="btn-new-topic" data-bs-toggle="modal" data-bs-target="#newTopicModal">
                     <i class="bi bi-plus-circle"></i> Criar Novo Tópico
                 </button>
+                <a href="/my-topics.html" class="btn-new-topic" style="text-decoration: none; background: rgba(255, 221, 0, 0.2); color: #FFDD00; border: 2px solid #FFDD00;">
+                    <i class="bi bi-bookmark"></i> Meus Tópicos
+                </a>
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="Buscar tópicos...">
                 </div>
@@ -591,30 +593,30 @@
         }
 
         // Inicializar Chatbot
-        (function () {
-            if (!window.chatbase || window.chatbase("getState") !== "initialized") {
-                window.chatbase = (...args) => {
-                    if (!window.chatbase.q) window.chatbase.q = [];
-                    window.chatbase.q.push(args);
+        (function(){
+            if(!window.chatbase||window.chatbase("getState")!=="initialized"){
+                window.chatbase=(...arguments)=>{
+                    if(!window.chatbase.q){window.chatbase.q=[]}
+                    window.chatbase.q.push(arguments)
                 };
-                window.chatbase = new Proxy(window.chatbase, {
-                    get(target, prop) {
-                        if (prop === "q") return target.q;
-                        return (...args) => target(prop, ...args);
+                window.chatbase=new Proxy(window.chatbase,{
+                    get(target,prop){
+                        if(prop==="q"){return target.q}
+                        return(...args)=>target(prop,...args)
                     }
-                });
+                })
             }
-            const onLoad = function () {
-                const script = document.createElement("script");
-                script.src = "https://www.chatbase.co/embed.min.js";
-                script.id = "jxCxiLH-axFwvOPfEOgyP";
-                script.domain = "www.chatbase.co";
-                document.body.appendChild(script);
+            const onLoad=function(){
+                const script=document.createElement("script");
+                script.src="https://www.chatbase.co/embed.min.js";
+                script.id="jxCxiLH-axFwvOPfEOgyP";
+                script.domain="www.chatbase.co";
+                document.body.appendChild(script)
             };
-            if (document.readyState === "complete") {
-                onLoad();
-            } else {
-                window.addEventListener("load", onLoad);
+            if(document.readyState==="complete"){
+                onLoad()
+            }else{
+                window.addEventListener("load",onLoad)
             }
         })();
     </script>

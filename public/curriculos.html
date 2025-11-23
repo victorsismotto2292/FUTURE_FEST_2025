@@ -665,7 +665,7 @@
             `;
         }
 
-function generateResume() {
+    function generateResume() {
         // Coletar todos os dados do formulário
         const formData = new FormData(document.getElementById('resumeForm'));
         const data = {};
@@ -725,18 +725,6 @@ function generateResume() {
 
         // Salvar no sessionStorage
         sessionStorage.setItem('curriculumData', JSON.stringify(resumeData));
-
-        // Gerar visualização de currículo em PDF
-        const element = document.body; // or specific element to convert, e.g., form or preview
-        const opt = {
-            margin:       0.5,
-            filename:     `curriculo_${data.nome || 'sem_nome'}_${data.sobrenome || 'sem_sobrenome'}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        // Usar html2pdf para baixar o PDF
-        html2pdf().set(opt).from(element).save();
 
         // Redirecionar para visualização
         window.location.href = '/curriculum-view.html';
