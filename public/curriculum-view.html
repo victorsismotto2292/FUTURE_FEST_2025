@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Visualizar Currículo - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="/style/curriculum-view.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet" />
+</head>
+<body>
+<nav class="bar">
+    <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo" />
+    <h4 style="display: flex; justify-content: space-between; gap: 30px;">
+        <a href="/">Home</a>
+        <a href="/planos">Planos e Preços</a>
+        <a href="/aprender">Aprender</a>
+        <a href="/parceria">Parceria</a>
+        <a href="/comunidade">Comunidade</a>
+        <a href="/suporte">Suporte</a>
+        <a href="/perfil">Perfil</a>
+        <a href="/logout">Logout</a>
+    </h4>
+</nav>
+
+<main class="main">
+    <section class="curriculum-view-section">
+        <h1>Visualizar Currículo</h1>
+        <div id="resumeContainer">
+            <!-- Resume content will be populated here -->
+        </div>
+
+        <div class="buttons-container">
+            <button id="editResumeBtn" class="btn btn-primary">Editar Currículo</button>
+            <button id="saveBtn" class="btn btn-success d-none">Salvar Currículo</button>
+            <button id="exportPdfBtn" class="btn btn-danger">Exportar para PDF</button>
+        </div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    const resumeContainer = document.getElementById('resumeContainer');
+    const editResumeBtn = document.getElementById('editResumeBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+
+    let isEditing = false;
+    let curriculumData = null;
+
+    function loadCurriculumData() {
+        const storedData = sessionStorage.getItem('curriculumData');
+        if (storedData) {
+            curriculumData = JSON.parse(storedData);
+            renderCurriculum(curriculumData);
+        } else {
+            resumeContainer.innerHTML = '<p>Nenhum currículo encontrado. Por favor, crie um currículo primeiro na página de criação.</p>';
+            editResumeBtn.disabled = true;
+            saveBtn.disabled = true;
+            exportPdfBtn.disabled = true;
+        }
+    }
+
+    function renderCurriculum(data) {
+        resumeContainer.innerHTML = '';
+
+        const container = document.createElement('div');
+        container.classList.add('curriculum-container');
+
+        // Personal Info
+        const personalInfo = document.createElement('section');
+        personalInfo.classList.add('curriculum-section');
+        personalInfo.innerHTML = `
+            <h2>Informações Pessoais</h2>
+            <p><b>Nome:</b> ${data.nome || ''} ${data.sobrenome || ''}</p>
+            <p><b>Email:</b> ${data.email || ''}</p>
+            <p><b>Telefone:</b> ${data.telefone || ''}</p>
+            <p><b>Localização:</b> ${data.cidade || ''}, ${data.estado || ''}</p>
+            <p><b>Resumo Profissional:</b> ${data.resumo || ''}</p>
+            <p><b>Objetivo Profissional:</b> ${data.objetivo || ''}</p>
+        `;
+        container.appendChild(personalInfo);
+
+        // Experiences
+        if (data.experiences && data.experiences.length > 0) {
+            const expSection = document.createElement('section');
+            expSection.classList.add('curriculum-section');
+            expSection.innerHTML = '<h2>Experiência</h2>';
+            data.experiences.forEach((exp, index) => {
+                const expDiv = document.createElement('div');
+                expDiv.classList.add('experience-item');
+                expDiv.innerHTML = `
+                    <h4>Empresa: ${exp.empresa || ''}</h4>
+                    <p>Cargo: ${exp.cargo || ''}</p>
+                    <p>Localização: ${exp.localizacao || ''}</p>
+                    <p>Descrição: ${exp.descExperiencia || ''}</p>
+                `;
+                expSection.appendChild(expDiv);
+            });
+            container.appendChild(expSection);
+        }
+
+        // Education
+        if (data.education && data.education.length > 0) {
+            const eduSection = document.createElement('section');
+            eduSection.classList.add('curriculum-section');
+            eduSection.innerHTML = '<h2>Educação</h2>';
+            data.education.forEach((edu, index) => {
+                const eduDiv = document.createElement('div');
+                eduDiv.classList.add('education-item');
+                eduDiv.innerHTML = `
+                    <h4>Instituição: ${edu.instituicao || ''}</h4>
+                    <p>Curso: ${edu.curso || ''}</p>
+                `;
+                eduSection.appendChild(eduDiv);
+            });
+            container.appendChild(eduSection);
+        }
+
+        // Skills
+        if (data.skills && data.skills.length > 0) {
+            const skillsSection = document.createElement('section');
+            skillsSection.classList.add('curriculum-section');
+            skillsSection.innerHTML = '<h2>Habilidades</h2><ul></ul>';
+            const ul = skillsSection.querySelector('ul');
+            data.skills.forEach(skill => {
+                const li = document.createElement('li');
+                li.textContent = `${skill.habilidade || ''} - ${skill.nivel || ''}`;
+                ul.appendChild(li);
+            });
+            container.appendChild(skillsSection);
+        }
+
+        resumeContainer.appendChild(container);
+    }
+
+    function enableEditing() {
+        isEditing = true;
+        resumeContainer.contentEditable = true;
+        editResumeBtn.classList.add('d-none');
+        saveBtn.classList.remove('d-none');
+    }
+
+    function saveEdits() {
+        isEditing = false;
+        resumeContainer.contentEditable = false;
+        editResumeBtn.classList.remove('d-none');
+        saveBtn.classList.add('d-none');
+        // For demo, we'll alert and not save edited content to sessionStorage
+        alert('Edição salva localmente. Para salvar permanentemente, implemente backend.');
+    }
+
+    function exportPDF() {
+        const opt = {
+            margin: 0.5,
+            filename: `curriculo_exportado.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(resumeContainer).save();
+    }
+
+    editResumeBtn.addEventListener('click', enableEditing);
+    saveBtn.addEventListener('click', saveEdits);
+    exportPdfBtn.addEventListener('click', exportPDF);
+
+    document.addEventListener('DOMContentLoaded', loadCurriculumData);
+</script>
+
+<footer class="footer">
+    <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tópicos - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="/style/topics.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet" />
+</head>
+<body>
+<nav class="bar">
+    <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo" />
+    <h4 style="display: flex; justify-content: space-between; gap: 30px;">
+        <a href="/">Home</a>
+        <a href="/planos">Planos e Preços</a>
+        <a href="/aprender">Aprender</a>
+        <a href="/parceria">Parceria</a>
+        <a href="/comunidade">Comunidade</a>
+        <a href="/suporte">Suporte</a>
+        <a href="/perfil">Perfil</a>
+        <a href="/logout">Logout</a>
+    </h4>
+</nav>
+
+<main class="main">
+    <section class="topics-section">
+        <h1>Meus Tópicos</h1>
+        <div class="topics-container" id="topicsContainer"></div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Suposição: current user email is stored in sessionStorage as 'userEmail'
+    const userEmail = sessionStorage.getItem('userEmail');
+    const topicsContainer = document.getElementById('topicsContainer');
+
+    function loadUserTopics() {
+        fetch('/forum-topics.json')
+            .then(response => response.json())
+            .then(data => {
+                const userTopics = data.filter(topic => topic.email === userEmail);
+                if(userTopics.length === 0) {
+                    topicsContainer.innerHTML = '<p>Você não criou nenhum tópico ainda.</p>';
+                } else {
+                    topicsContainer.innerHTML = '';
+                    userTopics.forEach(topic => {
+                        const topicDiv = document.createElement('div');
+                        topicDiv.classList.add('topic-card');
+                        topicDiv.innerHTML = `
+                            <h3>${topic.title}</h3>
+                            <p>Criado em: ${new Date(topic.date).toLocaleDateString('pt-BR')}</p>
+                            <button class="btn btn-outline-primary" onclick="openTopic('${topic.id}')">Abrir</button>
+                        `;
+                        topicsContainer.appendChild(topicDiv);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar tópicos:', error);
+                topicsContainer.innerHTML = '<p>Erro ao carregar os tópicos.</p>';
+            });
+    }
+
+    function openTopic(topicId) {
+        // Logica pra abrir tópico, por exemplo, navegar para /forum.html?topic=topicId
+        window.location.href = `/forum.html?topic=${encodeURIComponent(topicId)}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUserTopics);
+</script>
+
+<footer class="footer">
+    <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+</footer>
+
+</body>
+</html>

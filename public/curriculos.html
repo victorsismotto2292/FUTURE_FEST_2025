@@ -665,10 +665,82 @@
             `;
         }
 
-        function generateResume() {
-            // In a real application, this would send data to server for PDF generation
-            alert('Currículo gerado com sucesso! Em uma versão completa, isso geraria um PDF.');
+function generateResume() {
+        // Coletar todos os dados do formulário
+        const formData = new FormData(document.getElementById('resumeForm'));
+        const data = {};
+        const experiences = [];
+        const education = [];
+        const skills = [];
+
+        // Dados pessoais
+        for (let [key, value] of formData.entries()) {
+            if (!key.match(/^\d+/)) {
+                data[key] = value;
+            }
         }
+
+        // Experiências
+        for (let i = 1; i <= experienceCount; i++) {
+            const empresa = document.querySelector(`input[name="empresa${i}"]`);
+            if (empresa && empresa.value) {
+                experiences.push({
+                    empresa: empresa.value,
+                    cargo: document.querySelector(`input[name="cargo${i}"]`)?.value || '',
+                    descExperiencia: document.querySelector(`textarea[name="descExperiencia${i}"]`)?.value || '',
+                    localizacao: document.querySelector(`input[name="localizacao${i}"]`)?.value || ''
+                });
+            }
+        }
+
+        // Educação
+        for (let i = 1; i <= educationCount; i++) {
+            const instituicao = document.querySelector(`input[name="instituicao${i}"]`);
+            if (instituicao && instituicao.value) {
+                education.push({
+                    instituicao: instituicao.value,
+                    curso: document.querySelector(`input[name="curso${i}"]`)?.value || ''
+                });
+            }
+        }
+
+        // Habilidades
+        for (let i = 1; i <= skillCount; i++) {
+            const habilidade = document.querySelector(`input[name="habilidade${i}"]`);
+            if (habilidade && habilidade.value) {
+                skills.push({
+                    habilidade: habilidade.value,
+                    nivel: document.querySelector(`select[name="nivel${i}"]`)?.value || ''
+                });
+            }
+        }
+
+        // Compilar todos os dados
+        const resumeData = {
+            ...data,
+            experiences,
+            education,
+            skills
+        };
+
+        // Salvar no sessionStorage
+        sessionStorage.setItem('curriculumData', JSON.stringify(resumeData));
+
+        // Gerar visualização de currículo em PDF
+        const element = document.body; // or specific element to convert, e.g., form or preview
+        const opt = {
+            margin:       0.5,
+            filename:     `curriculo_${data.nome || 'sem_nome'}_${data.sobrenome || 'sem_sobrenome'}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        // Usar html2pdf para baixar o PDF
+        html2pdf().set(opt).from(element).save();
+
+        // Redirecionar para visualização
+        window.location.href = '/curriculum-view.html';
+    }
 
         function downloadResume() {
             // In a real application, this would download the PDF
