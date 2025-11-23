@@ -742,6 +742,267 @@
         <script>
     (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="jxCxiLH-axFwvOPfEOgyP";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
     </script>
-    <footer class="footer">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+    // Validação de campos obrigatórios
+    function validateRequiredFields() {
+        const requiredFields = [
+            { id: 'nome', name: 'Nome Completo' },
+            { id: 'sobrenome', name: 'Sobrenome' },
+            { id: 'email', name: 'E-mail' },
+            { id: 'telefone', name: 'Telefone' },
+            { id: 'cidade', name: 'Cidade' },
+            { id: 'estado', name: 'Estado' },
+            { id: 'resumo', name: 'Resumo Profissional' }
+        ];
+
+        const emptyFields = [];
+
+        requiredFields.forEach(field => {
+            const element = document.getElementById(field.id);
+            if (!element || !element.value.trim()) {
+                emptyFields.push(field.name);
+                if (element) {
+                    element.classList.add('is-invalid');
+                }
+            } else {
+                if (element) {
+                    element.classList.remove('is-invalid');
+                    element.classList.add('is-valid');
+                }
+            }
+        });
+
+        if (emptyFields.length > 0) {
+            alert('Por favor, preencha os seguintes campos obrigatórios:\n\n' + emptyFields.join('\n'));
+            return false;
+        }
+
+        return true;
+    }
+
+    // Modificar a função de submissão do formulário
+    document.getElementById('resumeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (currentStep !== totalSteps) {
+            alert('Por favor, complete todos os passos antes de finalizar.');
+            return;
+        }
+
+        if (!validateRequiredFields()) {
+            return;
+        }
+
+        // Salvar currículo
+        saveResumeToServer();
+    });
+
+    // Função para salvar currículo no servidor
+    function saveResumeToServer() {
+        const resumeData = collectFormData();
+        
+        fetch('/save-curriculo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(resumeData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Currículo salvo com sucesso!');
+                // Redirecionar para a página inicial
+                window.location.href = '/';
+            } else {
+                alert('Erro ao salvar currículo: ' + (data.message || 'Erro desconhecido'));
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao salvar currículo. Por favor, tente novamente.');
+        });
+    }
+
+    // Função para coletar dados do formulário
+    function collectFormData() {
+        const formData = new FormData(document.getElementById('resumeForm'));
+        const data = {
+            pessoal: {
+                nome: document.getElementById('nome').value,
+                sobrenome: document.getElementById('sobrenome').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value,
+                cidade: document.getElementById('cidade').value,
+                estado: document.getElementById('estado').value,
+                cep: document.getElementById('cep').value,
+                resumo: document.getElementById('resumo').value,
+                objetivo: document.getElementById('objetivo').value
+            },
+            experiencias: {},
+            educacao: {},
+            habilidades: {},
+            certificacoes: {},
+            projetos: {},
+            links: {
+                linkedin: document.getElementById('linkedin').value,
+                github: document.getElementById('github').value,
+                portfolio: document.getElementById('portfolio').value,
+                site: document.getElementById('site').value
+            }
+        };
+
+        // Coletar experiências
+        for (let i = 1; i <= experienceCount; i++) {
+            const empresa = document.querySelector(`input[name="empresa${i}"]`);
+            if (empresa && empresa.value) {
+                data.experiencias[`exp${i}`] = {
+                    empresa: empresa.value,
+                    cargo: document.querySelector(`input[name="cargo${i}"]`).value,
+                    dataInicio: document.querySelector(`input[name="dataInicio${i}"]`).value,
+                    dataFim: document.querySelector(`input[name="dataFim${i}"]`).value,
+                    atual: document.querySelector(`input[name="atual${i}"]`)?.checked || false,
+                    localizacao: document.querySelector(`input[name="localizacao${i}"]`).value,
+                    descricao: document.querySelector(`textarea[name="descExperiencia${i}"]`).value
+                };
+            }
+        }
+
+        // Coletar educação
+        for (let i = 1; i <= educationCount; i++) {
+            const instituicao = document.querySelector(`input[name="instituicao${i}"]`);
+            if (instituicao && instituicao.value) {
+                data.educacao[`edu${i}`] = {
+                    instituicao: instituicao.value,
+                    curso: document.querySelector(`input[name="curso${i}"]`).value,
+                    conclusao: document.querySelector(`input[name="conclusao${i}"]`).value,
+                    cursando: document.querySelector(`input[name="cursando${i}"]`)?.checked || false,
+                    localizacao: document.querySelector(`input[name="localEdu${i}"]`).value,
+                    nota: document.querySelector(`input[name="nota${i}"]`).value
+                };
+            }
+        }
+
+        // Coletar habilidades
+        for (let i = 1; i <= skillCount; i++) {
+            const habilidade = document.querySelector(`input[name="habilidade${i}"]`);
+            if (habilidade && habilidade.value) {
+                data.habilidades[`skill${i}`] = {
+                    nome: habilidade.value,
+                    nivel: document.querySelector(`select[name="nivel${i}"]`).value
+                };
+            }
+        }
+
+        // Coletar certificações
+        for (let i = 1; i <= certificationCount; i++) {
+            const certificacao = document.querySelector(`input[name="certificacao${i}"]`);
+            if (certificacao && certificacao.value) {
+                data.certificacoes[`cert${i}`] = {
+                    nome: certificacao.value,
+                    emissor: document.querySelector(`input[name="emissor${i}"]`).value,
+                    dataEmissao: document.querySelector(`input[name="dataEmissao${i}"]`).value,
+                    dataExpiracao: document.querySelector(`input[name="dataExpiracao${i}"]`).value,
+                    credencial: document.querySelector(`input[name="credencial${i}"]`).value
+                };
+            }
+        }
+
+        // Coletar projetos
+        for (let i = 1; i <= projectCount; i++) {
+            const projeto = document.querySelector(`input[name="nomeProjeto${i}"]`);
+            if (projeto && projeto.value) {
+                data.projetos[`proj${i}`] = {
+                    nome: projeto.value,
+                    link: document.querySelector(`input[name="linkProjeto${i}"]`).value,
+                    data: document.querySelector(`input[name="dataProjeto${i}"]`).value,
+                    tecnologias: document.querySelector(`input[name="tecnologias${i}"]`).value,
+                    descricao: document.querySelector(`textarea[name="descProjeto${i}"]`).value
+                };
+            }
+        }
+
+        return data;
+    }
+
+    // Função para gerar PDF (simplificada)
+    function downloadResume() {
+        const resumeData = collectFormData();
+        
+        // Criar conteúdo do PDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        let yPosition = 20;
+        
+        // Título
+        doc.setFontSize(20);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${resumeData.pessoal.nome} ${resumeData.pessoal.sobrenome}`, 20, yPosition);
+        yPosition += 10;
+        
+        // Informações de contato
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text(`${resumeData.pessoal.email} | ${resumeData.pessoal.telefone}`, 20, yPosition);
+        yPosition += 7;
+        doc.text(`${resumeData.pessoal.cidade}, ${resumeData.pessoal.estado}`, 20, yPosition);
+        yPosition += 15;
+        
+        // Resumo Profissional
+        if (resumeData.pessoal.resumo) {
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Resumo Profissional', 20, yPosition);
+            yPosition += 7;
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            const resumoLines = doc.splitTextToSize(resumeData.pessoal.resumo, 170);
+            doc.text(resumoLines, 20, yPosition);
+            yPosition += (resumoLines.length * 5) + 10;
+        }
+        
+        // Adicionar mais seções conforme necessário...
+        // (Este é um exemplo básico - você pode expandir para incluir todas as seções)
+        
+        // Salvar PDF
+        doc.save(`curriculo_${resumeData.pessoal.nome}_${resumeData.pessoal.sobrenome}.pdf`);
+    }
+
+    // Atualizar o botão de download no modal
+    const downloadBtn = document.querySelector('.modal-footer .btn-primary');
+    if (downloadBtn) {
+        downloadBtn.onclick = downloadResume;
+    }
+
+    // Preview de foto
+    document.getElementById('foto')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Criar preview da imagem
+                let preview = document.getElementById('fotoPreview');
+                if (!preview) {
+                    preview = document.createElement('img');
+                    preview.id = 'fotoPreview';
+                    preview.style.width = '100px';
+                    preview.style.height = '100px';
+                    preview.style.borderRadius = '50%';
+                    preview.style.objectFit = 'cover';
+                    preview.style.marginTop = '10px';
+                    e.target.parentElement.appendChild(preview);
+                }
+                preview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
 </body>
 </html>

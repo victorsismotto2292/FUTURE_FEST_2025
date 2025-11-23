@@ -4,7 +4,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 
 const app = express();
-const port = process.env.PORT || 3060;
+const port = process.env.PORT || 3000;
 
 app.use('/public', express.static('public'));
 app.use('/style', express.static('style'));
@@ -219,7 +219,7 @@ app.get('/', async (req, res) => {
             <a href="/">Home</a>
             ${isLoggedIn ? '<a href="/planos">Planos e Preços</a><a href="/aprender">Aprender</a><a href="/parceria">Parceria</a><a href="/comunidade">Comunidade</a><a href="/suporte">Suporte</a><a href="/perfil">Perfil</a><a href="/logout">Logout</a>' : '<a href="/planos">Planos e Preços</a><a href="/aprender">Aprender</a><a href="/parceria">Parceria</a><a href="/comunidade">Comunidade</a><a href="/suporte">Suporte</a>'}
         </h4>
-        <a href="/register"><button class="start">Começar</button></a>
+        ${isLoggedIn ? '<a href="/perfil"><button class="start">Perfil</button></a>' : '<a href="/register"><button class="start">Começar</button></a>'}
     </nav>
     <div class="progress" role="progressbar">
         <div class="progress-bar" style="width: 0%"></div>
@@ -1693,67 +1693,85 @@ app.get('/perfil', protegerRota, (req, res) => {
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProfileData();
-            // Atualizar tempo a cada segundo
-            setInterval(updateTime, 1000);
-        });
-
-        function loadProfileData() {
-            fetch('/get-profile-data')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Erro:', data.error);
-                        return;
-                    }
-
-                    // Preencher dados
-                    document.getElementById('username').textContent = data.usuario;
-                    document.getElementById('username').classList.remove('loading');
-                    
-                    document.getElementById('coursesCount').textContent = data.courses;
-                    document.getElementById('certificatesCount').textContent = data.certificates;
-                    document.getElementById('topicsCount').textContent = data.courses; // Tópicos = cursos (você pode ajustar)
-                    document.getElementById('timeOnline').textContent = data.timeLoggedIn;
-
-                    // Armazenar tempo de login para atualização contínua
-                    window.loginTime = new Date(data.loginTime);
-                    updateTime();
-                })
-                .catch(error => console.error('Erro ao carregar perfil:', error));
-        }
-
-    function updateTime() {
-        if (!window.loginTime) return;
-
-        const currentTime = new Date();
-        const diffMs = currentTime - window.loginTime;
-        
-        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-
-        let timeString = '';
-        if (days > 0) {
-            timeString = days + 'd ' + hours + 'h ' + minutes + 'm';
-        } else if (hours > 0) {
-            timeString = hours + 'h ' + minutes + 'm ' + seconds + 's';
-        } else if (minutes > 0) {
-            timeString = minutes + 'm ' + seconds + 's';
-        } else {
-            timeString = seconds + 's';
-        }
-
-        document.getElementById('timeLogged').textContent = timeString;
-    }
-    </script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Buscar estatísticas do usuário
+        fetch('/get-user-stats')
+            .then(response => response.json())
+            .then(data => {
+                // Atualizar os valores na página
+                document.querySelector('.stat-item:nth-child(1) .stat-value').textContent = data.cursos || 0;
+                document.querySelector('.stat-item:nth-child(2) .stat-value').textContent = data.certificados || 0;
+                document.querySelector('.stat-item:nth-child(3) .stat-value').textContent = data.tempoOnline || '0h';
+            })
+            .catch(error => {
+                console.error('Erro ao carregar estatísticas:', error);
+            });
+    });
+</script>
 </body>
 </html>
     `;
     res.send(html);
+});
+
+app.get('/get-user-stats', async (req, res) => {
+    const usuario = req.session.usuario;
+    if (!usuario) {
+        return res.status(401).json({ error: 'Não autenticado' });
+    }
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+        
+        const usuarioDoc = await colecaoUsuarios.findOne({ usuario });
+        
+        if (!usuarioDoc) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        // Contar cursos concluídos (vamos considerar cada currículo criado como um curso)
+        const cursosCount = usuarioDoc.curriculos ? usuarioDoc.curriculos.length : 0;
+        
+        // Contar tópicos criados
+        const topicosCount = usuarioDoc.topics ? usuarioDoc.topics.length : 0;
+        
+        // Contar certificados (somando todos os certificados de todos os currículos)
+        let certificadosCount = 0;
+        if (usuarioDoc.curriculos) {
+            usuarioDoc.curriculos.forEach(curriculo => {
+                if (curriculo.certificacoes) {
+                    // Contar quantas certificações existem no currículo
+                    certificadosCount += Object.keys(curriculo.certificacoes).length;
+                }
+            });
+        }
+        
+        // Tempo online (vamos calcular desde a criação da conta até agora)
+        const accountCreated = usuarioDoc.createdAt || new Date();
+        const now = new Date();
+        const diffMs = now - new Date(accountCreated);
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const tempoOnline = `${diffHours}h`;
+        
+        res.json({
+            cursos: cursosCount,
+            topicos: topicosCount,
+            certificados: certificadosCount,
+            tempoOnline: tempoOnline
+        });
+        
+    } catch (erro) {
+        console.error('Erro ao buscar estatísticas:', erro);
+        res.status(500).json({ error: 'Erro ao buscar estatísticas' });
+    } finally {
+        await cliente.close();
+    }
 });
 
 // ROTA PARA SALVAR ALTERAÇÕES DO CARD
@@ -2204,7 +2222,328 @@ app.get('/user-replies', async (req, res) => {
     }
 });
 
+// ROTA PARA SALVAR CURRÍCULO
+app.post('/save-curriculo', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
 
+    const curriculoData = req.body;
+    curriculoData.id = Date.now().toString();
+    curriculoData.createdAt = new Date();
+    curriculoData.updatedAt = new Date();
+    
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // Adicionar currículo ao array de currículos do usuário
+        const result = await colecaoUsuarios.updateOne(
+            { usuario: req.session.usuario }, 
+            { $push: { curriculos: curriculoData } }
+        );
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true, curriculoId: curriculoData.id });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuário não encontrado para salvar o currículo.' });
+        }
+
+    } catch (error) {
+        console.error('Erro ao salvar currículo:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao salvar currículo.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA CARREGAR CURRÍCULOS DO USUÁRIO
+app.get('/load-curriculos', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ curriculos: [] });
+    }
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const usuarioDoc = await colecaoUsuarios.findOne({ usuario: req.session.usuario });
+
+        if (usuarioDoc && usuarioDoc.curriculos) {
+            res.json({ curriculos: usuarioDoc.curriculos });
+        } else {
+            res.json({ curriculos: [] });
+        }
+    } catch (error) {
+        console.error('Erro ao carregar currículos:', error);
+        res.status(500).json({ curriculos: [] });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA OBTER UM CURRÍCULO ESPECÍFICO
+app.get('/get-curriculo/:id', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ error: 'Não autenticado' });
+    }
+
+    const { id } = req.params;
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const usuarioDoc = await colecaoUsuarios.findOne({ usuario: req.session.usuario });
+
+        if (usuarioDoc && usuarioDoc.curriculos) {
+            const curriculo = usuarioDoc.curriculos.find(c => c.id === id);
+            if (curriculo) {
+                res.json({ curriculo });
+            } else {
+                res.status(404).json({ error: 'Currículo não encontrado' });
+            }
+        } else {
+            res.status(404).json({ error: 'Nenhum currículo encontrado' });
+        }
+    } catch (error) {
+        console.error('Erro ao buscar currículo:', error);
+        res.status(500).json({ error: 'Erro ao buscar currículo' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA ATUALIZAR CURRÍCULO
+app.put('/update-curriculo/:id', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { id } = req.params;
+    const curriculoData = req.body;
+    curriculoData.updatedAt = new Date();
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { usuario: req.session.usuario, 'curriculos.id': id },
+            { $set: { 'curriculos.$': curriculoData } }
+        );
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: 'Currículo não encontrado.' });
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar currículo:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao atualizar currículo.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA DELETAR CURRÍCULO
+app.delete('/delete-curriculo/:id', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { id } = req.params;
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { usuario: req.session.usuario },
+            { $pull: { curriculos: { id: id } } }
+        );
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: 'Currículo não encontrado.' });
+        }
+    } catch (error) {
+        console.error('Erro ao deletar currículo:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao deletar currículo.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA SALVAR EVENTOS:
+app.post('/save-event', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+    
+    const { title, date, time, location, description } = req.body;
+
+    const newEvent = {
+        id: Date.now().toString(),
+        title,
+        date,
+        time,
+        location,
+        description,
+        author: req.session.usuario,
+        createdAt: new Date(),
+        attendees: 0,
+        comments: []
+    };
+    
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { usuario: req.session.usuario }, 
+            { $push: { events: newEvent } }
+        );
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true, eventId: newEvent.id });
+        } else {
+            res.status(404).json({ success: false, message: 'Usuário não encontrado para salvar o evento.' });
+        }
+
+    } catch (error) {
+        console.error('Erro ao salvar evento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao salvar evento.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA CARREGAR EVENTOS
+app.get('/load-events', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ error: 'Usuário não logado' });
+    }
+    
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const users = await colecaoUsuarios.find({}).toArray();
+
+        const allEvents = [];
+        users.forEach(user => {
+            if (user.events) {
+                user.events.forEach(event => {
+                    allEvents.push(event);
+                });
+            }
+        });
+
+        // Ordenar por data
+        allEvents.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+
+        res.json({ events: allEvents });
+    } catch (error) {
+        console.error('Erro ao carregar eventos:', error);
+        res.status(500).json({ events: [] });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA ADICIONAR COMENTÁRIO EM EVENTO
+app.post('/add-event-comment', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { eventId, comment } = req.body;
+
+    const newComment = {
+        id: Date.now().toString(),
+        text: comment,
+        author: req.session.usuario,
+        createdAt: new Date()
+    };
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { 'events.id': eventId },
+            { $push: { 'events.$.comments': newComment } }
+        );
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: 'Evento não encontrado.' });
+        }
+    } catch (error) {
+        console.error('Erro ao adicionar comentário:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao adicionar comentário.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA MARCAR PRESENÇA EM EVENTO
+app.post('/attend-event', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { eventId } = req.body;
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { 'events.id': eventId },
+            { $inc: { 'events.$.attendees': 1 } }
+        );
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ success: false, message: 'Evento não encontrado.' });
+        }
+    } catch (error) {
+        console.error('Erro ao marcar presença:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao marcar presença.' });
+    } finally {
+        await cliente.close();
+    }
+});
 
 // ROTAS PROTEGIDAS PARA USUÁRIOS LOGADOS
 app.get('/planos', protegerRota, (req, res) => {
@@ -2239,6 +2578,11 @@ app.get('/curriculos', protegerRota, (req, res) => {
 app.get('/forum', (req, res) => {  // sem protegerRota aqui
     res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(__dirname + '/public/forum.html');
+});
+
+app.get('/eventos', protegerRota, (req, res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(__dirname + '/public/eventos.html');
 });
 
 app.listen(port, () => {
