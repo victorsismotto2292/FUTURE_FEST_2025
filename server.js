@@ -1722,7 +1722,7 @@ app.get('/get-user-stats', async (req, res) => {
         return res.status(401).json({ error: 'Não autenticado' });
     }
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
     
     try {
         await cliente.connect();
@@ -2233,7 +2233,7 @@ app.post('/save-curriculo', async (req, res) => {
     curriculoData.createdAt = new Date();
     curriculoData.updatedAt = new Date();
     
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2266,7 +2266,7 @@ app.get('/load-curriculos', async (req, res) => {
         return res.status(401).json({ curriculos: [] });
     }
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2295,7 +2295,7 @@ app.get('/get-curriculo/:id', async (req, res) => {
     }
 
     const { id } = req.params;
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2332,7 +2332,7 @@ app.put('/update-curriculo/:id', async (req, res) => {
     const curriculoData = req.body;
     curriculoData.updatedAt = new Date();
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2364,7 +2364,7 @@ app.delete('/delete-curriculo/:id', async (req, res) => {
     }
 
     const { id } = req.params;
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2410,7 +2410,7 @@ app.post('/save-event', async (req, res) => {
         comments: []
     };
     
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2442,7 +2442,7 @@ app.get('/load-events', async (req, res) => {
         return res.status(401).json({ error: 'Usuário não logado' });
     }
     
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2487,7 +2487,7 @@ app.post('/add-event-comment', async (req, res) => {
         createdAt: new Date()
     };
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2520,7 +2520,7 @@ app.post('/attend-event', async (req, res) => {
 
     const { eventId } = req.body;
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
