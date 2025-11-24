@@ -1,0 +1,290 @@
+/* ===============================
+   ESTILO BASEADO NO APRENDER.CSS
+================================== */
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%),
+                linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
+                radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
+                radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
+                radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
+                linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000 100%);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif;
+    color: white;
+}
+
+/* NAVBAR */
+.bar {
+    margin-top: 30px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.progress {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-top: 10px;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #FFDD00, #FED061);
+}
+
+.img2_logo {
+    width: 160px;
+    height: 70px;
+    margin-right: 20px;
+}
+
+.bar h4 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.bar h4 a {
+    color: white;
+    text-decoration: none;
+    margin: 0 20px;
+    font-size: 19px;
+    transition: 0.3s ease;
+    position: relative;
+    font-family: 'Jockey One';
+}
+
+.bar h4 a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #FFDD00;
+    transition: width 0.3s ease;
+}
+
+.bar h4 a:hover {
+    color: #FFDD00;
+}
+
+.bar h4 a:hover::after {
+    width: 100%;
+}
+
+.start {
+    color: white;
+    width: 170px;
+    height: 60px;
+    background: transparent;
+    border: 3px solid #FFDD00;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    font-weight: 600;
+}
+
+.start:hover {
+    background-color: #ffef8835;
+    transform: translateY(-2px);
+}
+
+/* TITULOS */
+.page-title {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+    animation: fadeInDown 0.8s ease;
+}
+
+.page-subtitle {
+    text-align: center;
+    color: rgba(255,255,255,0.8);
+    font-size: 20px;
+    margin-bottom: 40px;
+}
+
+/* BOTÃO VOLTAR */
+.btn-new-event {
+    padding: 12px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.btn-new-event:hover {
+    background: #ffef8835 !important;
+}
+
+/* LISTA DE EVENTOS */
+.events-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    gap: 25px;
+}
+
+/* EVENT CARD — estilo glass igual ao aprender */
+.event-card {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    transition: 0.35s ease;
+    cursor: pointer;
+    animation: fadeInUp 0.7s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,221,0,0.12), transparent);
+    transition: left 0.5s ease;
+}
+
+.event-card:hover::before {
+    left: 100%;
+}
+
+.event-card:hover {
+    transform: translateY(-10px);
+    border-color: #FFDD00;
+    background: rgba(255,255,255,0.16);
+    box-shadow: 0 15px 25px rgba(0,0,0,0.4);
+}
+
+/* CONTEÚDO DO CARD */
+.event-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FFF;
+}
+
+.event-date,
+.event-meta span {
+    color: #FFDD00;
+    font-size: 16px;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.event-description {
+    margin-top: 15px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.4;
+}
+
+.event-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+}
+
+.event-attendees i {
+    color: #FFDD00;
+}
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center;
+    margin-top: 70px;
+    animation: fadeIn 1s ease;
+}
+
+.empty-state i {
+    font-size: 70px;
+    color: #FFDD00;
+    margin-bottom: 15px;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255,255,255,0.7);
+    font-size: 14px;
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+
+    .img2_logo {
+        width: 150px;
+        height: 70px;
+    }
+
+    .bar {
+        flex-wrap: wrap;
+    }
+
+    .bar h4 {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .bar h4 a {
+        font-size: 16px;
+        margin: 0 8px;
+    }
+
+    .start {
+        width: 140px;
+        height: 50px;
+        margin-top: 12px;
+    }
+
+    .page-title {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 28px;
+    }
+
+    .events-list {
+        grid-template-columns: 1fr;
+    }
+}

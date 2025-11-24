@@ -2,6 +2,7 @@ const express = require('express');
 const MongoClient = require('mongodb').MongoClient;
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+const { ObjectId } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -2395,22 +2396,23 @@ app.post('/save-event', async (req, res) => {
         return res.status(401).json({ success: false, message: 'Usuário não logado' });
     }
     
-    const { title, date, time, location, description } = req.body;
+    const { title, description, date, time, location, type, image } = req.body;
 
     const newEvent = {
         id: Date.now().toString(),
-        title,
-        date,
-        time,
-        location,
-        description,
+        title: title,
+        description: description,
+        date: date,
+        time: time,
+        location: location,
+        type: type,
+        image: image || '',
         author: req.session.usuario,
         createdAt: new Date(),
-        attendees: 0,
-        comments: []
+        interested: [] // Array de usuários interessados
     };
     
-    const cliente = new MongoClient(urlMongo);
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
 
     try {
         await cliente.connect();
@@ -2436,13 +2438,12 @@ app.post('/save-event', async (req, res) => {
     }
 });
 
-// ROTA PARA CARREGAR EVENTOS
+// ROTA PARA CARREGAR TODOS OS EVENTOS
 app.get('/load-events', async (req, res) => {
     if (!req.session.usuario) {
         return res.status(401).json({ error: 'Usuário não logado' });
     }
-    
-    const cliente = new MongoClient(urlMongo);
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
 
     try {
         await cliente.connect();
@@ -2460,9 +2461,6 @@ app.get('/load-events', async (req, res) => {
             }
         });
 
-        // Ordenar por data
-        allEvents.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
-
         res.json({ events: allEvents });
     } catch (error) {
         console.error('Erro ao carregar eventos:', error);
@@ -2473,7 +2471,7 @@ app.get('/load-events', async (req, res) => {
 });
 
 // ROTA PARA ADICIONAR COMENTÁRIO EM EVENTO
-app.post('/add-event-comment', async (req, res) => {
+ /* app.post('/add-event-comment', async (req, res) => {
     if (!req.session.usuario) {
         return res.status(401).json({ success: false, message: 'Usuário não logado' });
     }
@@ -2510,17 +2508,651 @@ app.post('/add-event-comment', async (req, res) => {
     } finally {
         await cliente.close();
     }
-});
+}); */
 
 // ROTA PARA MARCAR PRESENÇA EM EVENTO
-app.post('/attend-event', async (req, res) => {
+app.post('/api/toggle-attendance', protegerRota, async (req, res) => {
+    const { eventId, userId } = req.body;
+    let cliente;
+
+    if (!userId) {
+        return res.status(400).json({ success: false, message: 'ID de usuário ausente.' });
+    }
+
+    try {
+        cliente = await MongoClient.connect(urlMongo);
+        const db = cliente.db(dbName);
+        const eventosCollection = db.collection('eventos');
+        
+        const eventObjectId = new ObjectId(eventId);
+
+        const event = await eventosCollection.findOne({ _id: eventObjectId });
+
+        if (!event) {
+            return res.status(404).json({ success: false, message: 'Evento não encontrado.' });
+        }
+        
+        const isAttending = event.attendees && event.attendees.includes(userId);
+
+        let updateResult;
+
+        if (isAttending) {
+            // Remove a presença
+            updateResult = await eventosCollection.updateOne(
+                { _id: eventObjectId },
+                { $pull: { attendees: userId } }
+            );
+        } else {
+            // Adiciona a presença
+            updateResult = await eventosCollection.updateOne(
+                { _id: eventObjectId },
+                { $addToSet: { attendees: userId } }
+            );
+        }
+
+        if (updateResult.modifiedCount === 1 || updateResult.matchedCount === 1) {
+            res.json({ success: true, message: 'Presença atualizada com sucesso.' });
+        } else {
+            res.status(500).json({ success: false, message: 'Falha ao atualizar presença, tente novamente.' });
+        }
+
+    } catch (err) {
+        console.error('Erro ao alternar presença:', err);
+        res.status(500).json({ success: false, message: 'Erro interno ao marcar presença.' });
+    } finally {
+        if (cliente) await cliente.close();
+    }
+});
+
+// ROTA PARA CARREGAR APENAS OS EVENTOS DO USUÁRIO LOGADO
+app.get('/load-my-events', protegerRota, async (req, res) => {
+    const usuarioNome = req.session.usuario;
+    if (!usuarioNome) {
+        return res.status(401).json({ events: [] });
+    }
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const usuarioDoc = await colecaoUsuarios.findOne({ usuario: usuarioNome });
+
+        if (usuarioDoc && usuarioDoc.events) {
+            res.json({ events: usuarioDoc.events });
+        } else {
+            res.json({ events: [] });
+        }
+    } catch (error) {
+        console.error('Erro ao carregar meus eventos:', error);
+        res.status(500).json({ events: [] });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA VISUALIZAR UM EVENTO ESPECÍFICO
+app.get('/event/:eventId', protegerRota, async (req, res) => {
+    const { eventId } = req.params;
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const users = await colecaoUsuarios.find({}).toArray();
+        let eventFound = null;
+
+        for (const user of users) {
+            if (user.events) {
+                const event = user.events.find(e => e.id === eventId);
+                if (event) {
+                    eventFound = event;
+                    break;
+                }
+            }
+        }
+
+        if (eventFound) {
+            // Renderizar página do evento
+            res.send(`
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${eventFound.title} - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
+                        linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
+                        radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
+                        radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
+                        radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
+                        linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
+            display: flex;
+            flex-direction: column;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .bar {
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: relative;
+        }
+
+        .img2_logo {
+            width: 160px;
+            height: 70px;
+        }
+
+        .bar h4 {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            margin: 0;
+            margin-top: 20px;
+        }
+
+        .bar h4 a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            font-size: 19px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-family: 'Jockey One';
+        }
+
+        .bar h4 a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #FFDD00;
+            transition: width 0.3s ease;
+        }
+
+        .bar h4 a:hover {
+            color: #FFDD00;
+        }
+
+        .bar h4 a:hover::after {
+            width: 100%;
+        }
+
+        .progress {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #FFDD00, #FED061);
+        }
+
+        .main {
+            flex: 1;
+            padding: 60px 20px;
+        }
+
+        .event-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .event-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .event-title {
+            color: #FFDD00;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .event-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .event-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+        }
+
+        .meta-item i {
+            color: #FFDD00;
+            font-size: 20px;
+        }
+
+        .event-description {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .event-description h3 {
+            color: #FFDD00;
+            margin-bottom: 15px;
+        }
+
+        .event-description p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .interest-section {
+            background: rgba(255, 221, 0, 0.1);
+            border: 2px solid rgba(255, 221, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .interest-btn {
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 18px;
+            border: 3px solid #FFDD00;
+            background: transparent;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .interest-btn:hover {
+            background: #ffef8835;
+            transform: scale(1.05);
+        }
+
+        .interest-btn.interested {
+            background: #FFDD00;
+            color: #1B2C3E;
+        }
+
+        .interest-count {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            border-color: #FFDD00;
+            color: #FFDD00;
+            transform: translateX(-5px);
+        }
+
+        footer.footer {
+            padding: 24px 0;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .bar {
+                flex-direction: column;
+                padding: 0 20px;
+            }
+
+            .bar h4 {
+                position: static;
+                transform: none;
+                margin-top: 15px;
+            }
+
+            .event-title {
+                font-size: 32px;
+            }
+
+            .event-header {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+        <h4>
+            <a href="/">Home</a>
+            <a href="/comunidade">Comunidade</a>
+            <a href="/perfil">Perfil</a>
+        </h4>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%"></div>
+    </div>
+
+    <main class="main">
+        <div class="event-container">
+            <a href="/comunidade" class="back-btn">
+                <i class="bi bi-arrow-left"></i> Voltar aos Eventos
+            </a>
+
+            <div class="event-header">
+                <h1 class="event-title">${eventFound.title}</h1>
+                
+                ${eventFound.image ? `<img src="${eventFound.image}" alt="${eventFound.title}" class="event-image">` : ''}
+                
+                <div class="event-meta">
+                    <div class="meta-item">
+                        <i class="bi bi-calendar"></i>
+                        <span>${new Date(eventFound.date).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-clock"></i>
+                        <span>${eventFound.time}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>${eventFound.location}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-tag"></i>
+                        <span>${eventFound.type}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-person"></i>
+                        <span>Criado por ${eventFound.author}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-description">
+                <h3>Sobre o Evento</h3>
+                <p>${eventFound.description}</p>
+            </div>
+
+            <div class="interest-section">
+                <div class="interest-count">
+                    <i class="bi bi-heart-fill"></i>
+                    <span id="interestCount">${eventFound.interested ? eventFound.interested.length : 0}</span>
+                    ${eventFound.interested && eventFound.interested.length === 1 ? 'pessoa interessada' : 'pessoas interessadas'}
+                </div>
+                <button class="interest-btn" id="interestBtn" onclick="toggleInterest()">
+                    <i class="bi bi-heart"></i>
+                    <span id="interestText">Tenho Interesse</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const eventId = '${eventId}';
+        const currentUser = '${req.session.usuario}';
+        let interested = ${JSON.stringify(eventFound.interested || [])};
+
+        // Verificar se o usuário já demonstrou interesse
+        function checkUserInterest() {
+            const btn = document.getElementById('interestBtn');
+            const icon = btn.querySelector('i');
+            const text = document.getElementById('interestText');
+            
+            if (interested.includes(currentUser)) {
+                btn.classList.add('interested');
+                icon.className = 'bi bi-heart-fill';
+                text.textContent = 'Interessado';
+            } else {
+                btn.classList.remove('interested');
+                icon.className = 'bi bi-heart';
+                text.textContent = 'Tenho Interesse';
+            }
+        }
+
+        // Alternar interesse
+        function toggleInterest() {
+            fetch('/toggle-interest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    interested = data.interested;
+                    document.getElementById('interestCount').textContent = interested.length;
+                    checkUserInterest();
+                } else {
+                    alert(data.message || 'Erro ao registrar interesse');
+                }
+            })
+            .catch(err => {
+                console.error('Erro:', err);
+                alert('Erro ao processar sua solicitação');
+            });
+        }
+
+        // Inicializar
+        checkUserInterest();
+    </script>
+</body>
+</html>
+            `);
+        } else {
+            res.status(404).send(`
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Evento não encontrado - WORKIN</title>
+                    <style>
+                        body { 
+                            background: #1B2C3E; 
+                            color: white; 
+                            font-family: Arial; 
+                            padding: 40px;
+                            text-align: center;
+                        }
+                        h1 { color: #FFDD00; }
+                        a { 
+                            display: inline-block;
+                            margin-top: 20px;
+                            padding: 12px 30px;
+                            background: #FFDD00;
+                            color: #1B2C3E;
+                            text-decoration: none;
+                            border-radius: 30px;
+                            font-weight: bold;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Evento não encontrado</h1>
+                    <p>O evento que você procura não existe ou foi removido.</p>
+                    <a href="/comunidade">← Voltar aos Eventos</a>
+                </body>
+                </html>
+            `);
+        }
+    } catch (error) {
+        console.error('Erro ao buscar evento:', error);
+        res.status(500).send('Erro ao carregar evento');
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA ALTERNAR INTERESSE (CURTIR/DESCURTIR)
+app.post('/toggle-interest', async (req, res) => {
     if (!req.session.usuario) {
         return res.status(401).json({ success: false, message: 'Usuário não logado' });
     }
 
     const { eventId } = req.body;
+    const usuarioLogado = req.session.usuario;
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
 
-    const cliente = new MongoClient(urlMongo);
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // Buscar o evento
+        const users = await colecaoUsuarios.find({}).toArray();
+        let eventOwner = null;
+        let eventData = null;
+
+        for (const user of users) {
+            if (user.events) {
+                const event = user.events.find(e => e.id === eventId);
+                if (event) {
+                    eventOwner = user.usuario;
+                    eventData = event;
+                    break;
+                }
+            }
+        }
+
+        if (!eventData) {
+            return res.status(404).json({ success: false, message: 'Evento não encontrado' });
+        }
+
+        // Verificar se o usuário já está interessado
+        const interested = eventData.interested || [];
+        const userIndex = interested.indexOf(usuarioLogado);
+
+        let result;
+        if (userIndex > -1) {
+            // Remover interesse
+            result = await colecaoUsuarios.updateOne(
+                { usuario: eventOwner, 'events.id': eventId },
+                { $pull: { 'events.$.interested': usuarioLogado } }
+            );
+            interested.splice(userIndex, 1);
+        } else {
+            // Adicionar interesse
+            result = await colecaoUsuarios.updateOne(
+                { usuario: eventOwner, 'events.id': eventId },
+                { $addToSet: { 'events.$.interested': usuarioLogado } }
+            );
+            interested.push(usuarioLogado);
+        }
+
+        if (result.matchedCount === 1) {
+            res.json({ success: true, interested: interested });
+        } else {
+            res.status(500).json({ success: false, message: 'Erro ao atualizar interesse' });
+        }
+
+    } catch (error) {
+        console.error('Erro ao alternar interesse:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao processar interesse' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// 2. ROTA API PROTEGIDA para buscar detalhes de um evento específico pelo ID
+app.get('/api/event-detail/:id', protegerRota, async (req, res) => {
+    const eventId = req.params.id;
+    let cliente;
+
+    try {
+        // ... (Conexão ao MongoDB, usando urlMongo e dbName) ...
+        cliente = await MongoClient.connect(urlMongo);
+        const db = cliente.db(dbName);
+        const eventosCollection = db.collection('eventos');
+        
+        // Importante: Converte o ID string da URL para ObjectId do MongoDB
+        const { ObjectId } = require('mongodb'); // Certifique-se que está no escopo, ou no topo do arquivo.
+        const event = await eventosCollection.findOne({ _id: new ObjectId(eventId) });
+
+        if (event) {
+            res.json({ success: true, event });
+        } else {
+            res.status(404).json({ success: false, message: 'Evento não encontrado.' });
+        }
+
+    } catch (err) {
+        console.error('Erro ao buscar detalhes do evento:', err);
+        res.status(500).json({ success: false, message: 'Erro interno do servidor.' });
+    } finally {
+        if (cliente) await cliente.close();
+    }
+});
+
+// API para obter o ID do usuário logado
+app.get('/api/get-current-user-id', protegerRota, (req, res) => {
+    if (req.session.usuario && req.session.usuario._id) {
+        res.json({ success: true, userId: req.session.usuario._id.toString() }); 
+    } else {
+        // Se a rota for protegida, esta linha será ignorada, pois o protegerRota 
+        // já teria impedido o acesso ou redirecionado.
+        res.status(401).json({ success: false, message: 'Não autenticado.' });
+    }
+});
+
+// ROTA PARA ATUALIZAR EVENTO
+app.put('/update-event/:eventId', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { eventId } = req.params;
+    const { title, description, date, time, location, type, image } = req.body;
+    const usuarioLogado = req.session.usuario;
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
 
     try {
         await cliente.connect();
@@ -2528,18 +3160,62 @@ app.post('/attend-event', async (req, res) => {
         const colecaoUsuarios = banco.collection('usuarios');
 
         const result = await colecaoUsuarios.updateOne(
-            { 'events.id': eventId },
-            { $inc: { 'events.$.attendees': 1 } }
+            { 'events.id': eventId, 'events.author': usuarioLogado },
+            { 
+                $set: { 
+                    'events.$.title': title,
+                    'events.$.description': description,
+                    'events.$.date': date,
+                    'events.$.time': time,
+                    'events.$.location': location,
+                    'events.$.type': type,
+                    'events.$.image': image
+                } 
+            }
         );
 
-        if (result.matchedCount === 1) {
-            res.json({ success: true });
-        } else {
-            res.status(404).json({ success: false, message: 'Evento não encontrado.' });
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Evento não encontrado ou você não é o criador.' });
         }
+
+        res.json({ success: true, message: 'Evento atualizado com sucesso!' });
     } catch (error) {
-        console.error('Erro ao marcar presença:', error);
-        res.status(500).json({ success: false, message: 'Erro interno ao marcar presença.' });
+        console.error('Erro ao atualizar evento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao atualizar evento.' });
+    } finally {
+        await cliente.close();
+    }
+});
+
+// ROTA PARA EXCLUIR EVENTO
+app.delete('/delete-event/:eventId', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.status(401).json({ success: false, message: 'Usuário não logado' });
+    }
+
+    const { eventId } = req.params;
+    const usuarioLogado = req.session.usuario;
+
+    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        const result = await colecaoUsuarios.updateOne(
+            { 'events.id': eventId, 'events.author': usuarioLogado },
+            { $pull: { events: { id: eventId } } }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ success: false, message: 'Evento não encontrado ou você não é o criador.' });
+        }
+
+        res.json({ success: true, message: 'Evento excluído com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao excluir evento:', error);
+        res.status(500).json({ success: false, message: 'Erro interno ao excluir evento.' });
     } finally {
         await cliente.close();
     }
@@ -2585,8 +3261,17 @@ app.get('/eventos', protegerRota, (req, res) => {
     res.sendFile(__dirname + '/public/eventos.html');
 });
 
+app.get('/my-events', protegerRota, (req, res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(__dirname + '/public/my-events.html')
+});
+
 app.get('/my-curriculums', (req, res) => {
     res.sendFile(__dirname + '/public/my-curriculums.html');
+});
+
+app.get('/event-detail.html', protegerRota, (req, res) => {
+    res.sendFile(__dirname + '/public/event-detail.html');
 });
 
 app.listen(port, () => {

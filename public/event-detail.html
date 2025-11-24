@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evento - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; width: 100%; min-height: 100vh; background: linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%); font-family: 'Arial', sans-serif; }
+        .bar { margin-top: 30px; display: flex; align-items: center; padding: 0 40px; position: relative; justify-content: space-between; }
+        .img2_logo { width: 160px; height: 70px; }
+        .bar h4 { position: absolute; left: 50%; transform: translateX(-50%); margin: 0; margin-top: 20px; }
+        .bar h4 a { color: white; text-decoration: none; margin: 0 20px; font-size: 19px; font-family: 'Jockey One'; }
+        .bar h4 a:hover { color: #FFDD00; }
+        .start { color: white; width: 170px; height: 60px; background: transparent; border: 3px solid #FFDD00; border-radius: 30px; cursor: pointer; font-weight: 600; }
+        .progress { height: 5px; background: rgba(255, 255, 255, 0.1); margin-top: 10px; }
+        .progress-bar { background: linear-gradient(90deg, #FFDD00, #FED061); }
+        .main { padding: 40px 20px; min-height: calc(100vh - 200px); }
+        .container { max-width: 900px; margin: 0 auto; }
+        .back-button { color: #FFDD00; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px; }
+        .event-header { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 30px; margin-bottom: 40px; }
+        .event-title { color: white; font-size: 36px; font-weight: 700; margin-bottom: 20px; }
+        .event-meta-info { display: flex; flex-direction: column; gap: 15px; color: rgba(255, 255, 255, 0.8); font-size: 16px; margin-bottom: 20px; }
+        .meta-item { display: flex; align-items: center; gap: 10px; }
+        .meta-item i { color: #FFDD00; font-size: 20px; }
+        .event-content { color: rgba(255, 255, 255, 0.9); font-size: 16px; line-height: 1.8; white-space: pre-wrap; word-wrap: break-word; }
+        .event-actions { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-like { background: rgba(255, 221, 0, 0.2); color: #FFDD00; border: 2px solid #FFDD00; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+        .btn-like.liked { background: #FFDD00; color: #1B2C3E; }
+        .btn-like:hover { transform: scale(1.05); }
+        .comments-section { margin-top: 50px; }
+        .comments-title { color: white; font-size: 28px; font-weight: 700; margin-bottom: 30px; }
+        .comment-card { background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 15px; padding: 25px; margin-bottom: 20px; }
+        .comment-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; }
+        .comment-author { color: #FFDD00; font-weight: 700; font-size: 16px; }
+        .comment-date { color: rgba(255, 255, 255, 0.5); font-size: 13px; }
+        .comment-content { color: rgba(255, 255, 255, 0.85); font-size: 15px; white-space: pre-wrap; }
+        .add-comment-section { background: rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; margin-top: 40px; }
+        .form-control { background: rgba(255, 255, 255, 0.08); border: 2px solid rgba(255, 255, 255, 0.2); color: white; }
+        .form-control:focus { background: rgba(255, 255, 255, 0.12); border-color: #FFDD00; box-shadow: 0 0 0 0.2rem rgba(255, 221, 0, 0.25); color: white; }
+        .btn-submit-reply { padding: 14px; background: linear-gradient(90deg, #FFDD00, #FED061); border: none; border-radius: 10px; color: #1B2C3E; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 15px; }
+        .empty-replies { text-align: center; padding: 40px 20px; color: rgba(255, 255, 255, 0.6); }
+        footer { padding: 20px; text-align: center; color: rgba(255, 255, 255, 0.7); }
+    </style>
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+        <h4>
+            <a href="/">Home</a>
+            <a href="/planos">Planos</a>
+            <a href="/aprender">Aprender</a>
+            <a href="/comunidade">Comunidade</a>
+            <a href="/perfil">Perfil</a>
+            <a href="/logout">Logout</a>
+        </h4>
+        <a href="/perfil"><button class="start">Perfil</button></a>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%"></div>
+    </div>
+
+    <main class="main">
+        <div class="container">
+            <a href="/eventos" class="back-button">
+                <i class="bi bi-arrow-left"></i> Voltar ao Calendário
+            </a>
+
+            <div id="eventDetailContent">
+                <p style="color: white; text-align: center;">Carregando evento...</p>
+            </div>
+
+            <div class="comments-section" id="commentsSection" style="display: none;">
+                <h3 class="comments-title">
+                    <i class="bi bi-chat-dots"></i> Comentários
+                </h3>
+                <div id="commentsList"></div>
+                <div class="empty-replies" id="emptyComments" style="display: none;">
+                    <h5>Nenhum comentário ainda</h5>
+                    <p>Seja o primeiro a comentar!</p>
+                </div>
+            </div>
+
+            <div class="add-comment-section">
+                <h4 class="add-reply-title">
+                    <i class="bi bi-pen"></i> Adicionar Comentário
+                </h4>
+                <form id="commentForm">
+                    <div class="mb-3">
+                        <textarea class="form-control" id="commentContent" rows="4" placeholder="Escreva seu comentário aqui..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit-reply">Enviar Comentário</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Variáveis globais para armazenar o ID do evento e do usuário atual
+    let eventId = null;
+    
+    // **IMPORTANTE:** Esta variável deve ser substituída pela lógica real
+    // de como você obtém o ID do usuário logado (ex: de uma variável global
+    // injetada pelo servidor ou de uma chamada de API de perfil).
+    // Vou usar um placeholder para que o código funcione na lógica de presença.
+    let currentUserId = 'ID_DO_USUARIO_LOGADO'; 
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. Obter o ID do evento da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        eventId = urlParams.get('id');
+
+        if (eventId) {
+            loadEventDetail();
+        } else {
+            document.getElementById('eventDetailContent').innerHTML = '<h2 class="text-white text-center mt-5">Erro: ID do evento não fornecido.</h2>';
+        }
+
+        // 5. Configurar envio de comentário
+        document.getElementById('commentForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addComment();
+        });
+    });
+
+    // 2. Função principal para carregar os detalhes do evento
+    async function loadEventDetail() {
+        if (!eventId) return;
+
+        try {
+            // Chama a rota API que criamos no passo anterior
+            const response = await fetch(`/api/event-detail/${eventId}`); 
+            const data = await response.json();
+
+            if (data.success) {
+                renderEvent(data.event);
+                renderComments(data.event.comments || []);
+                // Configura o listener do botão de presença após renderizar o HTML
+                setupAttendanceListener(data.event._id, data.event.attendees || []); 
+            } else {
+                document.getElementById('eventDetailContent').innerHTML = `<h2 class="text-white text-center mt-5">Erro ao carregar evento: ${data.message}</h2>`;
+            }
+        } catch (error) {
+            console.error('Erro ao carregar evento:', error);
+            document.getElementById('eventDetailContent').innerHTML = '<h2 class="text-white text-center mt-5">Erro de conexão com o servidor.</h2>';
+        }
+    }
+
+    // 3. Função para renderizar o evento na div 'eventDetailContent'
+    function renderEvent(event) {
+        const attendeesList = event.attendees || [];
+        const isAttending = attendeesList.includes(currentUserId);
+        const buttonText = isAttending ? 'Confirmado!' : 'Eu vou!';
+        const buttonClass = isAttending ? 'btn-success' : 'btn-primary';
+        
+        const contentDiv = document.getElementById('eventDetailContent');
+        const formattedDate = new Date(event.date).toLocaleDateString('pt-BR', { dateStyle: 'long', timeStyle: 'short' });
+
+        // Estrutura HTML do detalhe do evento
+        contentDiv.innerHTML = `
+            <div class="row">
+                <div class="col-md-8">
+                    <img src="/img/${escapeHtml(event.image)}" class="img-fluid rounded mb-4" alt="${escapeHtml(event.title)}">
+                    <h1 class="text-white mb-4">${escapeHtml(event.title)}</h1>
+                    <p class="lead text-white-50">${escapeHtml(event.description)}</p>
+                    
+                    <div class="event-meta text-white-75 mb-4">
+                        <p><i class="bi bi-calendar-event"></i> Data e Hora: ${formattedDate}</p>
+                        <p><i class="bi bi-geo-alt"></i> Local: ${escapeHtml(event.location)}</p>
+                        <p><i class="bi bi-person"></i> Organizado por: ${escapeHtml(event.organizerName || 'WORKIN')}</p>
+                        <p><i class="bi bi-people"></i> Participantes: <span id="attendeeCount">${attendeesList.length}</span></p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card bg-dark text-white p-3 sticky-top" style="top: 20px;">
+                        <h5>Confirmação</h5>
+                        <button id="attendanceBtn" class="btn ${buttonClass} mb-3" data-event-id="${event._id}" ${isAttending ? 'disabled' : ''}>
+                            ${buttonText}
+                        </button>
+                        
+                        <h5>Ações</h5>
+                        <button class="btn btn-outline-warning mb-2"><i class="bi bi-share"></i> Compartilhar</button>
+                        <button class="btn btn-outline-info"><i class="bi bi-calendar-plus"></i> Adicionar ao Calendário</button>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="text-white-50 my-5">
+            
+            <div id="commentsSection">
+                </div>
+        `;
+    }
+    
+    // 4. Função para renderizar comentários
+    function renderComments(comments) {
+        const commentsSection = document.getElementById('commentsSection');
+        if (!commentsSection) return;
+
+        let commentsHtml = '<h2 class="text-white mb-4">Comentários (' + comments.length + ')</h2>';
+        const commentsList = comments.length > 0 ? 
+            comments.map(comment => `
+                <div class="d-flex text-white p-3 mb-2 rounded bg-secondary bg-opacity-25">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-person-circle fs-3 me-3"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="fw-bold">${escapeHtml(comment.userName || 'Usuário Anônimo')}</div>
+                        <small class="text-muted">${new Date(comment.date).toLocaleDateString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</small>
+                        <p class="mt-1 mb-0">${escapeHtml(comment.text)}</p>
+                    </div>
+                </div>
+            `).join('')
+            : '<p class="text-white-50">Seja o primeiro a comentar neste evento!</p>';
+        
+        commentsSection.innerHTML = commentsHtml + commentsList;
+    }
+
+    // 6. Função para configurar o listener de presença
+    function setupAttendanceListener(id, currentAttendees) {
+        const attendanceBtn = document.getElementById('attendanceBtn');
+        if (!attendanceBtn) return;
+        
+        attendanceBtn.addEventListener('click', async function() {
+            try {
+                // Rota que você deve criar/ter no server.js para alternar a presença
+                const response = await fetch('/api/toggle-attendance', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ eventId: id, userId: currentUserId }) 
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Recarrega os detalhes para atualizar o botão e a contagem
+                    loadEventDetail(); 
+                    alert('Presença atualizada com sucesso!');
+                } else {
+                    alert('Erro ao atualizar presença: ' + (data.message || 'Erro desconhecido.'));
+                }
+            } catch (error) {
+                console.error('Erro na requisição de presença:', error);
+                alert('Erro de conexão ao marcar presença.');
+            }
+        });
+    }
+
+    // 7. Função para adicionar comentário (acionada pelo formulário)
+    async function addComment() {
+        const commentContentInput = document.getElementById('commentContent');
+        const commentContent = commentContentInput.value;
+        if (!commentContent.trim()) return;
+
+        try {
+            // Rota que você deve criar/ter no server.js para adicionar comentário
+            const response = await fetch('/add-event-comment', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventId, comment: commentContent })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                commentContentInput.value = ''; // Limpa o campo
+                loadEventDetail(); // Recarrega tudo para mostrar o novo comentário
+            } else {
+                alert('Erro ao enviar comentário: ' + (data.message || 'Erro desconhecido'));
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao enviar comentário.');
+        }
+    }
+
+    // 8. Função para escapar HTML (para segurança contra XSS)
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+</body>
+</html>

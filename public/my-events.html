@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Eventos - WORKIN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style/my-events.css">
+</head>
+<body>
+    <nav class="bar">
+        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+        <h4>
+            <a href="/">Home</a>
+            <a href="/planos">Planos</a>
+            <a href="/aprender">Aprender</a>
+            <a href="/comunidade">Comunidade</a>
+            <a href="/perfil">Perfil</a>
+            <a href="/logout">Logout</a>
+        </h4>
+        <a href="/perfil"><button class="start">Perfil</button></a>
+    </nav>
+    <div class="progress" role="progressbar">
+        <div class="progress-bar" style="width: 0%;"></div>
+    </div>
+
+    <main class="main">
+        <div class="container">
+            <a href="/eventos" class="btn-new-event" style="text-decoration: none; background: transparent; border: 2px solid #FFDD00; color: #FFDD00; margin-bottom: 30px; display: flex; width: 300px; flex-direction: row; justify-content: center; margin-top: 50px; gap: 10px">
+                <i class="bi bi-arrow-left"></i> Voltar ao Calendário
+            </a>
+            <h1 class="page-title">Meus Eventos Criados</h1>
+            <p class="page-subtitle">Gerencie os eventos que você publicou</p>
+
+            <div class="events-list" id="eventsList">
+                </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="bi bi-calendar-plus"></i>
+                <h3>Você ainda não criou nenhum evento</h3>
+                <p><a href="/eventos" style="color: #FFDD00;">Criar um novo evento</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMyEvents();
+        });
+
+        function loadMyEvents() {
+            const list = document.getElementById('eventsList');
+            const emptyState = document.getElementById('emptyState');
+            list.innerHTML = '<p style="text-align: center; color: white;">Carregando...</p>';
+
+            fetch('/load-my-events') // Rota do server.js
+                .then(response => response.json())
+                .then(data => {
+                    if (data.events && data.events.length > 0) {
+                        list.innerHTML = '';
+                        emptyState.style.display = 'none';
+
+                        data.events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                        data.events.forEach(event => {
+                            // Usamos a mesma função de criação de card
+                            const eventCard = createEventCard(event);
+                            list.appendChild(eventCard);
+                        });
+                    } else {
+                        list.innerHTML = '';
+                        emptyState.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar eventos:', error);
+                    list.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').textContent = 'Erro ao carregar eventos.';
+                });
+        }
+
+        // Função para criar card (baseada em eventos.html)
+        function createEventCard(event) {
+            const card = document.createElement('div');
+            card.className = 'event-card';
+            // Adiciona o clique para abrir o detalhe
+            card.onclick = () => openEventDetail(event.id);
+
+            const eventDate = new Date(event.date + ' ' + event.time);
+            const formattedDate = eventDate.toLocaleDateString('pt-BR', { 
+                day: '2-digit', month: 'long', year: 'numeric' 
+            });
+            const formattedTime = event.time;
+
+            // Usamos event.attendees.length para a contagem
+            const attendeesCount = event.attendees ? event.attendees.length : 0;
+
+            card.innerHTML = `
+                <div class="event-header">
+                    <div>
+                        <div class="event-title">${escapeHtml(event.title)}</div>
+                        <div class="event-date">
+                            <i class="bi bi-calendar-event"></i> ${formattedDate} às ${formattedTime}
+                        </div>
+                    </div>
+                </div>
+                <div class="event-meta">
+                    <span><i class="bi bi-geo-alt"></i> ${escapeHtml(event.location || 'Online')}</span>
+                </div>
+                <div class="event-description">
+                    ${escapeHtml(event.description).substring(0, 150)}${event.description.length > 150 ? '...' : ''}
+                </div>
+                <div class="event-footer">
+                    <span class="event-author">Por ${escapeHtml(event.author)}</span>
+                    <span class="event-attendees">
+                        <i class="bi bi-people"></i> ${attendeesCount} interessados
+                    </span>
+                </div>
+            `;
+            return card;
+        }
+
+        function openEventDetail(id) {
+            window.location.href = `/event-detail.html?id=${id}`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
