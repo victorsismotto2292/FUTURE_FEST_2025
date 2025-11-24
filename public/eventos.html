@@ -128,6 +128,44 @@
             margin-bottom: 50px;
         }
 
+        /* Estilos das Abas */
+        .nav-tabs {
+            border-bottom: 2px solid rgba(255, 221, 0, 0.4);
+            margin-bottom: 30px;
+        }
+
+        .nav-tabs .nav-item .nav-link {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: none;
+            color: rgba(255, 255, 255, 0.7);
+            margin-right: 5px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 12px 24px;
+        }
+
+        .nav-tabs .nav-item .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .nav-tabs .nav-item .nav-link.active {
+            background: rgba(255, 221, 0, 0.15);
+            border-color: rgba(255, 221, 0, 0.4);
+            color: #FFDD00;
+            font-weight: 700;
+        }
+
+        .tab-content {
+            background: rgba(44, 62, 80, 0.25);
+            border: 1px solid rgba(255, 221, 0, 0.2);
+            border-top: none;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+
         .events-actions {
             display: flex;
             justify-content: space-between;
@@ -288,7 +326,7 @@
             border-radius: 20px;
             padding: 25px;
             transition: all 0.3s ease;
-            cursor: pointer;
+            position: relative;
         }
 
         .event-card:hover {
@@ -296,6 +334,34 @@
             border-color: #FFDD00;
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(255, 221, 0, 0.2);
+        }
+
+        .event-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .event-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .event-action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .event-action-btn.delete:hover {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
         }
 
         .event-header {
@@ -310,6 +376,11 @@
             font-size: 22px;
             font-weight: 700;
             margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .event-title:hover {
+            color: #FFDD00;
         }
 
         .event-date {
@@ -327,6 +398,7 @@
             color: rgba(255, 255, 255, 0.6);
             font-size: 14px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .event-meta span {
@@ -348,6 +420,8 @@
             align-items: center;
             padding-top: 15px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .event-author {
@@ -355,12 +429,43 @@
             font-weight: 600;
         }
 
-        .event-attendees {
-            background: rgba(255, 221, 0, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
+        /* Botão de Interesse (Coração) */
+        .interest-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 14px;
+            font-weight: 600;
+        }
+
+        .interest-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .interest-btn.interested {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .interest-btn.interested:hover {
+            background: rgba(255, 68, 68, 0.3);
+        }
+
+        .interest-btn i {
+            font-size: 18px;
+        }
+
+        .interest-count {
+            font-weight: 700;
         }
 
         .modal-content {
@@ -381,7 +486,7 @@
             filter: invert(1);
         }
 
-        .form-control, .form-control:focus {
+        .form-control, .form-control:focus, .form-select, .form-select:focus {
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.2);
             color: white;
@@ -391,7 +496,7 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             border-color: #FFDD00;
             background: rgba(255, 255, 255, 0.15);
             box-shadow: 0 0 0 0.2rem rgba(255, 221, 0, 0.25);
@@ -400,6 +505,11 @@
         .form-label {
             color: white;
             font-weight: 600;
+        }
+
+        .form-select option {
+            background: #1B2C3E;
+            color: white;
         }
 
         footer {
@@ -427,6 +537,18 @@
         }
 
         @media (max-width: 768px) {
+            .bar {
+                flex-direction: column;
+                padding: 0 20px;
+            }
+
+            .bar h4 {
+                position: static;
+                transform: none;
+                margin-top: 15px;
+                text-align: center;
+            }
+
             .calendar-grid {
                 grid-template-columns: repeat(7, 1fr);
                 gap: 5px;
@@ -440,6 +562,12 @@
 
             .event-card {
                 padding: 20px;
+            }
+
+            .event-actions {
+                position: static;
+                justify-content: flex-end;
+                margin-top: 10px;
             }
         }
     </style>
@@ -470,44 +598,74 @@
                 <button class="btn-new-event" data-bs-toggle="modal" data-bs-target="#newEventModal">
                     <i class="bi bi-plus-circle"></i> Criar Novo Evento
                 </button>
-                    <a href="/my-events" class="btn-new-event" style="text-decoration: none; background: rgba(255, 221, 0, 0.2); color: #FFDD00; border: 2px solid #FFDD00;">
-                        <i class="bi bi-bookmark"></i> Meus Eventos
-                    </a>
                 <div class="search-bar">
                     <input type="text" id="searchInput" placeholder="Buscar eventos...">
                 </div>
             </div>
 
-            <!-- Calendário Interativo -->
-            <div class="calendar-container">
-                <div class="calendar-header">
-                    <h3 id="currentMonthYear">Janeiro 2025</h3>
-                    <div class="calendar-nav">
-                        <button onclick="previousMonth()"><i class="bi bi-chevron-left"></i></button>
-                        <button onclick="nextMonth()"><i class="bi bi-chevron-right"></i></button>
-                        <button onclick="goToToday()">Hoje</button>
+            <!-- Sistema de Abas -->
+            <ul class="nav nav-tabs" id="eventTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-events-tab" data-bs-toggle="tab" data-bs-target="#all-events" type="button" role="tab">
+                        <i class="bi bi-calendar-event"></i> Todos os Eventos
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="my-events-tab" data-bs-toggle="tab" data-bs-target="#my-events" type="button" role="tab">
+                        <i class="bi bi-bookmark-fill"></i> Meus Eventos
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="eventTabsContent">
+                <!-- Aba: Todos os Eventos -->
+                <div class="tab-pane fade show active" id="all-events" role="tabpanel">
+                    <!-- Calendário Interativo -->
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <h3 id="currentMonthYear">Janeiro 2025</h3>
+                            <div class="calendar-nav">
+                                <button onclick="previousMonth()"><i class="bi bi-chevron-left"></i></button>
+                                <button onclick="nextMonth()"><i class="bi bi-chevron-right"></i></button>
+                                <button onclick="goToToday()">Hoje</button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Lista de Eventos -->
+                    <h3 style="color: white; margin-bottom: 20px;">Próximos Eventos</h3>
+                    <div class="events-list" id="allEventsList">
+                        <!-- Events will be loaded here -->
+                    </div>
+
+                    <div class="empty-state" id="allEventsEmpty" style="display: none;">
+                        <i class="bi bi-calendar-event"></i>
+                        <h3>Nenhum evento encontrado</h3>
+                        <p>Seja o primeiro a criar um evento!</p>
                     </div>
                 </div>
-                <div class="calendar-grid" id="calendarGrid">
-                    <!-- Calendar will be generated here -->
+
+                <!-- Aba: Meus Eventos -->
+                <div class="tab-pane fade" id="my-events" role="tabpanel">
+                    <h3 style="color: white; margin-bottom: 20px;">Eventos que Criei</h3>
+                    <div class="events-list" id="myEventsList">
+                        <!-- My events will be loaded here -->
+                    </div>
+
+                    <div class="empty-state" id="myEventsEmpty" style="display: none;">
+                        <i class="bi bi-calendar-x"></i>
+                        <h3>Você ainda não criou nenhum evento</h3>
+                        <p>Clique em "Criar Novo Evento" para começar!</p>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Lista de Eventos -->
-            <h3 style="color: white; margin-bottom: 20px;">Próximos Eventos</h3>
-            <div class="events-list" id="eventsList">
-                <!-- Events will be loaded here -->
-            </div>
-
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <i class="bi bi-calendar-event"></i>
-                <h3>Nenhum evento encontrado</h3>
-                <p>Seja o primeiro a criar um evento!</p>
             </div>
         </div>
     </main>
 
-    <!-- Modal para criar novo evento -->
+    <!-- Modal para criar/editar evento -->
     <div class="modal fade" id="newEventModal" tabindex="-1" aria-labelledby="newEventModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -517,6 +675,7 @@
                 </div>
                 <div class="modal-body">
                     <form id="newEventForm">
+                        <input type="hidden" id="eventId" value="">
                         <div class="mb-3">
                             <label for="eventTitle" class="form-label">Título do Evento *</label>
                             <input type="text" class="form-control" id="eventTitle" required placeholder="Nome do evento">
@@ -532,16 +691,33 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="eventLocation" class="form-label">Local</label>
-                            <input type="text" class="form-control" id="eventLocation" placeholder="Online ou endereço físico">
+                            <label for="eventLocation" class="form-label">Local *</label>
+                            <input type="text" class="form-control" id="eventLocation" required placeholder="Online ou endereço físico">
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventType" class="form-label">Tipo de Evento *</label>
+                            <select class="form-select" id="eventType" required>
+                                <option value="">Selecione...</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Meetup">Meetup</option>
+                                <option value="Webinar">Webinar</option>
+                                <option value="Networking">Networking</option>
+                                <option value="Palestra">Palestra</option>
+                                <option value="Curso">Curso</option>
+                                <option value="Outro">Outro</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="eventDescription" class="form-label">Descrição *</label>
                             <textarea class="form-control" id="eventDescription" rows="4" required placeholder="Descreva o evento em detalhes"></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label for="eventImage" class="form-label">URL da Imagem (opcional)</label>
+                            <input type="url" class="form-control" id="eventImage" placeholder="https://exemplo.com/imagem.jpg">
+                        </div>
                         <div class="text-end">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-new-event">Criar Evento</button>
+                            <button type="submit" class="btn btn-new-event" id="submitEventBtn">Criar Evento</button>
                         </div>
                     </form>
                 </div>
@@ -556,25 +732,47 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let currentDate = new Date();
-        let events = [];
+        let allEvents = [];
+        let myEvents = [];
+        let currentUser = '';
 
         // Carregar eventos ao iniciar
         document.addEventListener('DOMContentLoaded', function() {
-            loadEvents();
+            loadAllEvents();
+            loadMyEvents();
             renderCalendar();
             setupEventForm();
+            setupTabEvents();
         });
 
-        // Função para carregar eventos
-        function loadEvents() {
+        // Função para carregar todos os eventos
+        function loadAllEvents() {
             fetch('/load-events')
                 .then(response => response.json())
                 .then(data => {
-                    events = data.events || [];
-                    renderEvents();
+                    allEvents = data.events || [];
+                    renderAllEvents();
                     renderCalendar();
                 })
                 .catch(error => console.error('Erro ao carregar eventos:', error));
+        }
+
+        // Função para carregar meus eventos
+        function loadMyEvents() {
+            fetch('/load-my-events')
+                .then(response => response.json())
+                .then(data => {
+                    myEvents = data.events || [];
+                    renderMyEvents();
+                })
+                .catch(error => console.error('Erro ao carregar meus eventos:', error));
+        }
+
+        // Setup de eventos das abas
+        function setupTabEvents() {
+            document.getElementById('all-events-tab').addEventListener('shown.bs.tab', function() {
+                renderCalendar();
+            });
         }
 
         // Renderizar calendário
@@ -582,7 +780,6 @@
             const grid = document.getElementById('calendarGrid');
             grid.innerHTML = '';
 
-            // Cabeçalhos dos dias
             const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             daysOfWeek.forEach(day => {
                 const dayHeader = document.createElement('div');
@@ -591,11 +788,9 @@
                 grid.appendChild(dayHeader);
             });
 
-            // Atualizar título do mês
             document.getElementById('currentMonthYear').textContent = 
                 currentDate.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
-            // Calcular dias do mês
             const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
             const prevLastDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
@@ -604,19 +799,16 @@
             const lastDayDate = lastDay.getDate();
             const prevLastDayDate = prevLastDay.getDate();
 
-            // Dias do mês anterior
             for (let i = firstDayIndex - 1; i >= 0; i--) {
                 const dayDiv = createDayElement(prevLastDayDate - i, true);
                 grid.appendChild(dayDiv);
             }
 
-            // Dias do mês atual
             for (let i = 1; i <= lastDayDate; i++) {
                 const dayDiv = createDayElement(i, false);
                 
-                // Verificar se há eventos neste dia
                 const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                const hasEvent = events.some(event => event.date === dateStr);
+                const hasEvent = allEvents.some(event => event.date === dateStr);
                 
                 if (hasEvent) {
                     dayDiv.classList.add('has-event');
@@ -657,12 +849,12 @@
             renderCalendar();
         }
 
-        // Renderizar lista de eventos
-        function renderEvents() {
-            const eventsList = document.getElementById('eventsList');
-            const emptyState = document.getElementById('emptyState');
+        // Renderizar todos os eventos
+        function renderAllEvents() {
+            const eventsList = document.getElementById('allEventsList');
+            const emptyState = document.getElementById('allEventsEmpty');
             
-            if (events.length === 0) {
+            if (allEvents.length === 0) {
                 eventsList.innerHTML = '';
                 emptyState.style.display = 'block';
                 return;
@@ -671,16 +863,38 @@
             emptyState.style.display = 'none';
             eventsList.innerHTML = '';
             
-            // Ordenar eventos por data
-            events.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+            allEvents.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
             
-            events.forEach(event => {
-                const eventCard = createEventCard(event);
+            allEvents.forEach(event => {
+                const eventCard = createEventCard(event, false);
                 eventsList.appendChild(eventCard);
             });
         }
 
-        function createEventCard(event) {
+        // Renderizar meus eventos
+        function renderMyEvents() {
+            const eventsList = document.getElementById('myEventsList');
+            const emptyState = document.getElementById('myEventsEmpty');
+            
+            if (myEvents.length === 0) {
+                eventsList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            eventsList.innerHTML = '';
+            
+            myEvents.sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+            
+            myEvents.forEach(event => {
+                const eventCard = createEventCard(event, true);
+                eventsList.appendChild(eventCard);
+            });
+        }
+
+        // Criar card de evento
+        function createEventCard(event, showActions) {
             const card = document.createElement('div');
             card.className = 'event-card';
             
@@ -692,10 +906,23 @@
             });
             const formattedTime = event.time;
             
+            const interested = event.interested || [];
+            const isInterested = interested.includes(currentUser);
+            
             card.innerHTML = `
+                ${showActions ? `
+                <div class="event-actions">
+                    <button class="event-action-btn" onclick="editEvent('${event.id}')">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="event-action-btn delete" onclick="deleteEvent('${event.id}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                ` : ''}
                 <div class="event-header">
                     <div>
-                        <div class="event-title">${escapeHtml(event.title)}</div>
+                        <div class="event-title" onclick="viewEvent('${event.id}')">${escapeHtml(event.title)}</div>
                         <div class="event-date">
                             <i class="bi bi-calendar-event"></i> ${formattedDate} às ${formattedTime}
                         </div>
@@ -703,6 +930,7 @@
                 </div>
                 <div class="event-meta">
                     <span><i class="bi bi-geo-alt"></i> ${escapeHtml(event.location || 'Online')}</span>
+                    <span><i class="bi bi-tag"></i> ${escapeHtml(event.type || 'Evento')}</span>
                     <span><i class="bi bi-person"></i> ${escapeHtml(event.author)}</span>
                 </div>
                 <div class="event-description">
@@ -710,49 +938,149 @@
                 </div>
                 <div class="event-footer">
                     <span class="event-author">Por ${escapeHtml(event.author)}</span>
-                    <span class="event-attendees">
-                        <i class="bi bi-people"></i> ${event.attendees || 0} interessados
-                    </span>
+                    <button class="interest-btn ${isInterested ? 'interested' : ''}" onclick="toggleInterest('${event.id}', this)">
+                        <i class="bi ${isInterested ? 'bi-heart-fill' : 'bi-heart'}"></i>
+                        <span class="interest-count">${interested.length}</span>
+                        <span>${isInterested ? 'Interessado' : 'Tenho Interesse'}</span>
+                    </button>
                 </div>
             `;
             
             return card;
         }
 
-        // Configurar formulário de novo evento
+        // Visualizar evento específico
+        function viewEvent(eventId) {
+            window.location.href = `/event/${eventId}`;
+        }
+
+        // Alternar interesse no evento
+        function toggleInterest(eventId, button) {
+            fetch('/toggle-interest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ eventId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const interested = data.interested || [];
+                    const isInterested = interested.includes(currentUser);
+                    
+                    // Atualizar botão
+                    button.className = `interest-btn ${isInterested ? 'interested' : ''}`;
+                    button.querySelector('i').className = `bi ${isInterested ? 'bi-heart-fill' : 'bi-heart'}`;
+                    button.querySelector('.interest-count').textContent = interested.length;
+                    button.querySelector('span:last-child').textContent = isInterested ? 'Interessado' : 'Tenho Interesse';
+                    
+                    // Atualizar eventos
+                    const eventIndex = allEvents.findIndex(e => e.id === eventId);
+                    if (eventIndex > -1) {
+                        allEvents[eventIndex].interested = interested;
+                    }
+                } else {
+                    alert(data.message || 'Erro ao processar interesse');
+                }
+            })
+            .catch(err => {
+                console.error('Erro:', err);
+                alert('Erro ao processar sua solicitação');
+            });
+        }
+
+        // Editar evento
+        function editEvent(eventId) {
+            const event = myEvents.find(e => e.id === eventId);
+            if (!event) return;
+            
+            document.getElementById('eventId').value = event.id;
+            document.getElementById('eventTitle').value = event.title;
+            document.getElementById('eventDate').value = event.date;
+            document.getElementById('eventTime').value = event.time;
+            document.getElementById('eventLocation').value = event.location;
+            document.getElementById('eventType').value = event.type || '';
+            document.getElementById('eventDescription').value = event.description;
+            document.getElementById('eventImage').value = event.image || '';
+            
+            document.getElementById('newEventModalLabel').textContent = 'Editar Evento';
+            document.getElementById('submitEventBtn').textContent = 'Salvar Alterações';
+            
+            const modal = new bootstrap.Modal(document.getElementById('newEventModal'));
+            modal.show();
+        }
+
+        // Deletar evento
+        function deleteEvent(eventId) {
+            if (!confirm('Tem certeza que deseja excluir este evento?')) return;
+            
+            fetch(`/delete-event/${eventId}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Evento excluído com sucesso!');
+                    loadAllEvents();
+                    loadMyEvents();
+                } else {
+                    alert(data.message || 'Erro ao excluir evento');
+                }
+            })
+            .catch(err => {
+                console.error('Erro:', err);
+                alert('Erro ao excluir evento');
+            });
+        }
+
+        // Configurar formulário de evento
         function setupEventForm() {
             const form = document.getElementById('newEventForm');
+            const modal = document.getElementById('newEventModal');
+            
+            // Reset ao fechar modal
+            modal.addEventListener('hidden.bs.modal', function() {
+                form.reset();
+                document.getElementById('eventId').value = '';
+                document.getElementById('newEventModalLabel').textContent = 'Criar Novo Evento';
+                document.getElementById('submitEventBtn').textContent = 'Criar Evento';
+            });
+            
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                const eventId = document.getElementById('eventId').value;
                 const title = document.getElementById('eventTitle').value;
                 const date = document.getElementById('eventDate').value;
                 const time = document.getElementById('eventTime').value;
                 const location = document.getElementById('eventLocation').value;
+                const type = document.getElementById('eventType').value;
                 const description = document.getElementById('eventDescription').value;
+                const image = document.getElementById('eventImage').value;
                 
-                fetch('/save-event', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ title, date, time, location, description })
+                const url = eventId ? `/update-event/${eventId}` : '/save-event';
+                const method = eventId ? 'PUT' : 'POST';
+                
+                fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, date, time, location, type, description, image })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('newEventModal'));
-                        modal.hide();
+                        const modalInstance = bootstrap.Modal.getInstance(modal);
+                        modalInstance.hide();
                         form.reset();
-                        loadEvents();
-                        alert('Evento criado com sucesso!');
+                        loadAllEvents();
+                        loadMyEvents();
+                        alert(eventId ? 'Evento atualizado com sucesso!' : 'Evento criado com sucesso!');
                     } else {
-                        alert('Erro ao criar evento: ' + (data.message || 'Erro desconhecido'));
+                        alert('Erro: ' + (data.message || 'Erro desconhecido'));
                     }
                 })
                 .catch(error => {
                     console.error('Erro:', error);
-                    alert('Erro ao criar evento. Por favor, tente novamente.');
+                    alert('Erro ao salvar evento. Por favor, tente novamente.');
                 });
             });
         }
@@ -767,7 +1095,8 @@
         // Busca de eventos
         document.getElementById('searchInput').addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
-            const eventCards = document.querySelectorAll('.event-card');
+            const activeTab = document.querySelector('.tab-pane.active');
+            const eventCards = activeTab.querySelectorAll('.event-card');
             let visibleCount = 0;
             
             eventCards.forEach(card => {
@@ -782,13 +1111,26 @@
                 }
             });
             
-            const emptyState = document.getElementById('emptyState');
+            const emptyStateId = activeTab.id === 'all-events' ? 'allEventsEmpty' : 'myEventsEmpty';
+            const emptyState = document.getElementById(emptyStateId);
+            const currentEvents = activeTab.id === 'all-events' ? allEvents : myEvents;
+            
             if (visibleCount === 0 && searchTerm !== '') {
                 emptyState.style.display = 'block';
-            } else if (events.length > 0) {
+            } else if (currentEvents.length > 0) {
                 emptyState.style.display = 'none';
             }
         });
+
+        // Obter usuário atual
+        fetch('/is-logged-in')
+            .then(res => res.json())
+            .then(data => {
+                if (data.loggedIn) {
+                    currentUser = data.usuario;
+                }
+            })
+            .catch(err => console.error('Erro ao verificar login:', err));
     </script>
 </body>
 </html>
