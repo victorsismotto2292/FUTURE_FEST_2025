@@ -59,6 +59,7 @@ body {
     padding: 0 40px;
     position: relative;
     z-index: 10;
+    justify-content: space-between;
 }
 
 .img2_logo {
@@ -106,6 +107,23 @@ body {
 .bar h4 a:hover::after {
     width: 100%;
 }
+
+        .start {
+            color: white;
+            width: 170px;
+            height: 60px;
+            background: transparent;
+            border: 3px solid #FFDD00;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            font-weight: 600;
+        }
+
+        .start:hover {
+            background-color: #ffef8835;
+            transform: translateY(-2px);
+        }
 
 .progress {
     height: 5px;
