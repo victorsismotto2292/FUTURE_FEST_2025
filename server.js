@@ -2412,7 +2412,7 @@ app.post('/save-event', async (req, res) => {
         interested: [] // Array de usuários interessados
     };
     
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2443,7 +2443,7 @@ app.get('/load-events', async (req, res) => {
     if (!req.session.usuario) {
         return res.status(401).json({ error: 'Usuário não logado' });
     }
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2571,7 +2571,7 @@ app.get('/load-my-events', protegerRota, async (req, res) => {
         return res.status(401).json({ events: [] });
     }
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -2596,7 +2596,7 @@ app.get('/load-my-events', protegerRota, async (req, res) => {
 // ROTA PARA VISUALIZAR UM EVENTO ESPECÍFICO
 app.get('/event/:eventId', protegerRota, async (req, res) => {
     const { eventId } = req.params;
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -3040,7 +3040,7 @@ app.post('/toggle-interest', async (req, res) => {
 
     const { eventId } = req.body;
     const usuarioLogado = req.session.usuario;
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -3152,7 +3152,7 @@ app.put('/update-event/:eventId', async (req, res) => {
     const { title, description, date, time, location, type, image } = req.body;
     const usuarioLogado = req.session.usuario;
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
@@ -3196,7 +3196,7 @@ app.delete('/delete-event/:eventId', async (req, res) => {
     const { eventId } = req.params;
     const usuarioLogado = req.session.usuario;
 
-    const cliente = new MongoClient(urlMongo, { useUnifiedTopology: true });
+    const cliente = new MongoClient(urlMongo);
 
     try {
         await cliente.connect();
