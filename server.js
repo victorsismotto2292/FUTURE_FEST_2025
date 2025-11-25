@@ -3077,6 +3077,7 @@ app.get('/event/:eventId', protegerRota, async (req, res) => {
             align-items: center;
             padding: 0 40px;
             position: relative;
+            justify-content: space-between;
         }
 
         .img2_logo {
@@ -3129,6 +3130,23 @@ app.get('/event/:eventId', protegerRota, async (req, res) => {
 
         .progress-bar {
             background: linear-gradient(90deg, #FFDD00, #FED061);
+        }
+
+        .start {
+            color: white;
+            width: 170px;
+            height: 60px;
+            background: transparent;
+            border: 3px solid #FFDD00;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            font-weight: 600;
+        }
+
+        .start:hover {
+            background-color: #ffef8835;
+            transform: translateY(-2px);
         }
 
         .main {
