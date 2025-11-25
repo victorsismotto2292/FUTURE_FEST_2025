@@ -1945,46 +1945,470 @@ app.get('/load-topics', async (req, res) => {
     }
 });
 
-// ROTA PARA ABRIR UM TÓPICO ESPECÍFICO
+// ROTA PARA ABRIR UM TÓPICO ESPECÍFICO - CORRIGIDA
 app.get('/topic/:topicId', protegerRota, async (req, res) => {
     const { topicId } = req.params;
+    const usuarioLogado = req.session.usuario;
     
-    // Por enquanto, vamos só enviar uma página simples
-    // Você pode criar um topic.html mais elaborado depois
-    res.send(`
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-            <meta charset="UTF-8">
-            <title>Tópico - WORKIN</title>
-            <style>
-                body { 
-                    background: #1B2C3E; 
-                    color: white; 
-                    font-family: Arial; 
-                    padding: 40px;
-                    text-align: center;
+    const cliente = new MongoClient(urlMongo);
+
+    try {
+        await cliente.connect();
+        const banco = cliente.db(nomeBanco);
+        const colecaoUsuarios = banco.collection('usuarios');
+
+        // Buscar o tópico em todos os usuários
+        const users = await colecaoUsuarios.find({}).toArray();
+        let topicData = null;
+        let topicAuthor = null;
+
+        for (const user of users) {
+            if (user.topics) {
+                const topic = user.topics.find(t => t.id === topicId);
+                if (topic) {
+                    topicData = topic;
+                    topicAuthor = user.usuario;
+                    break;
                 }
-                h1 { color: #FFDD00; }
-                a { 
-                    display: inline-block;
-                    margin-top: 20px;
-                    padding: 12px 30px;
-                    background: #FFDD00;
-                    color: #1B2C3E;
-                    text-decoration: none;
-                    border-radius: 30px;
-                    font-weight: bold;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>Tópico ID: ${topicId}</h1>
-            <p>Visualização detalhada do tópico será implementada em breve!</p>
-            <a href="/forum">← Voltar ao Fórum</a>
-        </body>
-        </html>
-    `);
+            }
+        }
+
+        if (!topicData) {
+            return res.send(`
+                <!DOCTYPE html>
+                <html lang="pt-BR">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Tópico não encontrado - WORKIN</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                    <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            width: 100%;
+                            min-height: 100vh;
+                            background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
+                                        linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
+                                        radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
+                                        radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
+                                        radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
+                                        linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
+                            display: flex;
+                            flex-direction: column;
+                            font-family: 'Arial', sans-serif;
+                        }
+                        .bar {
+                            margin-top: 30px;
+                            display: flex;
+                            align-items: center;
+                            padding: 0 40px;
+                            position: relative;
+                        }
+                        .img2_logo {
+                            width: 160px;
+                            height: 70px;
+                        }
+                        .bar h4 {
+                            position: absolute;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            margin: 0;
+                            margin-top: 20px;
+                        }
+                        .bar h4 a {
+                            color: white;
+                            text-decoration: none;
+                            margin: 0 20px;
+                            font-size: 19px;
+                            transition: all 0.3s ease;
+                            position: relative;
+                            font-family: 'Jockey One';
+                        }
+                        .bar h4 a::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -5px;
+                            left: 0;
+                            width: 0;
+                            height: 2px;
+                            background: #FFDD00;
+                            transition: width 0.3s ease;
+                        }
+                        .bar h4 a:hover {
+                            color: #FFDD00;
+                        }
+                        .bar h4 a:hover::after {
+                            width: 100%;
+                        }
+                        .start {
+                            color: white;
+                            width: 170px;
+                            height: 60px;
+                            background: transparent;
+                            border: 3px solid #FFDD00;
+                            border-radius: 30px;
+                            cursor: pointer;
+                            transition: all 0.3s ease-in-out;
+                            font-weight: 600;
+                        }
+                        .start:hover {
+                            background-color: #ffef8835;
+                            transform: translateY(-2px);
+                        }
+                        .progress {
+                            height: 5px;
+                            background: rgba(255, 255, 255, 0.1);
+                            margin-top: 10px;
+                        }
+                        .progress-bar {
+                            background: linear-gradient(90deg, #FFDD00, #FED061);
+                        }
+                        .main {
+                            flex: 1;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 60px 20px;
+                        }
+                        .error-content {
+                            text-align: center;
+                            color: white;
+                        }
+                        .error-content h1 {
+                            font-size: 48px;
+                            margin-bottom: 20px;
+                            color: #FFDD00;
+                        }
+                        .error-content p {
+                            font-size: 18px;
+                            margin-bottom: 30px;
+                            color: rgba(255, 255, 255, 0.8);
+                        }
+                        .error-content a {
+                            display: inline-block;
+                            padding: 15px 30px;
+                            background: linear-gradient(90deg, #FFDD00, #FED061);
+                            color: #1B2C3E;
+                            text-decoration: none;
+                            border-radius: 30px;
+                            font-weight: 700;
+                            transition: all 0.3s ease;
+                        }
+                        .error-content a:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 10px 25px rgba(255, 221, 0, 0.3);
+                        }
+                        footer.footer {
+                            padding: 24px 0;
+                            text-align: center;
+                            color: rgba(255,255,255,0.7);
+                            font-size: 14px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <nav class="bar">
+                        <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+                        <h4>
+                            <a href="/">Home</a>
+                            <a href="/planos">Planos e Preços</a>
+                            <a href="/aprender">Aprender</a>
+                            <a href="/parceria">Parceria</a>
+                            <a href="/comunidade">Comunidade</a>
+                            <a href="/suporte">Suporte</a>
+                            <a href="/perfil">Perfil</a>
+                        </h4>
+                        <a href="/perfil"><button class="start">Perfil</button></a>
+                    </nav>
+                    <div class="progress" role="progressbar">
+                        <div class="progress-bar" style="width: 0%"></div>
+                    </div>
+                    <main class="main">
+                        <div class="error-content">
+                            <h1>Tópico não encontrado</h1>
+                            <p>O tópico que você está procurando não existe ou foi removido.</p>
+                            <a href="/forum">← Voltar ao Fórum</a>
+                        </div>
+                    </main>
+                    <footer class="footer">
+                        <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+                    </footer>
+                </body>
+                </html>
+            `);
+        }
+
+        // Renderizar a página do tópico
+        const repliesHtml = (topicData.replies || []).map(reply => `
+            <div class="reply-card">
+                <div class="reply-header">
+                    <span class="reply-author">${reply.author}</span>
+                    <span class="reply-date">${new Date(reply.createdAt).toLocaleDateString('pt-BR')}</span>
+                </div>
+                <div class="reply-content">${reply.content}</div>
+            </div>
+        `).join('');
+
+        const html = `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>${topicData.title} - WORKIN</title>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Jockey+One&display=swap" rel="stylesheet">
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        min-height: 100vh;
+                        background: radial-gradient(47.05% 26.2% at 89.13% 2.41%, rgba(79, 0, 132, 0.25) 0%, rgba(0, 0, 0, 0) 100%), 
+                                    linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), 
+                                    radial-gradient(68.54% 31.49% at -18.54% 39.83%, rgba(255, 255, 255, 0.2) 29.33%, rgba(0, 0, 0, 0) 100%), 
+                                    radial-gradient(74.86% 35.24% at 128.44% 28.27%, rgba(255, 0, 0, 0.36) 0%, rgba(0, 0, 0, 0) 88.46%), 
+                                    radial-gradient(99.97% 29.93% at -34.38% -5.18%, rgba(254, 208, 97, 0.69) 0%, rgba(0, 0, 0, 0) 100%), 
+                                    linear-gradient(180deg, #253D56 0%, #1B2C3E 27.4%, #1B2C3E 63.7%, #000000 100%);
+                        display: flex;
+                        flex-direction: column;
+                        font-family: 'Arial', sans-serif;
+                    }
+                    .bar {
+                        margin-top: 30px;
+                        display: flex;
+                        align-items: center;
+                        padding: 0 40px;
+                        position: relative;
+                    }
+                    .img2_logo {
+                        width: 160px;
+                        height: 70px;
+                    }
+                    .bar h4 {
+                        position: absolute;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        margin: 0;
+                        margin-top: 20px;
+                    }
+                    .bar h4 a {
+                        color: white;
+                        text-decoration: none;
+                        margin: 0 20px;
+                        font-size: 19px;
+                        transition: all 0.3s ease;
+                        position: relative;
+                        font-family: 'Jockey One';
+                    }
+                    .bar h4 a::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -5px;
+                        left: 0;
+                        width: 0;
+                        height: 2px;
+                        background: #FFDD00;
+                        transition: width 0.3s ease;
+                    }
+                    .bar h4 a:hover {
+                        color: #FFDD00;
+                    }
+                    .bar h4 a:hover::after {
+                        width: 100%;
+                    }
+                    .start {
+                        color: white;
+                        width: 170px;
+                        height: 60px;
+                        background: transparent;
+                        border: 3px solid #FFDD00;
+                        border-radius: 30px;
+                        cursor: pointer;
+                        transition: all 0.3s ease-in-out;
+                        font-weight: 600;
+                    }
+                    .start:hover {
+                        background-color: #ffef8835;
+                        transform: translateY(-2px);
+                    }
+                    .progress {
+                        height: 5px;
+                        background: rgba(255, 255, 255, 0.1);
+                        margin-top: 10px;
+                    }
+                    .progress-bar {
+                        background: linear-gradient(90deg, #FFDD00, #FED061);
+                    }
+                    .main {
+                        flex: 1;
+                        padding: 60px 20px;
+                    }
+                    .container {
+                        max-width: 1000px;
+                        margin: 0 auto;
+                    }
+                    .topic-card {
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 2px solid rgba(255, 255, 255, 0.2);
+                        border-radius: 20px;
+                        padding: 40px;
+                        margin-bottom: 30px;
+                    }
+                    .topic-title {
+                        color: #FFDD00;
+                        font-size: 36px;
+                        font-weight: 700;
+                        margin-bottom: 20px;
+                    }
+                    .topic-meta {
+                        display: flex;
+                        gap: 30px;
+                        margin-bottom: 30px;
+                        color: rgba(255, 255, 255, 0.7);
+                        font-size: 14px;
+                    }
+                    .topic-content {
+                        color: rgba(255, 255, 255, 0.9);
+                        font-size: 16px;
+                        line-height: 1.8;
+                        margin-bottom: 30px;
+                    }
+                    .replies-section {
+                        margin-top: 40px;
+                        padding-top: 40px;
+                        border-top: 2px solid rgba(255, 255, 255, 0.2);
+                    }
+                    .replies-title {
+                        color: white;
+                        font-size: 24px;
+                        font-weight: 700;
+                        margin-bottom: 20px;
+                    }
+                    .reply-card {
+                        background: rgba(255, 255, 255, 0.05);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        border-radius: 15px;
+                        padding: 20px;
+                        margin-bottom: 15px;
+                    }
+                    .reply-header {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 10px;
+                    }
+                    .reply-author {
+                        color: #FFDD00;
+                        font-weight: 600;
+                    }
+                    .reply-date {
+                        color: rgba(255, 255, 255, 0.5);
+                        font-size: 12px;
+                    }
+                    .reply-content {
+                        color: rgba(255, 255, 255, 0.8);
+                        font-size: 14px;
+                        line-height: 1.6;
+                    }
+                    .back-btn {
+                        display: inline-block;
+                        padding: 12px 25px;
+                        background: rgba(255, 221, 0, 0.1);
+                        border: 2px solid #FFDD00;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 25px;
+                        font-weight: 600;
+                        transition: all 0.3s ease;
+                        margin-bottom: 30px;
+                    }
+                    .back-btn:hover {
+                        background: rgba(255, 221, 0, 0.2);
+                        transform: translateY(-2px);
+                    }
+                    footer.footer {
+                        padding: 24px 0;
+                        text-align: center;
+                        color: rgba(255,255,255,0.7);
+                        font-size: 14px;
+                    }
+                </style>
+            </head>
+            <body>
+                <nav class="bar">
+                    <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
+                    <h4>
+                        <a href="/">Home</a>
+                        <a href="/planos">Planos e Preços</a>
+                        <a href="/aprender">Aprender</a>
+                        <a href="/parceria">Parceria</a>
+                        <a href="/comunidade">Comunidade</a>
+                        <a href="/suporte">Suporte</a>
+                        <a href="/perfil">Perfil</a>
+                    </h4>
+                    <a href="/perfil"><button class="start">Perfil</button></a>
+                </nav>
+                <div class="progress" role="progressbar">
+                    <div class="progress-bar" style="width: 0%"></div>
+                </div>
+
+                <main class="main">
+                    <div class="container">
+                        <a href="/forum" class="back-btn">← Voltar ao Fórum</a>
+
+                        <div class="topic-card">
+                            <h1 class="topic-title">${topicData.title}</h1>
+                            
+                            <div class="topic-meta">
+                                <span><i class="bi bi-person"></i> ${topicData.author}</span>
+                                <span><i class="bi bi-calendar"></i> ${new Date(topicData.createdAt).toLocaleDateString('pt-BR')}</span>
+                                <span><i class="bi bi-chat-dots"></i> ${(topicData.replies || []).length} respostas</span>
+                            </div>
+
+                            <div class="topic-content">
+                                ${topicData.content}
+                            </div>
+                        </div>
+
+                        ${topicData.replies && topicData.replies.length > 0 ? `
+                            <div class="replies-section">
+                                <h3 class="replies-title">Respostas (${topicData.replies.length})</h3>
+                                ${repliesHtml}
+                            </div>
+                        ` : `
+                            <div class="replies-section">
+                                <p style="color: rgba(255, 255, 255, 0.7); text-align: center;">Nenhuma resposta ainda. Seja o primeiro a responder!</p>
+                            </div>
+                        `}
+                    </div>
+                </main>
+
+                <footer class="footer">
+                    <p>&copy; 2025 WORKIN. Todos os direitos reservados.</p>
+                </footer>
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+            </body>
+            </html>
+        `;
+
+        res.send(html);
+
+    } catch (error) {
+        console.error('Erro ao buscar tópico:', error);
+        res.status(500).send('Erro ao carregar o tópico');
+    } finally {
+        await cliente.close();
+    }
 });
 
 // ROTA PARA CARREGAR APENAS OS TÓPICOS DO USUÁRIO LOGADO
@@ -2871,9 +3295,13 @@ app.get('/event/:eventId', protegerRota, async (req, res) => {
         <img class="img2_logo" src="/img/image2.png" alt="WORKIN Logo">
         <h4>
             <a href="/">Home</a>
+            <a href="/planos">Planos e Preços</a>
+            <a href="/aprender">Aprender</a>
+            <a href="/parceria">Parceria</a>
             <a href="/comunidade">Comunidade</a>
-            <a href="/perfil">Perfil</a>
+            <a href="/suporte">Suporte</a>
         </h4>
+        <a href="/perfil"><button class="start">Perfil</button></a>
     </nav>
     <div class="progress" role="progressbar">
         <div class="progress-bar" style="width: 0%"></div>
