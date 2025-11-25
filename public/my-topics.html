@@ -157,7 +157,7 @@
             border-radius: 20px;
             padding: 25px;
             transition: all 0.3s ease;
-            cursor: pointer;
+            position: relative;
         }
 
         .topic-card:hover {
@@ -165,6 +165,10 @@
             border-color: #FFDD00;
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(255, 221, 0, 0.2);
+        }
+
+        .topic-card-clickable {
+            cursor: pointer;
         }
 
         .topic-title {
@@ -211,6 +215,30 @@
             font-size: 14px;
         }
 
+        .delete-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 68, 68, 0.2);
+            border: 2px solid #ff4444;
+            color: #ff4444;
+            border-radius: 10px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 68, 68, 0.4);
+            transform: scale(1.05);
+        }
+
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -238,6 +266,13 @@
         @media (max-width: 768px) {
             .page-title {
                 font-size: 36px;
+            }
+
+            .delete-btn {
+                position: static;
+                margin-top: 15px;
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -319,23 +354,28 @@
         function createTopicCard(topic) {
             const card = document.createElement('div');
             card.className = 'topic-card';
-            card.onclick = () => openTopic(topic.id);
             
             const date = new Date(topic.createdAt).toLocaleDateString('pt-BR');
             const repliesCount = topic.replies ? topic.replies.length : 0;
             
             card.innerHTML = `
-                <div class="topic-title">${escapeHtml(topic.title)}</div>
-                <div class="topic-meta">
-                    <span><i class="bi bi-calendar"></i> ${date}</span>
-                </div>
-                <div class="topic-content">
-                    ${escapeHtml(topic.content).substring(0, 200)}${topic.content.length > 200 ? '...' : ''}
-                </div>
-                <div class="topic-footer">
-                    <span class="topic-replies">
-                        <i class="bi bi-chat-dots"></i> ${repliesCount} ${repliesCount === 1 ? 'resposta' : 'respostas'}
-                    </span>
+                <button class="delete-btn" onclick="deleteTopic(event, '${topic.id}')">
+                    <i class="bi bi-trash"></i>
+                    <span>Excluir</span>
+                </button>
+                <div class="topic-card-clickable" onclick="openTopic('${topic.id}')">
+                    <div class="topic-title">${escapeHtml(topic.title)}</div>
+                    <div class="topic-meta">
+                        <span><i class="bi bi-calendar"></i> ${date}</span>
+                    </div>
+                    <div class="topic-content">
+                        ${escapeHtml(topic.content).substring(0, 200)}${topic.content.length > 200 ? '...' : ''}
+                    </div>
+                    <div class="topic-footer">
+                        <span class="topic-replies">
+                            <i class="bi bi-chat-dots"></i> ${repliesCount} ${repliesCount === 1 ? 'resposta' : 'respostas'}
+                        </span>
+                    </div>
                 </div>
             `;
             
@@ -344,6 +384,34 @@
 
         function openTopic(topicId) {
             window.location.href = `/topic-detail.html?id=${topicId}`;
+        }
+
+        function deleteTopic(event, topicId) {
+            event.stopPropagation(); // Impede que o clique abra o tópico
+            
+            if (!confirm('Tem certeza que deseja excluir este tópico? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+
+            fetch(`/delete-topic/${topicId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Tópico excluído com sucesso!');
+                    loadMyTopics(); // Recarrega a lista de tópicos
+                } else {
+                    alert('Erro ao excluir tópico: ' + (data.message || 'Erro desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao excluir tópico. Por favor, tente novamente.');
+            });
         }
 
         function escapeHtml(text) {

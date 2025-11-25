@@ -1106,15 +1106,13 @@ app.post('/login', async (req, res) => {
 
         if(usuario && await bcrypt.compare(req.body.senha, usuario.senha)){
             req.session.usuario = req.body.usuario;
-            req.session.loginTime = new Date();
+            req.session.loginTime = new Date(); // Hora de início da sessão
             
-
             return req.session.save(err => {
                 if (err) {
                     console.error('Erro ao salvar sessão durante o login:', err);
                     return res.redirect('/erro');
                 }
-
                 res.redirect('/');
             });
         }
@@ -1173,7 +1171,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/get-profile-data', async (req, res) => {
+app.get('/get-profile-stats', async (req, res) => {
     const usuario = req.session.usuario;
     if (!usuario) {
         return res.status(401).json({ error: 'Não autenticado' });
@@ -1181,24 +1179,9 @@ app.get('/get-profile-data', async (req, res) => {
 
     const loginTime = req.session.loginTime;
     const currentTime = new Date();
-    const diffMs = currentTime - new Date(loginTime);
     
-    // Converter para formato legível
-    let timeString = '';
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-
-    if (days > 0) {
-        timeString = `${days} dia${days > 1 ? 's' : ''}, ${hours}h`;
-    } else if (hours > 0) {
-        timeString = `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-        timeString = `${minutes}m ${seconds}s`;
-    } else {
-        timeString = `${seconds}s`;
-    }
+    // Calcular tempo online da sessão atual em segundos
+    const currentSessionTime = loginTime ? Math.floor((currentTime - new Date(loginTime)) / 1000) : 0;
 
     const cliente = new MongoClient(urlMongo);
     try {
@@ -1207,26 +1190,61 @@ app.get('/get-profile-data', async (req, res) => {
         const colecaoUsuarios = banco.collection('usuarios');
 
         const usuarioDoc = await colecaoUsuarios.findOne({ usuario });
-        const topics = usuarioDoc?.topics || [];
-        const certifications = usuarioDoc?.certifications || [];
 
-        // Contar certificados
-        let certCount = 0;
-        topics.forEach(topic => {
-            if (topic.certifications) {
-                certCount += topic.certifications.length;
+        if (!usuarioDoc) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        // Contar currículos
+        const curriculos = usuarioDoc.curriculos || [];
+        const cursosCount = curriculos.length;
+
+        // Contar certificados (soma de todas as certificações em todos os currículos)
+        let certificadosCount = 0;
+        curriculos.forEach(curriculo => {
+            if (curriculo.certificacoes) {
+                certificadosCount += Object.keys(curriculo.certificacoes).length;
             }
         });
 
+        // Contar tópicos
+        const topics = usuarioDoc.topics || [];
+        const topicsCount = topics.length;
+
+        // Tempo total logado (sessões anteriores + sessão atual)
+        const totalTimeLogged = (usuarioDoc.totalTimeLogged || 0) + currentSessionTime;
+
+        // Formatar tempos
+        function formatTime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+
+            if (days > 0) {
+                return `${days}d ${hours}h ${minutes}m`;
+            } else if (hours > 0) {
+                return `${hours}h ${minutes}m ${secs}s`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s`;
+            } else {
+                return `${secs}s`;
+            }
+        }
+
         res.json({
             usuario,
-            timeLoggedIn: timeString,
-            courses: topics.length,
-            certificates: certCount,
+            cursos: cursosCount,
+            certificados: certificadosCount,
+            topicos: topicsCount,
+            tempoOnline: currentSessionTime, // em segundos (para o cronômetro)
+            tempoOnlineFormatado: formatTime(currentSessionTime),
+            tempoLogadoTotal: totalTimeLogged, // em segundos
+            tempoLogadoTotalFormatado: formatTime(totalTimeLogged),
             loginTime: loginTime
         });
     } catch (error) {
-        console.error('Erro ao buscar dados do perfil:', error);
+        console.error('Erro ao buscar estatísticas do perfil:', error);
         res.status(500).json({ error: 'Erro ao buscar dados' });
     } finally {
         await cliente.close();
@@ -1268,7 +1286,45 @@ app.get('/is-logged-in', (req, res) => {
 });
 
 // ROTA LOGOUT
-app.get('/logout', (req, res) => {
+app.get('/logout', async (req, res) => {
+    if (!req.session.usuario) {
+        return res.redirect('/');
+    }
+
+    const usuario = req.session.usuario;
+    const loginTime = req.session.loginTime;
+    
+    if (loginTime) {
+        const logoutTime = new Date();
+        const sessionDuration = Math.floor((logoutTime - new Date(loginTime)) / 1000); // em segundos
+        
+        // Salvar o tempo da sessão no banco
+        const cliente = new MongoClient(urlMongo);
+        try {
+            await cliente.connect();
+            const banco = cliente.db(nomeBanco);
+            const colecaoUsuarios = banco.collection('usuarios');
+            
+            await colecaoUsuarios.updateOne(
+                { usuario },
+                { 
+                    $inc: { totalTimeLogged: sessionDuration }, // Incrementa o tempo total
+                    $push: { 
+                        sessionHistory: {
+                            loginTime: new Date(loginTime),
+                            logoutTime: logoutTime,
+                            duration: sessionDuration
+                        }
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Erro ao salvar tempo de sessão:', error);
+        } finally {
+            await cliente.close();
+        }
+    }
+
     req.session.destroy((err) => {
         if (err) {
             return res.redirect('/');
@@ -1517,7 +1573,7 @@ app.get('/perfil', protegerRota, (req, res) => {
             letter-spacing: 1px;
         }
 
-        .profile-info #username, .profile-info #timeLogged {
+        .profile-info #username, .profile-info .time-display {
             color: white;
             font-size: 24px;
             font-weight: 700;
@@ -1563,7 +1619,6 @@ app.get('/perfil', protegerRota, (req, res) => {
 
         .loading {
             color: rgba(255, 255, 255, 0.6);
-            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -1668,7 +1723,7 @@ app.get('/perfil', protegerRota, (req, res) => {
                 </div>
                 <div class="stat-item">
                     <i class="bi bi-clock-history"></i>
-                    <div class="stat-value" id="timeOnline">0</div>
+                    <div class="stat-value time-display" id="timeOnline">0s</div>
                     <div class="stat-label">Tempo Online</div>
                 </div>
                 <div class="stat-item">
@@ -1679,11 +1734,11 @@ app.get('/perfil', protegerRota, (req, res) => {
             </div>
 
             <div class="profile-info">
-                <p><strong>Usuário:</strong><span id="username" class="loading">${usuario}</span></p>
+                <p><strong>Usuário:</strong><span id="username">${usuario}</span></p>
             </div>
 
             <div class="profile-info">
-                <p><strong>Tempo Logado:</strong><span id="timeLogged" class="loading">0</span></p>
+                <p><strong>Tempo Total Logado:</strong><span class="time-display" id="timeLoggedTotal">0s</span></p>
             </div>
 
             <a href="/logout"><button class="btn-logout">Logout</button></a>
@@ -1696,21 +1751,85 @@ app.get('/perfil', protegerRota, (req, res) => {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Buscar estatísticas do usuário
-        fetch('/get-user-stats')
-            .then(response => response.json())
-            .then(data => {
-                // Atualizar os valores na página
-                document.querySelector('.stat-item:nth-child(1) .stat-value').textContent = data.cursos || 0;
-                document.querySelector('.stat-item:nth-child(2) .stat-value').textContent = data.certificados || 0;
-                document.querySelector('.stat-item:nth-child(3) .stat-value').textContent = data.tempoOnline || '0h';
-            })
-            .catch(error => {
-                console.error('Erro ao carregar estatísticas:', error);
-            });
-    });
-</script>
+        let currentSessionSeconds = 0;
+        let totalLoggedSeconds = 0;
+
+        // Função para formatar tempo
+        function formatTime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+
+            if (days > 0) {
+                return days + 'd ' + hours + 'h ' + minutes + 'm';
+            } else if (hours > 0) {
+                return hours + 'h ' + minutes + 'm ' + secs + 's';
+            } else if (minutes > 0) {
+                return minutes + 'm ' + secs + 's';
+            } else {
+                return secs + 's';
+            }
+        }
+
+        // Função para atualizar estatísticas
+        function updateStats() {
+            fetch('/get-profile-stats')
+                .then(response => response.json())
+                .then(data => {
+                    // Atualizar contadores
+                    document.getElementById('coursesCount').textContent = data.cursos || 0;
+                    document.getElementById('certificatesCount').textContent = data.certificados || 0;
+                    document.getElementById('topicsCount').textContent = data.topicos || 0;
+
+                    // Inicializar os tempos
+                    currentSessionSeconds = data.tempoOnline || 0;
+                    totalLoggedSeconds = data.tempoLogadoTotal || 0;
+
+                    // Atualizar displays de tempo
+                    document.getElementById('timeOnline').textContent = formatTime(currentSessionSeconds);
+                    document.getElementById('timeLoggedTotal').textContent = formatTime(totalLoggedSeconds);
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar estatísticas:', error);
+                });
+        }
+
+        // Cronômetro em tempo real
+        function startTimer() {
+            setInterval(() => {
+                currentSessionSeconds++;
+                totalLoggedSeconds++;
+
+                document.getElementById('timeOnline').textContent = formatTime(currentSessionSeconds);
+                document.getElementById('timeLoggedTotal').textContent = formatTime(totalLoggedSeconds);
+            }, 1000); // Atualiza a cada 1 segundo
+        }
+
+        // Inicializar ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            
+            // Iniciar cronômetro após carregar os dados iniciais
+            setTimeout(() => {
+                startTimer();
+            }, 500);
+
+            // Atualizar estatísticas a cada 30 segundos (para sincronizar com o servidor)
+            setInterval(() => {
+                fetch('/get-profile-stats')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('coursesCount').textContent = data.cursos || 0;
+                        document.getElementById('certificatesCount').textContent = data.certificados || 0;
+                        document.getElementById('topicsCount').textContent = data.topicos || 0;
+                    })
+                    .catch(error => {
+                        console.error('Erro ao atualizar estatísticas:', error);
+                    });
+            }, 30000);
+        });
+    </script>
 </body>
 </html>
     `;
